@@ -14,12 +14,19 @@ DATABASE = {
     'DB_NAME': os.environ.get('DB_NAME')
 }
 
+# Google auth configuration
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+GOOGLE_DISCOVERY_URL = (
+    "https://accounts.google.com/.well-known/openid-configuration"
+)
+
 
 class Config:
     """
         A class to configurate APP from object.
     """
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:"\
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:" \
                               f"{DATABASE['POSTGRES_PASSWORD']}@" \
                               f"{DATABASE['HOST']}:{DATABASE['PORT']}/{DATABASE['DB_NAME']}"
 
