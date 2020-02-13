@@ -1,7 +1,6 @@
 """
  Run server.
 """
-
 from app import APP
 
 
