@@ -1,3 +1,7 @@
+"""
+    Configuration module for APP.
+"""
+
 import os
 
 BASEDIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
@@ -12,7 +16,12 @@ DATABASE = {
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:{DATABASE['POSTGRES_PASSWORD']}@{DATABASE['HOST']}:{DATABASE['PORT']}/{DATABASE['DB_NAME']}"
+    """
+        A class to configurate APP from object.
+    """
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:"\
+                              f"{DATABASE['POSTGRES_PASSWORD']}@" \
+                              f"{DATABASE['HOST']}:{DATABASE['PORT']}/{DATABASE['DB_NAME']}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
