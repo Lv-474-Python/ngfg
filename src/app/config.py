@@ -26,17 +26,3 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MIGRATION_DIR = os.path.join(BASEDIR, 'migrations')
-
-    def config_public(self):
-        """
-            A public method.
-        :return: None
-        """
-        pass
-
-    def another_config_public(self):
-        """
-            Another public method.
-        :return: None
-        """
-        pass
