@@ -15,5 +15,5 @@ MIGRATE = Migrate(APP, DB, directory=APP.config['MIGRATION_DIR'])
 MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 
-from .routers import main
+from .routers import main # pylint: disable=wrong-import-position
 from .models import *
