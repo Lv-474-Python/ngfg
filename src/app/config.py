@@ -26,3 +26,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MIGRATION_DIR = os.path.join(BASEDIR, 'migrations')
+
+    def foo(self):
+        pass
+
+    def another_foo(self):
+        pass
