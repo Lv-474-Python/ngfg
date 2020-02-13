@@ -25,26 +25,26 @@ GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
 
-from .db import init_db_command
-from .user import User
+# from .db import init_db_command
+# from .user import User
 
 APP.secret_key = os.urandom(24)
 
 login_manager = LoginManager()
 login_manager.init_app(APP)
 
-try:
-    init_db_command()
-except sqlite3.OperationalError:
-    # Assume it's already been created
-    pass
+# try:
+#     init_db_command()
+# except sqlite3.OperationalError:
+#     # Assume it's already been created
+#     pass
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
 
 
 @APP.route('/home_page/')
@@ -113,15 +113,15 @@ def callback():
     else:
         return "User email not available or not verified by Google", 400
 
-    user = User(id_=token, name=username, email=email)
-
-    # Doesn't exist? Add it to the database.
-    if not User.get(token):
-        User.create(token, username, email)
-
-    login_user(user)
-
-    return redirect(url_for("index"))
+    # user = User(id_=token, name=username, email=email)
+    #
+    # # Doesn't exist? Add it to the database.
+    # if not User.get(token):
+    #     User.create(token, username, email)
+    #
+    # login_user(user)
+    #
+    # return redirect(url_for("index"))
 
 
 @APP.route('/logout/')
