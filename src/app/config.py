@@ -27,8 +27,16 @@ class Config:
 
     MIGRATION_DIR = os.path.join(BASEDIR, 'migrations')
 
-    def foo(self):
+    def config_public(self):
+        """
+            A public method.
+        :return: None
+        """
         pass
 
-    def another_foo(self):
+    def another_config_public(self):
+        """
+            Another public method.
+        :return: None
+        """
         pass
