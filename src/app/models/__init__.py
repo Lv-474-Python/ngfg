@@ -2,4 +2,4 @@
 Init models
 '''
 from .users import User
-from . import answer
+from .answer import Answer
