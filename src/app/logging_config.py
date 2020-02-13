@@ -1,12 +1,12 @@
 """
-Logger to collect data (warnings,errors and critical errors) into .log file
+Logger to collect data (warnings,errors and critical errors) into .logs file
 """
 import logging
 
 
 def create_logger():
     """
-    Creates logger that saves log to .log file and outputs logs to console
+    Creates logger that saves logs to .logs file and outputs logs to console
     """
     logger = logging.getLogger('file_console_logger')
     logger.setLevel(logging.DEBUG)
@@ -14,7 +14,8 @@ def create_logger():
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s - %(message)s')
 
     # Saves to file
-    file_logger = logging.FileHandler(filename='WARNINGS.log')
+    # TODO add creaton of log folder
+    file_logger = logging.FileHandler(filename='WARNINGS.logs')
     file_logger.setLevel(logging.WARNING)
     file_logger.setFormatter(formatter)
     logger.addHandler(file_logger)
