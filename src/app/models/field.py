@@ -4,7 +4,7 @@ Field model
 
 from app import DB
 
-#TODO - import in __init__.py in /models
+
 class Field(DB.Model):
     """
     Field model class
@@ -18,21 +18,28 @@ class Field(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     name = DB.Column(DB.String, unique=False, nullable=False)
     owner_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
-    type = DB.Column(DB.SmallInteger, unique=False, nullable=True)
+    field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
 
-    # change to field_type
-    # index - чи мені треба індекси
-
-    def __init__(self, name, owner_id=None, type=None):
-        #TODO - docstring
+    def __init__(self, name, owner_id, field_type):
+        """
+        :param name: field short name
+        :param owner_id: user that created field
+        :param field_type: field type
+        """
         self.name = name
         self.owner_id = owner_id
-        self.type = type
+        self.field_type = field_type
 
     @staticmethod
-    def create(name, owner_id, type):
-        #TODO - docstring
-        field = Field(name, owner_id, type)
+    def create(name, owner_id, field_type):
+        """
+        method to create Field instance
+
+        :param name:  field short name
+        :param owner_id: user that created field
+        :param field_type: field type
+        """
+        field = Field(name, owner_id, field_type)
         DB.session.add(field)
         DB.session.commit()
         return field
