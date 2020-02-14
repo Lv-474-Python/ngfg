@@ -17,3 +17,6 @@ class User(AbstractModel, UserMixin):
     username = DB.Column(DB.String, unique=True, nullable=False)
     email = DB.Column(DB.String, unique=True, nullable=False)
     google_token = DB.Column(DB.Text, unique=True, nullable=False)
+
+    forms = DB.relationship('Form', backref='owner')
+    fields = DB.relationship('Field', backref='owner')
