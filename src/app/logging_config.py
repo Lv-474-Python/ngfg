@@ -1,21 +1,24 @@
 """
-Logger to collect data (warnings,errors and critical errors) into .logs file
+Logger to collect data (warnings,errors and critical errors) into .log file
 """
 import logging
+import os
+from logging.handlers import RotatingFileHandler
 
 
-def create_logger():
+def create_logger(log_dir):
     """
     Creates logger that saves logs to .logs file and outputs logs to console
     """
-    logger = logging.getLogger('file_console_logger')
-    logger.setLevel(logging.DEBUG)
-
+    logger = logging.getLogger('logger')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s - %(message)s')
 
+    # Creates folder if don't exist
+    os.makedirs(log_dir, exist_ok=True)
+    save_filename = os.path.join(log_dir, 'warning.logs')
+
     # Saves to file
-    # TODO add creaton of log folder
-    file_logger = logging.FileHandler(filename='WARNINGS.logs')
+    file_logger = RotatingFileHandler(filename=save_filename, maxBytes=100000, backupCount=2)
     file_logger.setLevel(logging.WARNING)
     file_logger.setFormatter(formatter)
     logger.addHandler(file_logger)
