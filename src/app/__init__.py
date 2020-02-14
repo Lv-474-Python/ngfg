@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
+from .logging_config import create_logger
 
 from oauthlib.oauth2 import WebApplicationClient
 
@@ -21,6 +22,7 @@ DB = SQLAlchemy(APP)
 MIGRATE = Migrate(APP, DB, directory=APP.config['MIGRATION_DIR'])
 MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
+LOGGER = create_logger(APP.config['LOG_DIR'])
 
 BLUEPRINT = Blueprint('api', __name__, url_prefix='/api')
 API = Api(
