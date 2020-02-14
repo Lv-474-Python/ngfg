@@ -6,7 +6,9 @@ from app import DB
 
 class AbstractModel(DB.Model):
     """abstract model class"""
+
     __abstract__ = True
+
     id = DB.Column(DB.Integer, primary_key=True)
 
     @classmethod
@@ -16,7 +18,7 @@ class AbstractModel(DB.Model):
         :param value:
         :return:
         """
-        instance = cls(kwargs)
+        instance = cls(**kwargs)
         try:
             DB.session.add(instance)
             DB.session.commit()
