@@ -3,10 +3,14 @@ ChoiceOption model
 """
 
 from app import DB
+from .abstract_model import AbstractModel
 
-class ChoiceOption(DB.Model):
+class ChoiceOption(AbstractModel):
     """
     ChoiceOption model class
+
+    :param field_id: id of field that has this option
+    :param option_text: choice option value
     """
 
     __tablename__ = 'choice_options'
@@ -14,22 +18,8 @@ class ChoiceOption(DB.Model):
         DB.UniqueConstraint('field_id', 'option_text', name='unique_field_option_text'),
     )
 
-    id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'))
     option_text = DB.Column(DB.Text, unique=False, nullable=False)
 
-    def __init__(self, field_id, option_text):
-        """
-        :param field_id: field that has this 
-        :param option_text: 
-        """
-        self.field_id = field_id
-        self.option_text = option_text
-
-    # @staticmethod
-    # def create(name, field_id, option_text):
-    #     #TODO - docstring
-    #     choice_option = ChoiceOption(field_id, option_text)
-    #     DB.session.add(choice_option)
-    #     DB.session.commit()
-    #     return choice_option
+    def __repr__(self):
+        return (f'<ChoiceOption {self.id}, text - {self.option_text}. Field {self.field.id}>')
