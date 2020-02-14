@@ -28,7 +28,7 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_flask_sqlalchemy
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -138,8 +138,7 @@ disable=print-statement,
         xreadlines-attribute,
         deprecated-sys-function,
         exception-escape,
-        comprehension-escape,
-        no-member
+        comprehension-escape
 
 
 
