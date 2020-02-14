@@ -1,3 +1,6 @@
+"""
+app to auth user by google services
+"""
 import json
 import os
 import requests
@@ -12,18 +15,27 @@ from flask_login import (
 
 from app import APP, LOGIN_MANAGER, GOOGLE_CLIENT
 from ..config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_DISCOVERY_URL
-from ..models.users import User
+from ..models.user import User
 
-APP.secret_key = os.urandom(24)
+APP.secret_key = os.environ.get("APP_SECRET_KEY")
 
 
 @LOGIN_MANAGER.user_loader
-def load_user(user_id):
-    return User.query.filter(User.id == user_id).first()
+def _load_user(user_id):
+    """
+    Load user from db by id. This method for LOGIN_MANAGER to handle session
+    :param user_id:
+    :return:
+    """
+    return User.get_by_id(user_id)
 
 
 @APP.route('/home_page/')
 def index():
+    """
+    Base page
+    :return:
+    """
     if current_user.is_authenticated:
         return (
             f"Hello, {current_user.username} <br>"
@@ -34,11 +46,19 @@ def index():
 
 
 def _get_google_provider_cfg():
+    """
+    return google config to authorization
+    :return:
+    """
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 @APP.route('/login')
 def login():
+    """
+    view for google login page
+    :return:
+    """
     google_provider_cfg = _get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg['authorization_endpoint']
 
@@ -53,6 +73,10 @@ def login():
 
 @APP.route('/login/callback')
 def callback():
+    """
+    View for google callback
+    :return:
+    """
     code = request.args.get('code')
 
     google_provider_cfg = _get_google_provider_cfg()
@@ -88,10 +112,10 @@ def callback():
     else:
         return "User email not available or not verified by Google", 400
 
-    if not User.query.filter(User.google_token == google_token).first():
+    user = User.get_by_google_token(google_token)
+
+    if user is None:
         user = User.create(username=username, email=email, google_token=google_token)
-    else:
-        user = User.query.filter(User.google_token == google_token).first()
 
     login_user(user)
 
@@ -101,5 +125,9 @@ def callback():
 @APP.route('/logout/')
 @login_required
 def logout():
+    """
+    View for logout
+    :return:
+    """
     logout_user()
     return redirect(url_for('index'))

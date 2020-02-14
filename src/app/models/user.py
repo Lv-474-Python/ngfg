@@ -18,15 +18,12 @@ class User(AbstractModel, UserMixin):
     email = DB.Column(DB.String, unique=True, nullable=False)
     google_token = DB.Column(DB.Text, unique=True, nullable=False)
 
-    def __init__(self, username, email, google_token):
+    @classmethod
+    def get_by_google_token(cls, google_token):
         """
-
-        :param username:
-        :param email:
+        Return user by google token
         :param google_token:
+        :return:
         """
-
-        super().__init__(self)
-        self.username = username
-        self.email = email
-        self.google_token = google_token
+        user = cls.query.filter(cls.google_token == google_token).first()
+        return user

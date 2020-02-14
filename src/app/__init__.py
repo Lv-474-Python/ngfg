@@ -8,9 +8,8 @@ from flask_login import LoginManager
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
-from .logging_config import create_logger
-
 from oauthlib.oauth2 import WebApplicationClient
+from .logging_config import create_logger
 
 from .config import Config, GOOGLE_CLIENT_ID
 

@@ -28,7 +28,12 @@ class AbstractModel(DB.Model):
 
     @classmethod
     def get_by_id(cls, pk):  # pylint: disable=invalid-name
-        """get by id"""
+        """
+
+        :param pk:
+        :return:
+        """
+        return cls.query.get({'id': pk})
 
     @classmethod
     def update(cls, **kwargs):
