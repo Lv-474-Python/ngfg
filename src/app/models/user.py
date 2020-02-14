@@ -4,7 +4,7 @@ User model
 
 from flask_login import UserMixin
 from app import DB
-from .abstractModel import AbstractModel
+from .abstract_model import AbstractModel
 
 
 class User(AbstractModel, UserMixin):

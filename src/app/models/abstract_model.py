@@ -1,17 +1,13 @@
+"""abstract model"""
 from sqlalchemy.exc import IntegrityError
 
 from app import DB
 
 
-class AbstractModel(DB.model):
+class AbstractModel(DB.Model):
+    """abstract model class"""
     __abstract__ = True
-    id = DB.column(DB.Integer, primary_key=True)
-
-    def __init__(self):
-        """
-
-        :param value:
-        """
+    id = DB.Column(DB.Integer, primary_key=True)
 
     @classmethod
     def create(cls, **kwargs):
@@ -29,7 +25,7 @@ class AbstractModel(DB.model):
         return instance
 
     @classmethod
-    def get_by_id(cls, id):
+    def get_by_id(cls, pk):  # pylint: disable=invalid-name
         """get by id"""
 
     @classmethod
@@ -37,10 +33,5 @@ class AbstractModel(DB.model):
         """update"""
 
     @classmethod
-    def delete_by_id(cls, id):
+    def delete_by_id(cls, pk):  # pylint: disable=invalid-name
         """delete by id"""
-
-    @classmethod
-    def get_by_id(cls, id):
-        """get by id"""
-

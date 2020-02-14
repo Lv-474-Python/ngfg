@@ -1,6 +1,6 @@
 """Answer model"""
 from app import DB
-from .abstractModel import AbstractModel
+from .abstract_model import AbstractModel
 
 
 class Answer(AbstractModel):
@@ -15,7 +15,4 @@ class Answer(AbstractModel):
 
         :param value:
         """
-        super().__init__(self)
         self.value = value
-
-
