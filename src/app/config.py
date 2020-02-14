@@ -27,4 +27,9 @@ class Config:
 
     MIGRATION_DIR = os.path.join(BASEDIR, 'migrations')
 
+    # Swagger
+    SWAGGER_UI_DOC_EXPANSION = 'list'
+    SWAGGER_UI_OPERATION_ID = True
+    SWAGGER_UI_REQUEST_DURATION = True
+
     LOG_DIR = os.path.join(BASEDIR, 'logs')

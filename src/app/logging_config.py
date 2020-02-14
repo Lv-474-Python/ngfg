@@ -15,10 +15,10 @@ def create_logger(log_dir):
 
     # Creates folder if don't exist
     os.makedirs(log_dir, exist_ok=True)
-    save_filename = os.path.join(log_dir, 'warning.logs')
+    save_filename = os.path.join(log_dir, 'warning.log')
 
     # Saves to file
-    file_logger = RotatingFileHandler(filename=save_filename, maxBytes=100000, backupCount=2)
+    file_logger = RotatingFileHandler(filename=save_filename, maxBytes=1000000, backupCount=2)
     file_logger.setLevel(logging.WARNING)
     file_logger.setFormatter(formatter)
     logger.addHandler(file_logger)
