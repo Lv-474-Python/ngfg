@@ -5,7 +5,7 @@ User model
 from flask_login import UserMixin
 from app import DB
 from .abstract_model import AbstractModel
-from .form import Form
+
 
 class User(AbstractModel, UserMixin):
     '''
@@ -18,4 +18,5 @@ class User(AbstractModel, UserMixin):
     email = DB.Column(DB.String, unique=True, nullable=False)
     google_token = DB.Column(DB.Text, unique=True, nullable=False)
 
-    form = DB.relationship(Form, backref='owner')
+    forms = DB.relationship('Form', backref='owner')
+    fields = DB.relationship('Field', backref='owner')
