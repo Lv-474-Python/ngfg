@@ -1,5 +1,5 @@
 '''
 Init models
 '''
-from .users import User
+from .user import User
 from .answer import Answer
