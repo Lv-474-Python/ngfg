@@ -33,13 +33,13 @@ def index():
     return '<a class="button" href="/login">Google Login</a>'
 
 
-def get_google_provider_cfg():
+def _get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 @APP.route('/login')
 def login():
-    google_provider_cfg = get_google_provider_cfg()
+    google_provider_cfg = _get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg['authorization_endpoint']
 
     request_uri = GOOGLE_CLIENT.prepare_request_uri(
@@ -55,7 +55,7 @@ def login():
 def callback():
     code = request.args.get('code')
 
-    google_provider_cfg = get_google_provider_cfg()
+    google_provider_cfg = _get_google_provider_cfg()
     token_endpoint = google_provider_cfg['token_endpoint']
 
     token_url, headers, body = GOOGLE_CLIENT.prepare_token_request(
