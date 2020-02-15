@@ -26,7 +26,7 @@ class Config:
     """
         A class to configurate APP from object.
     """
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:" \
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:"\
                               f"{DATABASE['POSTGRES_PASSWORD']}@" \
                               f"{DATABASE['HOST']}:{DATABASE['PORT']}/{DATABASE['DB_NAME']}"
 
