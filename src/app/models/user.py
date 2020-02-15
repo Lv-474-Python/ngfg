@@ -27,3 +27,5 @@ class User(AbstractModel, UserMixin):
         """
         user = cls.query.filter(cls.google_token == google_token).first()
         return user
+    forms = DB.relationship('Form', backref='owner')
+    fields = DB.relationship('Field', backref='owner')
