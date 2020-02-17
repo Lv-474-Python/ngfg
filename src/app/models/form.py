@@ -27,3 +27,4 @@ class Form(AbstractModel):
     title = DB.Column(DB.String, nullable=False)
     result_url = DB.Column(DB.Text)
     fields = DB.relationship('FormField', backref='form')
+    form_results = DB.relationship('FormResult', backref='form')
