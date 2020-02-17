@@ -25,5 +25,6 @@ class SettingAutocomplete(AbstractModel):
                          nullable=False)
 
     def __repr__(self):
-        return f"<SettingAutocomplete {self.id}, data_url - {self.data_url}, sheet - {self.sheet}, " \
-               f"from_row - {self.from_row}, to_row - {self.to_row}, Field - {self.field.id}"
+        return (f"<SettingAutocomplete {self.id}, data_url - {self.data_url}', "
+                f"sheet - {self.sheet}, from_row - {self.from_row}, "
+                f"to_row - {self.to_row}, Field - {self.field.id}")
