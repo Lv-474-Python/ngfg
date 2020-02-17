@@ -11,7 +11,7 @@ class FieldRange(AbstractModel):
     FieldRange model class
 
     :param field_id: a field to which range restriction applies to
-    "param range_id: a range restriction that is applied to the field
+    :param range_id: a range restriction that is applied to the field
     """
 
     __tablename__ = "fields_range"

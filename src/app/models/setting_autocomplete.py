@@ -20,7 +20,6 @@ class SettingAutocomplete(AbstractModel):
     sheet = DB.Column(DB.Text, nullable=False)
     from_row = DB.Column(DB.String, nullable=True)
     to_row = DB.Column(DB.String, nullable=True)
-
     field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'),
                          nullable=False)
 

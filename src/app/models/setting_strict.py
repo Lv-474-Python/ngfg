@@ -2,6 +2,7 @@
 from app import DB
 from .abstract_model import AbstractModel
 
+
 class SettingStrict(AbstractModel):
     """
     Contains bool value if type is strict. Uses as validation to the user's answer.
