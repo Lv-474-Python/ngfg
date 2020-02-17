@@ -15,7 +15,7 @@ class SharedField(AbstractModel):
     """
     __tablename__ = "shared_fields"
     __table_args__ = (
-        DB.UniqueConstraint('user_id', 'field_id', name='unique_user_field')
+        DB.UniqueConstraint('user_id', 'field_id', name='unique_user_field'),
     )
 
     user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
