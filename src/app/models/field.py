@@ -25,3 +25,4 @@ class Field(AbstractModel):
     field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
 
     choice_options = DB.relationship('ChoiceOption', backref='field')
+    shared_fields = DB.relationship('SharedField', backref='field')
