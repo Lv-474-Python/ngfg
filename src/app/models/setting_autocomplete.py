@@ -23,3 +23,7 @@ class SettingAutocomplete(AbstractModel):
 
     field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'),
                          nullable=False)
+
+    def __repr__(self):
+        return f"<SettingAutocomplete {self.id}, data_url - {self.data_url}, sheet - {self.sheet}, " \
+               f"from_row - {self.from_row}, to_row - {self.to_row}, Field - {self.field.id}"
