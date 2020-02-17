@@ -28,3 +28,4 @@ class Field(AbstractModel):
     shared_fields = DB.relationship('SharedField', backref='field')
     settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
     fields_range = DB.relationship('FieldRange', backref='field')
+    settings_strict = DB.relationship('SettingStrict', backref='field')
