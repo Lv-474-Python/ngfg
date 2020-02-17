@@ -7,3 +7,15 @@ before you make your first migration, export the following environmental variabl
 - HOST
 - PORT
 - DB_NAME
+
+###Google auth
+
+To add Google auth you need to export the following environmental variable:
+ - GOOGLE_CLIENT_ID
+ - GOOGLE_CLIENT_SECRET
+ - APP_SECRET_KEY
+
+And export:
+- OAUTHLIB_INSECURE_TRANSPORT="1"
+
+for http access.
