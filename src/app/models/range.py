@@ -8,13 +8,13 @@ class Range(AbstractModel):
     """
     Range model class
     :param min - int | restrictions:
-     number - min value;
-     text - min char amount;
-     option - min amount of choices;
+        number - min value;
+        text - min char amount;
+        option - min amount of choices;
     :param max - int | restrictions:
-    number - max value;
-    text - max char amount;
-    option - max amount of choices;
+        number - max value;
+        text - max char amount;
+        option - max amount of choices;
     """
     __tablename__ = 'ranges'
 
