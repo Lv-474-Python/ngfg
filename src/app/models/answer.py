@@ -9,10 +9,3 @@ class Answer(AbstractModel):
     __tablename__ = 'answers'
 
     value = DB.Column(DB.Text, nullable=False, unique=True)
-
-    def __init__(self, value):
-        """
-
-        :param value:
-        """
-        self.value = value
