@@ -9,3 +9,4 @@ from .choice_option import ChoiceOption
 from .form_field import FormField
 from .shared_field import SharedField
 from .range import Range
+from .setting_strict import SettingStrict
