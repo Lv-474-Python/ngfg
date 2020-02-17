@@ -18,5 +18,8 @@ class SharedField(AbstractModel):
         DB.UniqueConstraint('user_id', 'field_id', name='unique_user_field'),
     )
 
-    user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    field_id = DB.Column(DB.Integer, DB.ForeignKey('field.id', ondelete='CASCADE'), nullable=False)
+    user_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'), nullable=False)
+
+    def __repr__(self):
+        return f"SharedField {self.id}, field: {self.field_id}, user: {self.user_id}"

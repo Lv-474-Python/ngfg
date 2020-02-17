@@ -22,4 +22,4 @@ class ChoiceOption(AbstractModel):
     option_text = DB.Column(DB.Text, unique=False, nullable=False)
 
     def __repr__(self):
-        return f'<ChoiceOption {self.id}, text - {self.option_text}. Field {self.field.id}>'
+        return f'<ChoiceOption {self.id}, text - {self.option_text}. Field {self.field_id}>'
