@@ -29,3 +29,4 @@ class User(AbstractModel, UserMixin):
         return user
     forms = DB.relationship('Form', backref='owner')
     fields = DB.relationship('Field', backref='owner')
+    shared_fields = DB.relationship('SharedField', backref='user')
