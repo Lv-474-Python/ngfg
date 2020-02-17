@@ -27,3 +27,4 @@ class Field(AbstractModel):
     choice_options = DB.relationship('ChoiceOption', backref='field')
     shared_fields = DB.relationship('SharedField', backref='field')
     settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
+    fields_range = DB.relationship('FieldRange', backref='field')
