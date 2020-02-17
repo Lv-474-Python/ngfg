@@ -7,7 +7,7 @@ from .abstract_model import AbstractModel
 
 class SettingAutocomplete(AbstractModel):
     """
-    SettingsAutocomplete model class
+    SettingAutocomplete model class
     :param data_url: url to file that stores all possible options
     :param sheet: page name in Google Sheets
     :param from_row: from which line to start getting data from Google Sheets
