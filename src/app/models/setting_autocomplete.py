@@ -1,0 +1,25 @@
+"""
+SettingsAutocomplete model
+"""
+from app import DB
+from .abstract_model import AbstractModel
+
+
+class SettingAutocomplete(AbstractModel):
+    """
+    SettingsAutocomplete model class
+    :param data_url: url to file that stores all possible options
+    :param sheet: page name in Google Sheets
+    :param from_row: from which line to start getting data from Google Sheets
+    :param to_row: to which line to end getting data from Google Sheets
+    :param field_id:which field to apply these settings to
+    """
+    __tablename__ = 'settings_autocomplete'
+
+    data_url = DB.Column(DB.Text, nullable=False)
+    sheet = DB.Column(DB.Text, nullable=False)
+    from_row = DB.Column(DB.String, nullable=True)
+    to_row = DB.Column(DB.String, nullable=True)
+
+    field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'),
+                         nullable=False)
