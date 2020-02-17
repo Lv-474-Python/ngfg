@@ -14,7 +14,7 @@ class FieldRange(AbstractModel):
     "param range_id: a range restriction that is applied to the field
     """
 
-    __table__ = "fields_range"
+    __tablename__ = "fields_range"
 
     field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'), unique=True, \
                          nullable=False)
