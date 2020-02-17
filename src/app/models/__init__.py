@@ -10,4 +10,5 @@ from .form_field import FormField
 from .setting_autocomplete import SettingAutocomplete
 from .shared_field import SharedField
 from .range import Range
+from .form_result import FormResult
 from .field_range import FieldRange
