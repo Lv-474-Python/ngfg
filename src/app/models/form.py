@@ -14,6 +14,7 @@ class Form(AbstractModel):
     :param title -  nvarchar | Form title visible for all users
     :param result_url - text | Url for the domain where form results are stored
      (e.g. Url to Google Sheets)
+    :param is_published - bool | True - Form is published and can`t be changed
     """
 
     __tablename__ = 'forms'
@@ -26,6 +27,7 @@ class Form(AbstractModel):
     name = DB.Column(DB.String, nullable=False)
     title = DB.Column(DB.String, nullable=False)
     result_url = DB.Column(DB.Text)
+    is_published = DB.Column(DB.Boolean, nullable=False)
 
     fields = DB.relationship('FormField', backref='form')
     form_results = DB.relationship('FormResult', backref='form')
