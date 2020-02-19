@@ -9,7 +9,7 @@ from app.models import Field
 
 class FieldService:
     """
-    Field Service
+    Field Service class
     """
 
     @staticmethod
@@ -65,7 +65,6 @@ class FieldService:
             DB.session.rollback()
             raise
         return instance
-
 
     @staticmethod
     def delete(field_id):  # pylint: disable=invalid-name
