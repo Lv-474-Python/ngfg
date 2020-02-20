@@ -1,73 +1,83 @@
 """
 Range service
 """
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, ProgrammingError
 
-from app import DB
+from app import DB, LOGGER
 from app.models import Range
 
 
 class RangeService:
+    """
+    Class of range service
+    """
     @staticmethod
-    def create(min, max):
+    def create(min_value, max_value):
         """
         Creates Range object and saves if not created, or if created returns existing object
-        :param min: int value
-        :param max: int value
+        :param min_value: int value
+        :param max_value: int value
         :return: object of Range object
         """
         try:
-            range_exist = Range.query.filter_by(min=min, max=max).first()
+            DB.session.begin(subtransactions=True)
+
+            range_exist = Range.query.filter_by(min=min_value, max=max_value).first()
             if range_exist:
                 return range_exist
-            else:
-                instance = Range(min=min, max=max)
-                DB.session.add(instance)
-                DB.session.commit()
-                return instance
-        except IntegrityError:
+
+            instance = Range(min=min_value, max=max_value)
+            DB.session.add(instance)
+            DB.session.commit()
+            return instance
+        except (IntegrityError, ProgrammingError) as error:
+            LOGGER.error(f'{error}')
             DB.session.rollback()
             return None
 
     @staticmethod
-    def delete(id):
+    def delete(range_id):
         """
         Delete object with id param if exists
-        :param id: int
+        :param range_id: int
         :return: True after deletion of None if object with id param doesn't exist
         """
         try:
-            instance = Range.query.get(id)
+            DB.session.begin(subtransactions=True)
+
+            instance = Range.query.get(range_id)
             if instance:
                 DB.session.delete(instance)
                 DB.session.commit()
                 return True
-            else:
-                return None
-        except IntegrityError:
+
+            return None
+        except (IntegrityError, ProgrammingError):
             DB.session.rollback()
             return None
 
     @staticmethod
-    def update(id, min=None, max=None):
+    def update(range_id, min_value=None, max_value=None):
         """
         Updates object with id
-        :param id:
-        :param min: min value which can be changed
-        :param max: max value which can be changed
+        :param range_id:
+        :param min_value: min value which can be changed
+        :param max_value: max value which can be changed
         :return: object if changed, or None if object with id doesn't exist
         """
         try:
-            instance = Range.query.get(id)
+            DB.session.begin(subtransactions=True)
+
+            instance = Range.query.get(range_id)
             if instance:
-                if min:
-                    instance.min = min
-                if max:
-                    instance.max = max
+                if min_value:
+                    instance.min = min_value
+                if max_value:
+                    instance.max_restriction = max_value
                 DB.session.commit()
                 return instance
-            else:
-                return None
-        except IntegrityError:
+
+            return None
+        except (IntegrityError, ProgrammingError):
             DB.session.rollback()
             return None
