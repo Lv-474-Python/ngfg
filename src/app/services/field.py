@@ -76,6 +76,9 @@ class FieldService:
         :return: updated field instance
         """
         instance = FieldService.get_by_id(field_id)
+        if not instance:
+            raise FieldNotExist()
+
         if name is not None:
             instance.name = name
         if owner_id is not None:
