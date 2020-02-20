@@ -37,6 +37,7 @@ class UserService:
     def get_by_id(user_id):
         """
         Get user by id
+
         :param id:
         :return: user or none
         """
@@ -90,10 +91,32 @@ class UserService:
 
     @staticmethod
     @transaction_decorator
-    def user_filter(email, google_token):
-        user = User.query.filter_by(email=email,
-                                    google_token=google_token).first()
+    def user_filter(username=None, email=None, google_token=None):
+        """
+        Check if user exist in database.
+
+
+        :param username:
+        :param email:
+        :param google_token:
+        :return: user or None
+        """
+
+        data = {}
+
+        if username:
+            data['username'] = username
+
+        if email:
+            data['email'] = email
+
+        if google_token:
+            data['google_token'] = google_token
+
+
+        user = User.query.filter_by(**data).first()
+
         if not user:
-            return None
+            print('user doesn`t exist')
 
         return user
