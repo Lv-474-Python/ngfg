@@ -1,6 +1,4 @@
 """abstract model"""
-from sqlalchemy.exc import IntegrityError
-
 from app import DB
 
 
