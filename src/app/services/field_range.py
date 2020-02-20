@@ -39,20 +39,15 @@ class FieldRangeService:
         return field_range
 
     @staticmethod
-    def filter(field_id, range_id):
+    def get_by_range_id(range_id=None):
         """
-        FieldRange model filter method
+        FieldRange model get by range id method
 
-        :param field_id: id of the field object
         :param range_id: id of the range object
         :return: list of FieldRange objects
         """
-        filter_data = {}
-        if field_id is not None:
-            filter_data['field_id'] = field_id
         if range_id is not None:
-            filter_data['range_id'] = range_id
-        result = FieldRange.query.filter_by(**filter_data).all()
+            result = FieldRange.query.filter(FieldRange.range_id == range_id).all()
         return result
 
     @staticmethod
