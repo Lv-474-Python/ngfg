@@ -76,7 +76,7 @@ class FieldService:
         :return: updated field instance
         """
         instance = FieldService.get_by_id(field_id)
-        if not instance:
+        if instance is None:
             raise FieldNotExist()
 
         if name is not None:
@@ -99,7 +99,7 @@ class FieldService:
         """
 
         instance = FieldService.get_by_id(field_id)
-        if not instance:
+        if instance is None:
             raise FieldNotExist()
         DB.session.delete(instance)
         return True
