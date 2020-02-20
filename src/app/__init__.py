@@ -17,10 +17,7 @@ APP = Flask(__name__)
 APP.config.from_object(Config)
 LOGIN_MANAGER = LoginManager()
 LOGIN_MANAGER.init_app(APP)
-session_options = dict(
-    autocommit=True
-)
-DB = SQLAlchemy(APP, session_options=session_options)
+DB = SQLAlchemy(APP, session_options={'autocommit': True})
 MIGRATE = Migrate(APP, DB, directory=APP.config['MIGRATION_DIR'])
 MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
