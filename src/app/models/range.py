@@ -18,10 +18,10 @@ class Range(AbstractModel):
     """
     __tablename__ = 'ranges'
 
-    min = DB.Column(DB.Integer, nullable=True)
-    max = DB.Column(DB.Integer, nullable=True)
+    min_value = DB.Column(DB.Integer, nullable=True)
+    max_value = DB.Column(DB.Integer, nullable=True)
 
     fields_range = DB.relationship('FieldRange', backref='range')
 
     def __repr__(self):
-        return f'Range ID {self.id}, min {self.min}, max {self.max}'
+        return f'<Range ID {self.id}, min {self.min_value}, max {self.max_value}>'

@@ -1,4 +1,2 @@
-"""
-Services initialisation
-"""
+"""Services initialisation"""
 from .range import RangeService
