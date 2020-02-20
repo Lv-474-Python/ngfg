@@ -5,11 +5,12 @@ User CRUD operations.
 from app import DB
 from app.models import User
 from app.helper.decorators import transaction_decorator
+from app.helper.errors import UserNotExist
 
 
 class UserService:
     """
-    Class with user`s CRUD operations
+    Class with user operations
     """
 
     @staticmethod
@@ -23,7 +24,7 @@ class UserService:
         :param google_token:
         :return: user or None
         """
-        user = UserService.user_filter(email=email, google_token=google_token)
+        user = UserService.filter(email=email, google_token=google_token)
 
         if user:
             return user
@@ -50,6 +51,7 @@ class UserService:
         """
         Update user info in database
 
+        :param user_id:
         :param username:
         :param email:
         :param google_token:
@@ -58,15 +60,15 @@ class UserService:
         user = UserService.get_by_id(user_id)
 
         if not user:
-            return None
+            raise UserNotExist()
 
-        if username:
+        if username is not None:
             user.username = username
 
-        if email:
+        if email is not None:
             user.email = email
 
-        if google_token:
+        if google_token is not None:
             user.google_token = google_token
 
         DB.session.merge(user)
@@ -83,18 +85,17 @@ class UserService:
         """
         user = UserService.get_by_id(user_id)
 
-        if user:
-            DB.session.delete(user)
-            return True
+        if user is None:
+            raise UserNotExist()
 
-        return None
+        DB.session.delete(user)
+        return True
 
     @staticmethod
     @transaction_decorator
-    def user_filter(username=None, email=None, google_token=None):
+    def filter(username=None, email=None, google_token=None):
         """
         Check if user exist in database.
-
 
         :param username:
         :param email:
@@ -104,19 +105,15 @@ class UserService:
 
         data = {}
 
-        if username:
+        if username is not None:
             data['username'] = username
 
-        if email:
+        if email is not None:
             data['email'] = email
 
-        if google_token:
+        if google_token is not None:
             data['google_token'] = google_token
 
-
-        user = User.query.filter_by(**data).first()
-
-        if not user:
-            print('user doesn`t exist')
+        user = User.query.filter_by(**data).all()
 
         return user
