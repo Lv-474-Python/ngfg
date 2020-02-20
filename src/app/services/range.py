@@ -11,6 +11,7 @@ class RangeService:
     """
     Class of range service
     """
+
     @staticmethod
     def create(min_value, max_value):
         """
@@ -21,17 +22,15 @@ class RangeService:
         """
         try:
             DB.session.begin(subtransactions=True)
-
             range_exist = Range.query.filter_by(min=min_value, max=max_value).first()
             if range_exist:
                 return range_exist
-
             instance = Range(min=min_value, max=max_value)
             DB.session.add(instance)
             DB.session.commit()
             return instance
         except (IntegrityError, ProgrammingError) as error:
-            LOGGER.error(f'{error}')
+            LOGGER.error('Error happened - %s', error)
             DB.session.rollback()
             return None
 
@@ -50,11 +49,10 @@ class RangeService:
                 DB.session.delete(instance)
                 DB.session.commit()
                 return True
-
-            return None
-        except (IntegrityError, ProgrammingError):
+        except (IntegrityError, ProgrammingError) as error:
+            LOGGER.error('Error happened - %s', error)
             DB.session.rollback()
-            return None
+        return None
 
     @staticmethod
     def update(range_id, min_value=None, max_value=None):
@@ -74,10 +72,10 @@ class RangeService:
                     instance.min = min_value
                 if max_value:
                     instance.max_restriction = max_value
+                DB.session.merge(instance)
                 DB.session.commit()
                 return instance
-
-            return None
-        except (IntegrityError, ProgrammingError):
+        except (IntegrityError, ProgrammingError) as error:
+            LOGGER.error('Error happened - %s', error)
             DB.session.rollback()
-            return None
+        return None
