@@ -9,14 +9,14 @@ class AnswerService:
     """ answer service class"""
 
     @staticmethod
-    def get_by_id(pk):
+    def get_by_id(answer_id):
         """
 
         :param pk:
         :return: answer with id=pk or None
 
         """
-        return Answer.query.get(pk)
+        return Answer.query.get(answer_id)
 
     @staticmethod
     def get_by_value(value):
