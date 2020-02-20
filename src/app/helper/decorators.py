@@ -1,19 +1,40 @@
+"""
+Project decorators
+"""
+
 import functools
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import (
+    IntegrityError,
+    ProgrammingError,
+)
 
 from app import DB
 
 
 def transaction_decorator(func):
+    """
+    Transaction decorator
+
+    :param func: function to decorate
+    :return: function wrapper
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        """
+        Function decorator
+
+        :param *args: args
+        :param **kwargs: kwargs
+        """
         try:
-            # import pdb; pdb.set_trace()
             DB.session.begin(subtransactions=True)
             result = func(*args, **kwargs)
-            DB.session.commit() # error is here
+            DB.session.commit()
             return result
         except IntegrityError:
+            DB.session.rollback()
+            return None
+        except ProgrammingError:
             DB.session.rollback()
             return None
     return wrapper
