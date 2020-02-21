@@ -58,8 +58,12 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def update(form_id, owner_id=None, name=None, title=None, result_url=None,
-               is_published=None):
+    def update(form_id,
+               owner_id=None,
+               name=None,
+               title=None,
+               result_url=None,
+               is_published=None): # pylint: disable=too-many-arguments
         """
         Update form in database
 
