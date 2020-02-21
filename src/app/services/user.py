@@ -64,10 +64,8 @@ class UserService:
 
         if username is not None:
             user.username = username
-
         if email is not None:
             user.email = email
-
         if google_token is not None:
             user.google_token = google_token
 
@@ -107,13 +105,11 @@ class UserService:
 
         if username is not None:
             data['username'] = username
-
         if email is not None:
             data['email'] = email
-
         if google_token is not None:
             data['google_token'] = google_token
 
-        user = User.query.filter_by(**data).all()
+        users = User.query.filter_by(**data).all()
 
-        return user
+        return users
