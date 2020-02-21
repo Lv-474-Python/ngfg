@@ -119,7 +119,7 @@ class SettingAutocompleteService:
         :param from_row:
         :param to_row:
         :param field_id:
-        :return: list of SettingAutocomplete object or empty list
+        :return: list of SettingAutocomplete objects or empty list
         """
         filter_data = {}
 
