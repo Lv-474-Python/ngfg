@@ -2,6 +2,7 @@
 Custom exceptions
 """
 
+
 class CustomException(Exception):
     """
     Base custom exception
