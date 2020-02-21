@@ -37,3 +37,9 @@ class SettingAutocompleteNotExist(NotExist):
     """
     SettingAutocomplete not exist exception
     """
+
+
+class RangeNotExist(NotExist):
+    """
+    Range not exist exception
+    """
