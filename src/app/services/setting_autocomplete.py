@@ -5,6 +5,7 @@ SettingAutocomplete service
 from app.models import SettingAutocomplete
 from app import DB
 from app.helper.decorators import transaction_decorator
+from app.helper.errors import SettingAutocompleteNotExist
 
 
 class SettingAutocompleteService:
@@ -15,7 +16,8 @@ class SettingAutocompleteService:
     @transaction_decorator
     def create(data_url, sheet, from_row, to_row, field_id):
         """
-        Create SettingAutocomplete record in DB
+        Create SettingAutocomplete model
+
         :param data_url:
         :param sheet:
         :param from_row:
@@ -41,8 +43,21 @@ class SettingAutocompleteService:
                from_row=None,
                to_row=None,
                field_id=None):
+        """
+        Update SettingAutocomplete model
 
+        :param setting_autocomplete_id: required param
+        :param data_url:
+        :param sheet:
+        :param from_row:
+        :param to_row:
+        :param field_id:
+        :return: updated model or None
+        """
         setting_autocomplete = SettingAutocomplete.query.get(setting_autocomplete_id)
+
+        if setting_autocomplete is None:
+            raise SettingAutocompleteNotExist
 
         if data_url is not None:
             setting_autocomplete.data_url = data_url
@@ -62,25 +77,49 @@ class SettingAutocompleteService:
     @staticmethod
     @transaction_decorator
     def delete(setting_autocomplete_id):
-        # TODO raise error
+        """
+        Delete SettingAutocomplete model by id
+
+        :param setting_autocomplete_id:
+        :return: True if model is deleted or None
+        """
         setting_autocomplete = SettingAutocompleteService.get_by_id(setting_autocomplete_id)
+
+        if setting_autocomplete is None:
+            raise SettingAutocompleteNotExist
         DB.session.delete(setting_autocomplete)
 
         return True
 
     @staticmethod
     def get_by_id(setting_autocomplete_id):
+        """
+        Get SettingAutocomplete model by id
+
+        :param setting_autocomplete_id:
+        :return: SettingAutocomplete object or None
+        """
         setting_autocomplete = SettingAutocompleteService.get_by_id(setting_autocomplete_id)
         return setting_autocomplete
 
     @staticmethod
-    def filter(setting_autocomplete_id=None,
+    def filter(setting_autocomplete_id=None,  # pylint: disable=too-many-arguments
                data_url=None,
                sheet=None,
                from_row=None,
                to_row=None,
                field_id=None):
+        """
+        SettingAutocomplete filter method
 
+        :param setting_autocomplete_id:
+        :param data_url:
+        :param sheet:
+        :param from_row:
+        :param to_row:
+        :param field_id:
+        :return: list of SettingAutocomplete object or empty list
+        """
         filter_data = {}
 
         if setting_autocomplete_id is not None:
