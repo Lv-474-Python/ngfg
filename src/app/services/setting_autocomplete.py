@@ -17,7 +17,7 @@ class SettingAutocompleteService:
     @transaction_decorator
     def create(data_url, sheet, from_row, to_row, field_id):
         """
-        Create SettingAutocomplete model
+        Create SettingAutocomplete service
 
         :param data_url:
         :param sheet:
