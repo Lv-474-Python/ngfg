@@ -27,6 +27,18 @@ class FieldRangeNotExist(NotExist):
     """
 
 
+class UserNotExist(NotExist):
+    """
+    User not exist exception
+    """
+
+
+class SettingAutocompleteNotExist(NotExist):
+    """
+    SettingAutocomplete not exist exception
+    """
+
+
 class RangeNotExist(NotExist):
     """
     Range not exist exception
