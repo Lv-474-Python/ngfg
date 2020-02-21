@@ -51,7 +51,7 @@ class FieldService:
         :return: list of fields
         """
         filter_data = {}
-        if id is not None:
+        if field_id is not None:
             filter_data['id'] = field_id
         if name is not None:
             filter_data['name'] = name
