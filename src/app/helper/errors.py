@@ -21,6 +21,36 @@ class FieldNotExist(NotExist):
     """
 
 
+class FormNotExist(NotExist):
+    """
+    Form not exist exception
+    """
+
+
+class FieldRangeNotExist(NotExist):
+    """
+    FieldRange not exist exception
+    """
+
+
+class UserNotExist(NotExist):
+    """
+    User not exist exception
+    """
+
+
+class SettingAutocompleteNotExist(NotExist):
+    """
+    SettingAutocomplete not exist exception
+    """
+
+
+class RangeNotExist(NotExist):
+    """
+    Range not exist exception
+    """
+
+
 class ChoiceOptionNotExist(NotExist):
     """
     ChoiceOption not exist exception

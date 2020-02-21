@@ -14,17 +14,22 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create(name, owner_id, field_type):
+    def create(name, owner_id, field_type, is_strict=False):
         """
         Field model create method
 
         :param name: field short name
         :param owner_id: field owner
         :param field_type: field type
+        :param is_strict: if field is strict
         :return: created field instance
         """
-
-        instance = Field(name=name, owner_id=owner_id, field_type=field_type)
+        instance = Field(
+            name=name,
+            owner_id=owner_id,
+            field_type=field_type,
+            is_strict=is_strict
+        )
         DB.session.add(instance)
         return instance
 
@@ -40,7 +45,7 @@ class FieldService:
         return instance
 
     @staticmethod
-    def filter(field_id=None, name=None, owner_id=None, field_type=None):
+    def filter(field_id=None, name=None, owner_id=None, field_type=None, is_strict=None):
         """
         Field model filter method
 
@@ -48,6 +53,7 @@ class FieldService:
         :param name: field short name
         :param owner_id: field owner
         :param field_type: field type
+        :param is_strict: if field is strict
         :return: list of fields
         """
         filter_data = {}
@@ -59,13 +65,15 @@ class FieldService:
             filter_data['owner_id'] = owner_id
         if field_type is not None:
             filter_data['field_type'] = field_type
+        if is_strict is not None:
+            filter_data['is_strict'] = is_strict
 
         result = Field.query.filter_by(**filter_data).all()
         return result
 
     @staticmethod
     @transaction_decorator
-    def update(field_id, name=None, owner_id=None, field_type=None):
+    def update(field_id, name=None, owner_id=None, field_type=None, is_strict=None):
         """
         Field model update method
 
@@ -73,6 +81,7 @@ class FieldService:
         :param name: field short name
         :param owner_id: field owner
         :param field_type: field type
+        :param is_strict: if field is strict
         :return: updated field instance
         """
         instance = FieldService.get_by_id(field_id)
@@ -85,6 +94,8 @@ class FieldService:
             instance.owner_id = owner_id
         if field_type is not None:
             instance.field_type = field_type
+        if is_strict is not None:
+            instance.is_strict = is_strict
         DB.session.merge(instance)
         return instance
 
@@ -97,7 +108,6 @@ class FieldService:
         :param field_id: field id
         :return: if field was deleted
         """
-
         instance = FieldService.get_by_id(field_id)
         if instance is None:
             raise FieldNotExist()
