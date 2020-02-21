@@ -9,7 +9,7 @@ from app.helper.decorators import transaction_decorator
 
 class FormResultService:
     """
-    Class for SettingAutocomplete service
+    Class for FormResult service
     """
     @staticmethod
     @transaction_decorator
@@ -20,7 +20,7 @@ class FormResultService:
         :param user_id:
         :param form_id:
         :param answer:
-        :return:
+        :return: FormResult object or None
         """
 
         form_result = FormResult(
