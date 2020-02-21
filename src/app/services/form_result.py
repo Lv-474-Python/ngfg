@@ -11,6 +11,7 @@ class FormResultService:
     """
     Class for FormResult service
     """
+
     @staticmethod
     @transaction_decorator
     def create(user_id, form_id, answer):
