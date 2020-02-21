@@ -59,7 +59,7 @@ class UserService:
         """
         user = UserService.get_by_id(user_id)
 
-        if not user:
+        if user is None:
             raise UserNotExist()
 
         if username is not None:

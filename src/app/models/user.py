@@ -22,13 +22,3 @@ class User(AbstractModel, UserMixin):
     fields = DB.relationship('Field', backref='owner')
     shared_fields = DB.relationship('SharedField', backref='user')
     form_results = DB.relationship('FormResult', backref='user')
-
-    @classmethod
-    def get_by_google_token(cls, google_token):
-        """
-        Return user by google token
-        :param google_token:
-        :return:
-        """
-        user = cls.query.filter(cls.google_token == google_token).first()
-        return user
