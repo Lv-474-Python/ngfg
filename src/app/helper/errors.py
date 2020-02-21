@@ -23,5 +23,5 @@ class FieldNotExist(NotExist):
 
 class FormFieldNotExist(NotExist):
     """
-    Field not exist exception
+    FormField not exist exception
     """
