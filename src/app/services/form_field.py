@@ -16,6 +16,7 @@ class FormFieldService:
     @transaction_decorator
     def create(form_id, field_id, question, position):
         """
+        Create FormField method
 
         :param form_id:
         :param field_id:
@@ -31,8 +32,21 @@ class FormFieldService:
         return instance
 
     @staticmethod
+    @transaction_decorator
+    def get_by_id(form_field_id):
+        """
+        Get FormField by id
+
+        :param form_field_id:
+        :return: form or none
+        """
+        form_field = FormField.query.get(form_field_id)
+        return form_field
+
+    @staticmethod
     def filter(form_id=None, field_id=None, question=None, position=None):
         """
+        Filter FormField method
 
         :param form_id:
         :param field_id:
@@ -54,19 +68,25 @@ class FormFieldService:
 
     @staticmethod
     @transaction_decorator
-    def update(form_id, position, field_id=None, question=None):
+    def update(form_field_id, form_id=None, position=None, field_id=None, question=None):
         """
+        Update FormField method
 
+        :param form_field_id:
         :param form_id:
         :param position:
         :param field_id:
         :param question:
-        :return: updated instance
+        :return: updated FormField
         """
-        instance = FormFieldService.filter(form_id=form_id, position=position).first()
+        instance = FormFieldService.get_by_id(form_field_id)
         if instance is None:
             raise FormFieldNotExist()
 
+        if form_id is not None:
+            instance.form_id = form_id
+        if position is not None:
+            instance.position = position
         if field_id is not None:
             instance.field_id = field_id
         if question is not None:
@@ -76,14 +96,14 @@ class FormFieldService:
 
     @staticmethod
     @transaction_decorator
-    def delete(form_id, position):
+    def delete(form_field_id):
         """
+        FormField delete method
 
-        :param form_id:
-        :param position:
+        :param form_field_id:
         :return: True if deleted
         """
-        instance = FormFieldService.filter(form_id=form_id, position=position).first()
+        instance = FormFieldService.get_by_id(form_field_id)
         if instance is None:
             raise FormFieldNotExist()
         DB.session.delete(instance)
