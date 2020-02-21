@@ -31,3 +31,14 @@ class SharedFieldNotExist(NotExist):
     """
     SharedField not exist exception
     """
+
+class UserNotExist(NotExist):
+    """
+    User not exist exception
+    """
+
+
+class SettingAutocompleteNotExist(NotExist):
+    """
+    SettingAutocomplete not exist exception
+    """
