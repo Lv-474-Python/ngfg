@@ -9,6 +9,7 @@ from sqlalchemy.exc import (
 )
 
 from app import DB
+from .errors import CustomException
 
 
 def transaction_decorator(func):
@@ -26,15 +27,17 @@ def transaction_decorator(func):
         :param *args: args
         :param **kwargs: kwargs
         """
+        DB.session.begin(subtransactions=True)
         try:
-            DB.session.begin(subtransactions=True)
             result = func(*args, **kwargs)
             DB.session.commit()
             return result
         except IntegrityError:
-            DB.session.rollback()
-            return None
+            pass
         except ProgrammingError:
-            DB.session.rollback()
-            return None
+            pass
+        except CustomException:
+            pass
+        DB.session.rollback()
+        return None
     return wrapper
