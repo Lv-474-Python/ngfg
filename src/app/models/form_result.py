@@ -1,10 +1,10 @@
 """
 FormResult model
 """
+
+from sqlalchemy import func
 from app import DB
 from .abstract_model import AbstractModel
-from sqlalchemy import func
-import datetime
 
 
 class FormResult(AbstractModel):
