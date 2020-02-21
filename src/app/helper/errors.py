@@ -25,3 +25,9 @@ class FieldRangeNotExist(NotExist):
     """
     FieldRange not exist exception
     """
+
+
+class UserNotExist(NotExist):
+    """
+    User not exist exception
+    """
