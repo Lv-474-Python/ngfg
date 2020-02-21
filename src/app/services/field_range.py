@@ -35,7 +35,7 @@ class FieldRangeService:
         :param field_id: id of the field object
         :return: FieldRange instance with specified id
         """
-        field_range = FieldRange.query.filter(FieldRange.field_id == field_id).first()
+        field_range = FieldRange.query.filter_by(field_id=field_id).first()
         return field_range
 
     @staticmethod

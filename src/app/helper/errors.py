@@ -39,6 +39,12 @@ class FieldRangeNotExist(NotExist):
     """
 
 
+class SharedFieldNotExist(NotExist):
+    """
+    SharedField not exist exception
+    """
+
+
 class UserNotExist(NotExist):
     """
     User not exist exception
