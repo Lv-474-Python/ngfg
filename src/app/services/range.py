@@ -17,6 +17,7 @@ class RangeService:
     def create(range_min, range_max):
         """
         Creates Range object and saves if not created, or if created returns existing object
+
         :param range_min: int value
         :param range_max: int value
         :return: created object of Range object or returns existing
@@ -33,6 +34,7 @@ class RangeService:
     def update(range_id, range_min=None, range_max=None):
         """
         Updates object with id
+
         :param range_id:
         :param range_min: min value which can be changed
         :param range_max: max value which can be changed
@@ -54,10 +56,11 @@ class RangeService:
     def delete(range_id):
         """
         Delete object with id param if exists
+
         :param range_id: int
         :return: True after deletion of None if object with id param doesn't exist
         """
-        instance = Range.query.get(range_id)
+        instance = RangeService.get_by_id(range_id)
         if instance is None:
             raise RangeNotExist()
         DB.session.delete(instance)
@@ -67,6 +70,7 @@ class RangeService:
     def get_by_id(range_id):
         """
         Get Range model object by id
+
         :param range_id: id of range
         :return: Range instance or None
         """
@@ -77,6 +81,7 @@ class RangeService:
     def filter(range_id=None, range_min=None, range_max=None):
         """
         Filter method
+
         :param range_id: range id
         :param range_min: range int of min value
         :param range_max: range int of max value
