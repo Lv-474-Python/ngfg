@@ -31,7 +31,7 @@ class ChoiceOptionService:
         """
         Get ChoiceOption instance by id
 
-        :param id: field id
+        :param option_id: choice option id
         :return: ChoiceOption instance or None
         """
         instance = ChoiceOption.query.get(option_id)
