@@ -10,14 +10,14 @@ from app.helper.errors import SettingAutocompleteNotExist
 
 class SettingAutocompleteService:
     """
-    Class for SettingAutocomplete model
+    Class for SettingAutocomplete service
     """
 
     @staticmethod
     @transaction_decorator
     def create(data_url, sheet, from_row, to_row, field_id):
         """
-        Create SettingAutocomplete service
+        Create SettingAutocomplete model
 
         :param data_url:
         :param sheet:
