@@ -25,3 +25,9 @@ class FieldRangeNotExist(NotExist):
     """
     FieldRange not exist exception
     """
+
+
+class SharedFieldNotExist(NotExist):
+    """
+    SharedField not exist exception
+    """
