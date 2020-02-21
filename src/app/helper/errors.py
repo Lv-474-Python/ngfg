@@ -49,3 +49,9 @@ class RangeNotExist(NotExist):
     """
     Range not exist exception
     """
+
+
+class ChoiceOptionNotExist(NotExist):
+    """
+    ChoiceOption not exist exception
+    """
