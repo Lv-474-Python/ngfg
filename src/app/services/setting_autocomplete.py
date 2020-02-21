@@ -58,7 +58,7 @@ class SettingAutocompleteService:
         setting_autocomplete = SettingAutocompleteService.get_by_id(setting_autocomplete_id)
 
         if setting_autocomplete is None:
-            raise SettingAutocompleteNotExist
+            raise SettingAutocompleteNotExist()
 
         if data_url is not None:
             setting_autocomplete.data_url = data_url
@@ -87,7 +87,7 @@ class SettingAutocompleteService:
         setting_autocomplete = SettingAutocompleteService.get_by_id(setting_autocomplete_id)
 
         if setting_autocomplete is None:
-            raise SettingAutocompleteNotExist
+            raise SettingAutocompleteNotExist()
         DB.session.delete(setting_autocomplete)
 
         return True
