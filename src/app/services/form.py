@@ -24,17 +24,8 @@ class FormService:
         :param title: Form title visible for all users
         :param result_url: Url for the domain where form result are stored
         :param is_published: is form published or not
-        :return:
+        :return: form or None
         """
-        form = FormService.filter(owner_id=owner_id,
-                                  name=name,
-                                  title=title,
-                                  result_url=result_url,
-                                  is_published=is_published)
-
-        if form:
-            return form
-
         form = Form(owner_id=owner_id,
                     name=name,
                     title=title,
@@ -57,22 +48,22 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def update(form_id,
+    def update(form_id, # pylint: disable=too-many-arguments
                owner_id=None,
                name=None,
                title=None,
                result_url=None,
-               is_published=None):  # pylint: disable=too-many-arguments
+               is_published=None):
         """
         Update form in database
 
-        :param form_id:
-        :param owner_id:
-        :param name:
-        :param title:
-        :param result_url:
-        :param is_published:
-        :return:
+        :param form_id: from id
+        :param owner_id: User who created the form
+        :param name: Name, which is visible only for the owner, for searching
+        :param title: Form title visible for all users
+        :param result_url: Url for the domain where form result are stored
+        :param is_published: is form published or not
+        :return: form or None
         """
         form = FormService.get_by_id(form_id)
 
@@ -120,11 +111,11 @@ class FormService:
         """
         Filter form from database by arguments
 
-        :param owner_id:
-        :param name:
-        :param title:
-        :param result_url:
-        :param is_published:
+        :param owner_id: User who created the form
+        :param name: Name, which is visible only for the owner, for searching
+        :param title: Form title visible for all users
+        :param result_url: Url for the domain where form result are stored
+        :param is_published: is form published or not
         :return: list of forms
         """
 
