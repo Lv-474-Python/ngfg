@@ -14,8 +14,8 @@ from flask_login import (
 )
 
 from app import APP, LOGIN_MANAGER, GOOGLE_CLIENT
-from ..config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_DISCOVERY_URL
-from ..models.user import User
+from app.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_DISCOVERY_URL
+from app.services import UserService
 
 APP.secret_key = os.environ.get("APP_SECRET_KEY")
 
@@ -24,10 +24,11 @@ APP.secret_key = os.environ.get("APP_SECRET_KEY")
 def _load_user(user_id):
     """
     Load user from db by id. This method for LOGIN_MANAGER to handle session
+
     :param user_id:
     :return:
     """
-    return User.get_by_id(user_id)
+    return UserService.get_by_id(user_id)
 
 
 @APP.route('/home_page/')
@@ -48,6 +49,7 @@ def index():
 def _get_google_provider_cfg():
     """
     return google config to authorization
+
     :return:
     """
     return requests.get(GOOGLE_DISCOVERY_URL).json()
@@ -75,6 +77,7 @@ def login():
 def callback():
     """
     View for google callback
+
     :return:
     """
     code = request.args.get('code')
@@ -112,10 +115,7 @@ def callback():
     else:
         return "User email not available or not verified by Google", 400
 
-    user = User.get_by_google_token(google_token)
-
-    if user is None:
-        user = User.create(username=username, email=email, google_token=google_token)
+    user = UserService.create(username=username, email=email, google_token=google_token)
 
     login_user(user)
 
