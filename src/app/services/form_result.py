@@ -42,8 +42,8 @@ class FormResultService:
         :return: FormResult object or None
         """
 
-        setting_autocomplete = FormResult.query.get(form_result_id)
-        return setting_autocomplete
+        form_result = FormResult.query.get(form_result_id)
+        return form_result
 
     @staticmethod
     def filter(form_result_id=None, user_id=None, form_id=None, answers=None, created=None):
