@@ -2,6 +2,7 @@
 Services init module
 """
 
+from .form_result import FormResultService
 from .answer import AnswerService
 from .field_range import FieldRangeService
 from .shared_field import SharedFieldService
