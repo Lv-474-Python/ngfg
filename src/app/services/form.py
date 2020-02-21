@@ -73,22 +73,22 @@ class FormService:
         """
         form = FormService.get_by_id(form_id)
 
-        if not form:
+        if form is None:
             raise FormNotExist()
 
-        if owner_id:
+        if owner_id is not None:
             form.owner_id = owner_id
 
-        if name:
+        if name is not None:
             form.name = name
 
-        if title:
+        if title is not None:
             form.title = title
 
-        if result_url:
+        if result_url is not None:
             form.result_url = result_url
 
-        if is_published:
+        if is_published is not None:
             form.is_published = is_published
 
         DB.session.merge(form)
