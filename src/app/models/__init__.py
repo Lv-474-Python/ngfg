@@ -12,4 +12,3 @@ from .shared_field import SharedField
 from .range import Range
 from .form_result import FormResult
 from .field_range import FieldRange
-from .setting_strict import SettingStrict

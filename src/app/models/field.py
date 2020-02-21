@@ -23,6 +23,7 @@ class Field(AbstractModel):
     name = DB.Column(DB.String, unique=False, nullable=False)
     owner_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
     field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
+    is_strict = DB.Column(DB.Boolean, default=False)
 
     choice_options = DB.relationship('ChoiceOption', backref='field')
     shared_fields = DB.relationship('SharedField', backref='field')
