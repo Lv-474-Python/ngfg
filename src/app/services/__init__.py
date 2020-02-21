@@ -1,5 +1,5 @@
 """
-Custom exceptions
+Services init module
 """
 
 from .form_result import FormResultService
