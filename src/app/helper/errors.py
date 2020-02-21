@@ -21,6 +21,12 @@ class FieldNotExist(NotExist):
     """
 
 
+class FieldRangeNotExist(NotExist):
+    """
+    FieldRange not exist exception
+    """
+
+
 class RangeNotExist(NotExist):
     """
     Range not exist exception
