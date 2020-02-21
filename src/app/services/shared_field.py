@@ -5,7 +5,6 @@ SharedField service
 from app import DB
 from app.models import SharedField
 from app.helper.decorators import transaction_decorator
-from app.helper.errors import SharedFieldNotExist
 
 
 class SharedFieldService:
@@ -56,3 +55,8 @@ class SharedFieldService:
             filter_data['field_id'] = field_id
         result = SharedField.query.filter_by(**filter_data).all()
         return result
+
+    @staticmethod
+    @transaction_decorator
+    def delete(user_id):
+        pass
