@@ -44,7 +44,7 @@ class FieldService:
         """
         Field model filter method
 
-        :param id: field id
+        :param field_id: field id
         :param name: field short name
         :param owner_id: field owner
         :param field_type: field type
