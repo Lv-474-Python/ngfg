@@ -26,13 +26,12 @@ class FormService:
         :param is_published: is form published or not
         :return:
         """
-        form = FormService.form_filter(owner_id=owner_id,
-                                       name=name,
-                                       title=title,
-                                       result_url=result_url,
-                                       is_published=is_published)
+        form = FormService.filter(owner_id=owner_id,
+                                  name=name,
+                                  title=title,
+                                  result_url=result_url,
+                                  is_published=is_published)
 
-        print(form)
         if form:
             return form
 
@@ -63,7 +62,7 @@ class FormService:
                name=None,
                title=None,
                result_url=None,
-               is_published=None): # pylint: disable=too-many-arguments
+               is_published=None):  # pylint: disable=too-many-arguments
         """
         Update form in database
 
@@ -82,16 +81,12 @@ class FormService:
 
         if owner_id is not None:
             form.owner_id = owner_id
-
         if name is not None:
             form.name = name
-
         if title is not None:
             form.title = title
-
         if result_url is not None:
             form.result_url = result_url
-
         if is_published is not None:
             form.is_published = is_published
 
@@ -117,8 +112,11 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def form_filter(owner_id=None, name=None, title=None, result_url=None,
-                    is_published=None):
+    def filter(owner_id=None,
+               name=None,
+               title=None,
+               result_url=None,
+               is_published=None):
         """
         Filter form from database by arguments
 
@@ -132,25 +130,17 @@ class FormService:
 
         data = {}
 
-        if owner_id:
+        if owner_id is not None:
             data['owner_id'] = owner_id
-
-        if name:
+        if name is not None:
             data['name'] = name
-
-        if title:
+        if title is not None:
             data['title'] = title
-
-        if result_url:
+        if result_url is not None:
             data['result_url'] = result_url
-
-        if is_published:
+        if is_published is not None:
             data['is_published'] = is_published
 
-        form = Form.query.filter_by(**data).all()
+        forms = Form.query.filter_by(**data).all()
 
-        # if we raise error we wont create new form
-        if not form:
-            return None
-
-        return form
+        return forms
