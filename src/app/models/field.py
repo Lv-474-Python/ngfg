@@ -31,5 +31,5 @@ class Field(AbstractModel):
     fields_range = DB.relationship('FieldRange', backref='field')
 
     def __repr__(self):
-        return (f'<Field {self.id}, name - {self.name},'
+        return (f'<Field {self.id}, name - {self.name}, '
                 f'type - {self.field_type}, is_strict - {self.is_strict}>')
