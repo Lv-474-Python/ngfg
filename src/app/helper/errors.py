@@ -21,6 +21,12 @@ class FieldNotExist(NotExist):
     """
 
 
+class FormFieldNotExist(NotExist):
+    """
+    FormField not exist exception
+    """
+
+
 class AnswerNotExist(NotExist):
     """
     Answer not exist exception

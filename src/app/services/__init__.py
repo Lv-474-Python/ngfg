@@ -10,3 +10,5 @@ from .setting_autocomplete import SettingAutocompleteService
 from .range import RangeService
 from .field import FieldService
 from .form import FormService
+from .form_field import FormFieldService
+from .choice_option import ChoiceOptionService
