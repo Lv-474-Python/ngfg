@@ -12,6 +12,7 @@ class SettingAutocompleteService:
     """
     Class for SettingAutocomplete model
     """
+
     @staticmethod
     @transaction_decorator
     def create(data_url, sheet, from_row, to_row, field_id):
@@ -54,7 +55,7 @@ class SettingAutocompleteService:
         :param field_id:
         :return: updated model or None
         """
-        setting_autocomplete = SettingAutocomplete.query.get(setting_autocomplete_id)
+        setting_autocomplete = SettingAutocompleteService.get_by_id(setting_autocomplete_id)
 
         if setting_autocomplete is None:
             raise SettingAutocompleteNotExist
@@ -99,7 +100,7 @@ class SettingAutocompleteService:
         :param setting_autocomplete_id:
         :return: SettingAutocomplete object or None
         """
-        setting_autocomplete = SettingAutocompleteService.get_by_id(setting_autocomplete_id)
+        setting_autocomplete = SettingAutocomplete.query.get(setting_autocomplete_id)
         return setting_autocomplete
 
     @staticmethod
