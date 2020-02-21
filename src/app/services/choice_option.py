@@ -1,10 +1,10 @@
 """
 ChoiceOption Service
 """
-from sqlalchemy.exc import IntegrityError
-
 from app import DB
 from app.models import ChoiceOption
+from app.helper.decorators import transaction_decorator
+from app.helper.errors import ChoiceOptionNotExist
 
 
 class ChoiceOptionService:
@@ -13,72 +13,84 @@ class ChoiceOptionService:
     """
 
     @staticmethod
+    @transaction_decorator
     def create(field_id, option_text):
         """
-        ChoiceOption model create method
+        Create ChoiceOption instance
 
         :param field_id: id of field that has this option
         :param option_text: choice option value
         :return: created choice option instance
         """
-
-        try:
-            DB.session.begin(subtransactions=True)
-
-            instance = ChoiceOption(field_id=field_id, option_text=option_text)
-
-            DB.session.add(instance)
-            DB.session.commit() # error is here
-
-        except IntegrityError:
-            DB.session.rollback()
-            raise
+        instance = ChoiceOption(field_id=field_id, option_text=option_text)
+        DB.session.add(instance)
         return instance
 
     @staticmethod
-    def update(choice_option_id, field_id=None, option_text=None):
+    def get_by_id(option_id):
         """
-        ChoiceOption model update method
+        Get ChoiceOption instance by id
 
-        :param choice_option_id: choice option id
+        :param id: field id
+        :return: ChoiceOption instance or None
+        """
+        instance = ChoiceOption.query.get(option_id)
+        return instance
+
+    @staticmethod
+    def filter(option_id=None, field_id=None, option_text=None):
+        """
+        Filter ChoiceOption instances by id, field_id, option_text
+
+        :param option_id: ChoiceOption id
         :param field_id: id of field that has this option
-        :param option_text: choice option value
-        :return: updated choice option instance
+        :param option_text: ChoiceOption value
+        :return: list of options
         """
-        try:
-            DB.session.begin(subtransactions=True)
+        filter_data = {}
+        if option_id is not None:
+            filter_data['id'] = option_id
+        if field_id is not None:
+            filter_data['field_id'] = field_id
+        if option_text is not None:
+            filter_data['option_text'] = option_text
 
-            instance = ChoiceOption.query.get(choice_option_id)
-            if field_id is not None:
-                instance.field_id = field_id
-            if option_text is not None:
-                instance.option_text = option_text
+        result = ChoiceOption.query.filter_by(**filter_data).all()
+        return result
 
-            DB.session.merge(instance)
-            DB.session.commit()
+    @staticmethod
+    @transaction_decorator
+    def update(option_id, field_id=None, option_text=None):
+        """
+        Update ChoiceOption instance, got by option_id
 
-        except IntegrityError:
-            DB.session.rollback()
-            raise
+        :param option_id: ChoiceOption id
+        :param field_id: id of field that has this option
+        :param option_text: ChoiceOption value
+        :return: updated ChoiceOption instance
+        """
+        instance = ChoiceOptionService.get_by_id(option_id)
+        if instance is None:
+            raise ChoiceOptionNotExist()
+
+        if field_id is not None:
+            instance.field_id = field_id
+        if option_text is not None:
+            instance.option_text = option_text
+        DB.session.merge(instance)
         return instance
 
     @staticmethod
-    def delete(choice_option_id):
+    @transaction_decorator
+    def delete(option_id):
         """
-        ChoiceOption model delete method
+        Delete ChoiceOption instance
 
-        :param choice_option_id: choice option id
-        :return: if field was deleted
+        :param option_id: ChoiceOption id
+        :return: True - if field was deleted successfully, else - None
         """
-        try:
-            DB.session.begin(subtransactions=True)
-
-            instance = ChoiceOption.query.get(choice_option_id)
-
-            DB.session.delete(instance)
-            DB.session.commit()
-
-        except IntegrityError:
-            DB.session.rollback()
-            raise
+        instance = ChoiceOptionService.get_by_id(option_id)
+        if instance is None:
+            raise ChoiceOptionNotExist()
+        DB.session.delete(instance)
         return True
