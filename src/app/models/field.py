@@ -29,3 +29,7 @@ class Field(AbstractModel):
     shared_fields = DB.relationship('SharedField', backref='field')
     settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
     fields_range = DB.relationship('FieldRange', backref='field')
+
+    def __repr__(self):
+        return (f'<Field {self.id}, name - {self.name},'
+                f'type - {self.field_type}, is_strict - {self.is_strict}>')
