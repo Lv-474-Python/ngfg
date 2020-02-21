@@ -1,4 +1,6 @@
-"""Answer service"""
+"""
+Answer service
+"""
 
 from app import DB
 from app.helper.decorators import transaction_decorator
@@ -6,27 +8,29 @@ from app.models import Answer
 
 
 class AnswerService:
-    """ answer service class"""
+    """
+    Answer service class
+    """
 
     @staticmethod
     def get_by_id(answer_id):
         """
 
-        :param pk:
-        :return: answer with id=pk or None
-
+        :param answer_id:
+        :return: answer with id=answer_id or None
         """
-        return Answer.query.get(answer_id)
+        answer = Answer.query.get(answer_id)
+        return answer
 
     @staticmethod
     def get_by_value(value):
         """
 
         :param value:
-        :return: answer with this value or None
-
+        :return: answer with value=value or None
         """
-        return Answer.query.filter_by(value=value).first()
+        answer = Answer.query.filter_by(value=value).first()
+        return answer
 
     @staticmethod
     @transaction_decorator
