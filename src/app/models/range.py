@@ -24,4 +24,4 @@ class Range(AbstractModel):
     fields_range = DB.relationship('FieldRange', backref='range')
 
     def __repr__(self):
-        return f'Range ID {self.id}, min {self.min}, max {self.max}'
+        return f'<Range ID {self.id}, min {self.min}, max {self.max}>'
