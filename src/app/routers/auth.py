@@ -66,7 +66,6 @@ def callback(response):
     """
     View for Google callback
 
-    :param response: response from google auth server
     :return:
     """
     if response is None:

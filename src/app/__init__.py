@@ -8,7 +8,7 @@ from flask_login import LoginManager
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
-from flask_oauth import OAuth
+from flask_oauthlib.client import OAuth
 
 from .logging_config import create_logger
 from .config import Config, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_PROVIDER_CONFIG
@@ -32,7 +32,7 @@ API = Api(
 )
 APP.register_blueprint(BLUEPRINT)
 
-GOOGLE_CLIENT = OAuth().remote_app(
+GOOGLE_CLIENT = OAuth(APP).remote_app(
     'ngfg',
     base_url=GOOGLE_PROVIDER_CONFIG['issuer'],
     authorize_url=GOOGLE_PROVIDER_CONFIG['authorization_endpoint'],
@@ -40,12 +40,10 @@ GOOGLE_CLIENT = OAuth().remote_app(
     request_token_url=None,
     request_token_params={
         'scope': 'openid email profile',
-        'response_type': 'code'
     },
 
     access_token_url=GOOGLE_PROVIDER_CONFIG['token_endpoint'],
     access_token_method='POST',
-    access_token_params={'grant_type': 'authorization_code'},
 
     consumer_key=GOOGLE_CLIENT_ID,
     consumer_secret=GOOGLE_CLIENT_SECRET
