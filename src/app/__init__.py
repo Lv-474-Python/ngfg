@@ -23,7 +23,7 @@ MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 LOGGER = create_logger(APP.config['LOG_DIR'])
 
-BLUEPRINT = Blueprint('api', __name__, url_prefix='/api')
+BLUEPRINT = Blueprint('api', __name__, url_prefix='/api/v1')
 API = Api(
     app=BLUEPRINT,
     version="1.0",
