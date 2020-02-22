@@ -47,7 +47,7 @@ class UserService:
 
     @staticmethod
     @transaction_decorator
-    def update(user_id, username=None, email=None, google_token=None):
+    def update(user_id, username=None, email=None, google_token=None, is_active=None):
         """
         Update user info in database
 
@@ -55,6 +55,7 @@ class UserService:
         :param username:
         :param email:
         :param google_token:
+        :param is_active:
         :return: user or none
         """
         user = UserService.get_by_id(user_id)
@@ -68,6 +69,8 @@ class UserService:
             user.email = email
         if google_token is not None:
             user.google_token = google_token
+        if is_active is not None:
+            user.is_active = is_active
 
         DB.session.merge(user)
         return user
@@ -91,13 +94,14 @@ class UserService:
 
     @staticmethod
     @transaction_decorator
-    def filter(username=None, email=None, google_token=None):
+    def filter(username=None, email=None, google_token=None, is_active=None):
         """
         Check if user exist in database.
 
         :param username:
         :param email:
         :param google_token:
+        :param is_active:
         :return: user or None
         """
 
@@ -109,7 +113,24 @@ class UserService:
             data['email'] = email
         if google_token is not None:
             data['google_token'] = google_token
+        if is_active is not None:
+            data['is_active'] = is_active
 
         users = User.query.filter_by(**data).all()
 
         return users
+
+    @staticmethod
+    @transaction_decorator
+    def activate_user(user_id):
+        """
+        Activates user
+        :param user_id:
+        :return: user or None
+        """
+        user = UserService.get_by_id(user_id)
+        if user is None:
+            raise UserNotExist()
+        user.is_active = True
+        DB.session.merge(user)
+        return user
