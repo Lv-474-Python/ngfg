@@ -93,8 +93,8 @@ def callback(response):
     return redirect(url_for('index'))
 
 
+@APP.route('/logout')
 @login_required
-@APP.route('/logout/')
 def logout():
     """
     View for logout
