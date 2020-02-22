@@ -113,3 +113,18 @@ class UserService:
         users = User.query.filter_by(**data).all()
 
         return users
+
+    @staticmethod
+    @transaction_decorator
+    def activate_user(user_id):
+        """
+        Activates user
+        :param user_id:
+        :return: user or None
+        """
+        user = UserService.get_by_id(user_id)
+        if user is None:
+            raise UserNotExist()
+        user.is_active = True
+        DB.session.merge(user)
+        return user
