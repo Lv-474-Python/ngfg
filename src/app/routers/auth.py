@@ -12,22 +12,11 @@ from flask_login import (
     logout_user
 )
 
-from app import APP, LOGIN_MANAGER, GOOGLE_CLIENT
+from app import APP, GOOGLE_CLIENT
 from app.config import GOOGLE_PROVIDER_CONFIG
 from app.services import UserService
 
 APP.secret_key = os.environ.get("APP_SECRET_KEY")
-
-
-@LOGIN_MANAGER.user_loader
-def _load_user(user_id):
-    """
-    Load user from db by id. This method for LOGIN_MANAGER to handle session
-
-    :param user_id:
-    :return:
-    """
-    return UserService.get_by_id(user_id)
 
 
 @APP.route('/home_page/')
@@ -93,7 +82,7 @@ def callback(response):
     return redirect(url_for('index'))
 
 
-@APP.route('/logout')
+@APP.route('/logout/')
 @login_required
 def logout():
     """
