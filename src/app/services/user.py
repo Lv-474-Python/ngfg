@@ -34,7 +34,6 @@ class UserService:
         return user
 
     @staticmethod
-    @transaction_decorator
     def get_by_id(user_id):
         """
         Get user by id
@@ -93,7 +92,6 @@ class UserService:
         return True
 
     @staticmethod
-    @transaction_decorator
     def filter(username=None, email=None, google_token=None, is_active=None):
         """
         Check if user exist in database.
