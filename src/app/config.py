@@ -3,6 +3,7 @@
 """
 
 import os
+import requests
 
 BASEDIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
@@ -20,13 +21,14 @@ GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
+GOOGLE_PROVIDER_CONFIG = requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 class Config:
     """
         A class to configurate APP from object.
     """
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:"\
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DATABASE['POSTGRES_USER']}:" \
                               f"{DATABASE['POSTGRES_PASSWORD']}@" \
                               f"{DATABASE['HOST']}:{DATABASE['PORT']}/{DATABASE['DB_NAME']}"
 
