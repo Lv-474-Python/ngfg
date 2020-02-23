@@ -3,7 +3,7 @@ Form database model.
 Table for storing descriptive information about the form.
 """
 
-from app import DB
+from app import DB, MA
 from .abstract_model import AbstractModel
 
 
@@ -31,3 +31,14 @@ class Form(AbstractModel):
 
     fields = DB.relationship('FormField', backref='form')
     form_results = DB.relationship('FormResult', backref='form')
+
+
+class FormSchema(MA.Schema):
+    """
+    Form schema
+    """
+    class Meta:
+        """
+        Form schema meta
+        """
+        fields = ("id", "owner_id", "name", "title", "result_url", "is_published")
