@@ -34,5 +34,5 @@ APP.register_blueprint(BLUEPRINT)
 
 GOOGLE_CLIENT = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-from .routers import main, auth  # pylint: disable=wrong-import-position
+from .routers import main, auth, form_answer  # pylint: disable=wrong-import-position
 from .models import *  # pylint: disable=wrong-import-position

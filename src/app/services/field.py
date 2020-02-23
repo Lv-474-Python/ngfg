@@ -2,9 +2,9 @@
 Field Service
 """
 from app import DB
-from app.models import Field
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FieldNotExist
+from app.models import Field
 
 
 class FieldService:
