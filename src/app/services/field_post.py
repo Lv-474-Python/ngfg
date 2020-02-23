@@ -7,7 +7,7 @@ class FieldPost:
 
     @staticmethod
     @transaction_decorator
-    def create(name, owner_id, is_strict, field_type, **kwargs):
+    def create(name, owner_id, field_type, is_strict=False, **kwargs):
         Number = 1
         Text = 2
         TextArea = 3
