@@ -30,9 +30,9 @@ class Field(AbstractModel):
     settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
     fields_range = DB.relationship('FieldRange', backref='field')
 
-    def __repr__(self):
-        return (f'<Field {self.id}, name - {self.name}, '
-                f'type - {self.field_type}, is_strict - {self.is_strict}>')
+    # def __repr__(self):
+    #     return (f'<Field {self.id}, name - {self.name}, '
+    #             f'type - {self.field_type}, is_strict - {self.is_strict}>')
 
 class FieldSchema(MA.Schema):
     """
@@ -44,4 +44,4 @@ class FieldSchema(MA.Schema):
         Field schema meta
         """
         fields = (
-        "owner_id", "name", "field_type", "is_strict")
+        "id", "owner_id", "name", "field_type", "is_strict")

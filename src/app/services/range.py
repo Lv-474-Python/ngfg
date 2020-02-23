@@ -5,6 +5,7 @@ from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import RangeNotExist
 from app.models import Range
+from app.models.range import RangeSchema
 
 
 class RangeService:
@@ -96,3 +97,11 @@ class RangeService:
             filter_data['max'] = range_max
         result = Range.query.filter_by(**filter_data).all()
         return result
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = RangeSchema(many=many)
+        return schema.dump(data)

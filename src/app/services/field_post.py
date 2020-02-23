@@ -27,14 +27,13 @@ class FieldPost:
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(field_instance.id, range_instance.id)
         elif field_type == Number:
-            range_min = kwargs.get('range_min', 0)
+            range_min = kwargs.get('range_min', -2_147_483_647)
             # max range will  be validated
             range_max = kwargs.get('range_max', 2_147_483_647)
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(field_instance.id, range_instance.id)
         elif field_type == Radio or field_type == Checkbox:
             choice_options = kwargs.get('choice_options')
-            print(choice_options)
             for option in choice_options:
                 ChoiceOptionService.create(field_instance.id, option)
 
@@ -46,8 +45,63 @@ class FieldPost:
             SettingAutocompleteService.create(data_url, sheet, from_row,
                                               to_row, field_instance)
 
+
+    @staticmethod
+    def check_other_options(field_id, field_type):
+        """
+        Check if field has other extra options
+
+        :param field_id:
+        :param field_type:
+        :return: dict of options or None if field_type == TextArea
+        """
+        # CHANGE COPY PASTE
+        Number = 1
+        Text = 2
+        TextArea = 3
+        Radio = 4
+        Autocomplete = 5
+        Checkbox = 6
+
+        data = {}
+
+        if field_type == Number or field_type == Text:
+            range_field = FieldRangeService.get_by_field_id(field_id)
+            if range_field:
+                ranges = RangeService.get_by_id(range_field.range_id)
+                if ranges:
+                    range_min = ranges.min
+                    range_max = ranges.max
+
+
+                    data['range_max'] = range_max
+                    data['range_min'] = range_min
+
+
+
+        elif field_type == TextArea:
+            return None
+
+        elif field_type == Radio or field_type == Checkbox:
+            choice_options = ChoiceOptionService.filter(field_id=field_id)
+            if choice_options:
+                data['choice_options'] = []
+                for option in choice_options:
+                    data['choice_options'].append(option.option_text)
+
+            print(data)
+
+        return data
+
+
     @staticmethod
     def get(user_id):
-        fields = FieldService.filter(owner_id=user_id)
+        """
+        Get list of user`s fields
 
+        :param user_id:
+        :return: list of fields
+        """
+
+        fields = FieldService.filter(owner_id=user_id)
         return fields

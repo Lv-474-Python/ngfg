@@ -46,7 +46,6 @@ class FieldAPI(Resource):
             # field_type = request.json['field_type']
 
             req = request.json
-            print(req)
             for i in req:
                 print(req[f'{i}'])
             FieldPost.create(**req)
@@ -76,8 +75,16 @@ class FieldAPI(Resource):
 
         fields = FieldPost.get(current_user.id)
 
-        fields_json = FieldService.to_json(fields, many=True)
-        print(type(fields_json))
-        print(fields_json)
+        for field in fields:
 
+            FieldPost.check_other_options(field.id, field.field_type)
+
+        fields_json = FieldService.to_json(fields, many=True)
+        for field in fields_json:
+            extra_options = FieldPost.check_other_options(field['id'], field['field_type'])
+            if extra_options:
+                for key, value in extra_options.items():
+                    field[key]=value
+
+        print(fields_json)
         return jsonify(fields_json)
