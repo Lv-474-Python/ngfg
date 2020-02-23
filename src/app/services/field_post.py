@@ -45,7 +45,6 @@ class FieldPost:
             SettingAutocompleteService.create(data_url, sheet, from_row,
                                               to_row, field_instance)
 
-
     @staticmethod
     def check_other_options(field_id, field_type):
         """
@@ -54,8 +53,10 @@ class FieldPost:
         :param field_id:
         :param field_type:
         :return: dict of options or None if field_type == TextArea
+        E.G. data = {'range_max':250, 'range_min': 0}
+             data = {'choice_options' = ['man', 'woman']}
         """
-        # CHANGE COPY PASTE
+        # TODO CHANGE COPY PASTE
         Number = 1
         Text = 2
         TextArea = 3
@@ -73,11 +74,8 @@ class FieldPost:
                     range_min = ranges.min
                     range_max = ranges.max
 
-
                     data['range_max'] = range_max
                     data['range_min'] = range_min
-
-
 
         elif field_type == TextArea:
             return None
@@ -89,10 +87,11 @@ class FieldPost:
                 for option in choice_options:
                     data['choice_options'].append(option.option_text)
 
-            print(data)
+        # TODO
+        elif field_type == Autocomplete:
+            pass
 
         return data
-
 
     @staticmethod
     def get(user_id):
@@ -102,6 +101,5 @@ class FieldPost:
         :param user_id:
         :return: list of fields
         """
-
         fields = FieldService.filter(owner_id=user_id)
         return fields

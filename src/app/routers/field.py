@@ -60,9 +60,10 @@ class FieldAPI(Resource):
                              status="Could not save information",
                              statusCode="500")
         except Exception as e:
-            name_space.abort(400, e.__doc__,
+            name_space.abort(400,    e.__doc__,
                              status="Could not save information",
                              statusCode="400")
+
 
     @API.doc(
         responses={
@@ -75,16 +76,13 @@ class FieldAPI(Resource):
 
         fields = FieldPost.get(current_user.id)
 
-        for field in fields:
-
-            FieldPost.check_other_options(field.id, field.field_type)
-
         fields_json = FieldService.to_json(fields, many=True)
+
+        # add options to field json
         for field in fields_json:
             extra_options = FieldPost.check_other_options(field['id'], field['field_type'])
             if extra_options:
                 for key, value in extra_options.items():
                     field[key]=value
 
-        print(fields_json)
         return jsonify(fields_json)

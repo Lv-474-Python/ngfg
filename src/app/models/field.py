@@ -30,6 +30,7 @@ class Field(AbstractModel):
     settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
     fields_range = DB.relationship('FieldRange', backref='field')
 
+    # TODO Uncomment
     # def __repr__(self):
     #     return (f'<Field {self.id}, name - {self.name}, '
     #             f'type - {self.field_type}, is_strict - {self.is_strict}>')
