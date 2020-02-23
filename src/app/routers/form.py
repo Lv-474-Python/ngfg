@@ -54,7 +54,7 @@ class FormsAPI(Resource):
     # pylint: disable=no-self-use
     def get(self):
         """
-        GET request
+        Get all forms created by requested user
         """
         forms = FormService.filter(owner_id=current_user.id)
         if not forms:
@@ -75,7 +75,7 @@ class FormsAPI(Resource):
     # pylint: disable=no-self-use
     def post(self):
         """
-        POST request
+        Create new form
         """
         data = request.get_json()
         form = FormService.create(**data)
@@ -106,7 +106,7 @@ class FormAPI(Resource):
     #pylint: disable=no-self-use
     def get(self, id):  # pylint: disable=redefined-builtin
         """
-        GET request
+        Get form by id
 
         :param id: form id
         """
@@ -131,7 +131,7 @@ class FormAPI(Resource):
     # pylint: disable=no-self-use
     def put(self, id):  # pylint: disable=redefined-builtin
         """
-        PUT request
+        Update form
 
         :param id: form id
         """
@@ -163,7 +163,7 @@ class FormAPI(Resource):
     # pylint: disable=no-self-use
     def delete(self, id):  # pylint: disable=redefined-builtin
         """
-        DELETE request
+        Delete form
 
         :param id: form id
         """
