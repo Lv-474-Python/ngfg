@@ -3,6 +3,10 @@ from flask import request
 
 from app import API
 from app.models import Field
+from app.services.field_post import FieldPost, FieldService
+from flask import jsonify
+from flask_login import current_user
+
 
 name_space = API.namespace('FIELD_API', description='NgFg APIs')
 ns_forms = API.namespace('fields', description='NgFg APIs')
@@ -34,15 +38,18 @@ extended_model = API.inherit('extended_field', main_model, {
 
 @name_space.route("/")
 class FieldAPI(Resource):
-    @API.expect(extended_model)
+    @API.expect(main_model)
     def post(self):
         try:
             # name = request.json['name']
             # owner_id = request.json['owner_id']
             # field_type = request.json['field_type']
+
             req = request.json
+            print(req)
             for i in req:
                 print(req[f'{i}'])
+            FieldPost.create(**req)
             # return {
             #     "name": name,
             #     "owner_id": owner_id,
@@ -57,3 +64,20 @@ class FieldAPI(Resource):
             name_space.abort(400, e.__doc__,
                              status="Could not save information",
                              statusCode="400")
+
+    @API.doc(
+        responses={
+            200: 'OK',
+            401: 'Unauthorized',
+            404: 'Field not found'
+        }
+    )
+    def get(self):
+
+        fields = FieldPost.get(current_user.id)
+
+        fields_json = FieldService.to_json(fields, many=True)
+        print(type(fields_json))
+        print(fields_json)
+
+        return jsonify(fields_json)

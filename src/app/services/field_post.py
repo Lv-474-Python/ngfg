@@ -1,4 +1,5 @@
-from app.services import FieldService, FieldRangeService, RangeService, ChoiceOptionService, SettingAutocompleteService
+from app.services import FieldService, FieldRangeService, RangeService, \
+    ChoiceOptionService, SettingAutocompleteService
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 
@@ -7,7 +8,7 @@ class FieldPost:
 
     @staticmethod
     @transaction_decorator
-    def create(name, owner_id, is_strict, field_type, **kwargs):
+    def create(name, owner_id, field_type, is_strict=False, **kwargs):
         Number = 1
         Text = 2
         TextArea = 3
@@ -15,14 +16,22 @@ class FieldPost:
         Autocomplete = 5
         Checkbox = 6
 
-        field_instance = FieldService.create(name=name, owner_id=owner_id, field_type=field_type, is_strict=is_strict)
+        field_instance = FieldService.create(name=name,
+                                             owner_id=owner_id,
+                                             field_type=field_type,
+                                             is_strict=is_strict)
 
-        if field_type == Number or field_type == Text:
+        if field_type == Text:
             range_min = kwargs.get('range_min', 0)
             range_max = kwargs.get('range_max', 255)
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(field_instance.id, range_instance.id)
-
+        elif field_type == Number:
+            range_min = kwargs.get('range_min', 0)
+            # max range will  be validated
+            range_max = kwargs.get('range_max', 2_147_483_647)
+            range_instance = RangeService.create(range_min, range_max)
+            FieldRangeService.create(field_instance.id, range_instance.id)
         elif field_type == Radio or field_type == Checkbox:
             choice_options = kwargs.get('choice_options')
             print(choice_options)
@@ -34,4 +43,11 @@ class FieldPost:
             sheet = kwargs.get('sheet')
             from_row = kwargs.get('from_row')
             to_row = kwargs.get('to_row')
-            SettingAutocompleteService.create(data_url, sheet, from_row, to_row, field_instance)
+            SettingAutocompleteService.create(data_url, sheet, from_row,
+                                              to_row, field_instance)
+
+    @staticmethod
+    def get(user_id):
+        fields = FieldService.filter(owner_id=user_id)
+
+        return fields

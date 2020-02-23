@@ -2,7 +2,7 @@
 Field model
 """
 
-from app import DB
+from app import DB, MA
 from .abstract_model import AbstractModel
 
 
@@ -33,3 +33,15 @@ class Field(AbstractModel):
     def __repr__(self):
         return (f'<Field {self.id}, name - {self.name}, '
                 f'type - {self.field_type}, is_strict - {self.is_strict}>')
+
+class FieldSchema(MA.Schema):
+    """
+    Form schema
+    """
+
+    class Meta:
+        """
+        Field schema meta
+        """
+        fields = (
+        "owner_id", "name", "field_type", "is_strict")
