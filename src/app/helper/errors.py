@@ -73,3 +73,9 @@ class ChoiceOptionNotExist(NotExist):
     """
     ChoiceOption not exist exception
     """
+
+
+class GroupNotExist(NotExist):
+    """
+    Group not exist exception
+    """
