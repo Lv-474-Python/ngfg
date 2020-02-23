@@ -27,7 +27,7 @@ class UserService:
         user = UserService.filter(email=email, google_token=google_token)
 
         if user:
-            return user
+            return user[0]
 
         user = User(username=username, email=email, google_token=google_token)
         DB.session.add(user)

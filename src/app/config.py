@@ -40,3 +40,5 @@ class Config:
     SWAGGER_UI_REQUEST_DURATION = True
 
     LOG_DIR = os.path.join(BASEDIR, 'logs')
+
+    ERROR_404_HELP = False
