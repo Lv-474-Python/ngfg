@@ -2,7 +2,7 @@
 User CRUD operations.
 """
 
-from app import DB
+from app import DB, LOGIN_MANAGER
 from app.models import User
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import UserNotExist
@@ -34,6 +34,7 @@ class UserService:
         return user
 
     @staticmethod
+    @LOGIN_MANAGER.user_loader
     def get_by_id(user_id):
         """
         Get user by id

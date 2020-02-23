@@ -8,10 +8,10 @@ from flask_login import LoginManager
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
-from oauthlib.oauth2 import WebApplicationClient
-from .logging_config import create_logger
+from flask_oauthlib.client import OAuth
 
-from .config import Config, GOOGLE_CLIENT_ID
+from .logging_config import create_logger
+from .config import Config, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_PROVIDER_CONFIG
 
 APP = Flask(__name__)
 APP.config.from_object(Config)
@@ -32,7 +32,22 @@ API = Api(
 )
 APP.register_blueprint(BLUEPRINT)
 
-GOOGLE_CLIENT = WebApplicationClient(GOOGLE_CLIENT_ID)
+GOOGLE_CLIENT = OAuth(APP).remote_app(
+    'ngfg',
+    base_url=GOOGLE_PROVIDER_CONFIG['issuer'],
+    authorize_url=GOOGLE_PROVIDER_CONFIG['authorization_endpoint'],
+
+    request_token_url=None,
+    request_token_params={
+        'scope': 'openid email profile',
+    },
+
+    access_token_url=GOOGLE_PROVIDER_CONFIG['token_endpoint'],
+    access_token_method='POST',
+
+    consumer_key=GOOGLE_CLIENT_ID,
+    consumer_secret=GOOGLE_CLIENT_SECRET
+)
 
 from .routers import main, auth, form_answer  # pylint: disable=wrong-import-position
 from .models import *  # pylint: disable=wrong-import-position
