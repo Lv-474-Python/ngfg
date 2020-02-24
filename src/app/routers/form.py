@@ -82,7 +82,7 @@ class FormsAPI(Resource):
         is_correct, errors = FormService.validate_data(data)
         if not is_correct:
             raise BadRequest(errors)
-        if data['owner_id'] != current_user.id:
+        if int(data['owner_id']) != current_user.id:
             raise Forbidden("Create form is forbidden")
 
         form = FormService.create(**data)
