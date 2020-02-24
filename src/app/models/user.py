@@ -3,6 +3,7 @@ User model
 """
 
 from flask_login import UserMixin
+
 from app import DB
 from .abstract_model import AbstractModel
 

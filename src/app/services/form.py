@@ -4,7 +4,7 @@ Form operations.
 
 from app import DB
 from app.helper.errors import FormNotExist
-from app.models import Form
+from app.models import Form, FormSchema
 from app.helper.decorators import transaction_decorator
 
 
@@ -135,3 +135,11 @@ class FormService:
         forms = Form.query.filter_by(**data).all()
 
         return forms
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = FormSchema(many=many)
+        return schema.dump(data)

@@ -1,13 +1,14 @@
 """
     Initialise of app.
 """
+
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
+from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
 
 from .logging_config import create_logger
@@ -23,6 +24,7 @@ MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 LOGGER = create_logger(APP.config['LOG_DIR'])
 MA = Marshmallow(APP)
+
 BLUEPRINT = Blueprint('api', __name__, url_prefix='/api/v1')
 API = Api(
     app=BLUEPRINT,
@@ -49,5 +51,6 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
 
-from .routers import main, auth, form_answer  # pylint: disable=wrong-import-position
+
+from .routers import main, auth, form, form_answer  # pylint: disable=wrong-import-position
 from .models import *  # pylint: disable=wrong-import-position
