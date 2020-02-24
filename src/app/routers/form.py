@@ -149,13 +149,12 @@ class FormAPI(Resource):
         if form.owner != current_user:
             raise Forbidden("Updating form is forbidden")
 
-        form_json = FormService.to_json(form)
-        if form_json.get('id', None):
-            del form_json['id']
-
+        form_json_data = FormService.to_json(form)
+        if form_json_data.get('id', None):
+            del form_json_data['id']
         data = request.get_json()
-        form_json.update(data)
-        is_correct, errors = FormService.validate_data(form_json)
+        form_json_data.update(data)
+        is_correct, errors = FormService.validate_data(form_json_data)
         if not is_correct:
             raise BadRequest(errors)
 
