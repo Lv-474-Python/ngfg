@@ -79,5 +79,5 @@ class FieldAPI(Resource):
             if extra_options:
                 for key, value in extra_options.items():
                     field[key]=value
-
+        print(fields_json)
         return jsonify(fields_json)

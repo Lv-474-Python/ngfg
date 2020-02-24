@@ -17,18 +17,21 @@ class FieldOperation:
 
         name_of_field_type = FieldType(field_type).name
 
-        if name_of_field_type == 'Text':
-            range_min = kwargs.get('range_min', 0)
-            range_max = kwargs.get('range_max', 255)
-            range_instance = RangeService.create(range_min, range_max)
-            FieldRangeService.create(field_instance.id, range_instance.id)
+        if name_of_field_type == 'Text' or name_of_field_type :
+            instance_range = kwargs.get('range', None)
+            if instance_range is not None:
+                range_min = instance_range.get('min', None)
+                range_max = instance_range.get('max', None)
+                range_instance = RangeService.create(range_min, range_max)
+                FieldRangeService.create(field_instance.id, range_instance.id)
 
         elif name_of_field_type == 'Number':
-            range_min = kwargs.get('range_min', -2_147_483_647)
-            # max range will  be validated
-            range_max = kwargs.get('range_max', 2_147_483_647)
-            range_instance = RangeService.create(range_min, range_max)
-            FieldRangeService.create(field_instance.id, range_instance.id)
+            instance_range = kwargs.get('range', None)
+            if instance_range is not None:
+                range_min = instance_range.get('min', None)
+                range_max = instance_range.get('max', None)
+                range_instance = RangeService.create(range_min, range_max)
+                FieldRangeService.create(field_instance.id, range_instance.id)
 
         elif name_of_field_type == 'Radio' or name_of_field_type == 'Checkbox':
             choice_options = kwargs.get('choice_options')
@@ -36,12 +39,13 @@ class FieldOperation:
                 ChoiceOptionService.create(field_instance.id, option)
 
         elif name_of_field_type == 'Autocomplete':
-            data_url = kwargs.get('data_url')
-            sheet = kwargs.get('sheet')
-            from_row = kwargs.get('from_row')
-            to_row = kwargs.get('to_row')
+            setting_autocomplete = kwargs.get('setting_autocomplete')
+            data_url = setting_autocomplete.get('data_url')
+            sheet = setting_autocomplete.get('sheet')
+            from_row = setting_autocomplete.get('from_row')
+            to_row = setting_autocomplete.get('to_row')
             SettingAutocompleteService.create(data_url, sheet, from_row,
-                                              to_row, field_instance)
+                                              to_row, field_instance.id)
 
     @staticmethod
     def check_other_options(field_id, field_type):
