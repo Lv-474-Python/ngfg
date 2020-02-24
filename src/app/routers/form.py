@@ -155,8 +155,7 @@ class FormAPI(Resource):
 
         data = request.get_json()
         form_json.update(data)
-        data = form_json
-        is_correct, errors = FormService.validate_data(data)
+        is_correct, errors = FormService.validate_data(form_json)
         if not is_correct:
             raise BadRequest(errors)
 
