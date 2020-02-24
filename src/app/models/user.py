@@ -14,9 +14,10 @@ class User(AbstractModel, UserMixin):
 
     __tablename__ = 'users'
 
-    username = DB.Column(DB.String, nullable=False)
+    username = DB.Column(DB.String, nullable=True)
     email = DB.Column(DB.String, unique=True, nullable=False)
-    google_token = DB.Column(DB.Text, unique=True, nullable=False)
+    google_token = DB.Column(DB.Text, unique=True, nullable=True)
+    is_active = DB.Column(DB.Boolean, nullable=False, default=False)
 
     forms = DB.relationship('Form', backref='owner')
     fields = DB.relationship('Field', backref='owner')
