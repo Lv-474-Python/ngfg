@@ -1,7 +1,6 @@
 """
 Custom exceptions
 """
-from werkzeug.exceptions import HTTPException
 
 
 class CustomException(Exception):
