@@ -9,15 +9,13 @@ class FieldOperation:
     @staticmethod
     @transaction_decorator
     def create(name, owner_id, field_type, is_strict=False, **kwargs):
-        
+
         field_instance = FieldService.create(name=name,
                                              owner_id=owner_id,
                                              field_type=field_type,
                                              is_strict=is_strict)
 
-        name_of_field_type = FieldType(field_type).name
-
-        if name_of_field_type == 'Text' or name_of_field_type :
+        if field_type == FieldType.Number.value or field_type == FieldType.Text.value:
             instance_range = kwargs.get('range', None)
             if instance_range is not None:
                 range_min = instance_range.get('min', None)
@@ -25,20 +23,12 @@ class FieldOperation:
                 range_instance = RangeService.create(range_min, range_max)
                 FieldRangeService.create(field_instance.id, range_instance.id)
 
-        elif name_of_field_type == 'Number':
-            instance_range = kwargs.get('range', None)
-            if instance_range is not None:
-                range_min = instance_range.get('min', None)
-                range_max = instance_range.get('max', None)
-                range_instance = RangeService.create(range_min, range_max)
-                FieldRangeService.create(field_instance.id, range_instance.id)
-
-        elif name_of_field_type == 'Radio' or name_of_field_type == 'Checkbox':
+        elif field_type == FieldType.Radio.value or field_type == FieldType.Checkbox.value:
             choice_options = kwargs.get('choice_options')
             for option in choice_options:
                 ChoiceOptionService.create(field_instance.id, option)
 
-        elif name_of_field_type == 'Autocomplete':
+        elif field_type == FieldType.Autocomplete.value:
             setting_autocomplete = kwargs.get('setting_autocomplete')
             data_url = setting_autocomplete.get('data_url')
             sheet = setting_autocomplete.get('sheet')
@@ -58,11 +48,11 @@ class FieldOperation:
         E.G. data = {'range_max':250, 'range_min': 0}
              data = {'choice_options' = ['man', 'woman']}
         """
-        name_of_field_type = FieldType(field_type).name
-        
+
         data = {}
 
-        if name_of_field_type == 'Number' or name_of_field_type == 'Text':
+        if field_type == FieldType.Number.value or \
+                field_type == FieldType.Text.value:
             range_field = FieldRangeService.get_by_field_id(field_id)
             if range_field:
                 ranges = RangeService.get_by_id(range_field.range_id)
@@ -70,13 +60,16 @@ class FieldOperation:
                     range_min = ranges.min
                     range_max = ranges.max
 
-                    data['range_max'] = range_max
-                    data['range_min'] = range_min
+                    data['range'] = {
+                        'min': range_min,
+                        'max': range_max
+                    }
 
-        elif name_of_field_type == 'TextArea':
+        elif field_type == FieldType.TextArea.value:
             return None
 
-        elif name_of_field_type == 'Radio' or name_of_field_type == 'Checkbox':
+        elif field_type == FieldType.Radio.value or \
+                field_type == FieldType.Checkbox.value:
             choice_options = ChoiceOptionService.filter(field_id=field_id)
             if choice_options:
                 data['choice_options'] = []
@@ -84,8 +77,22 @@ class FieldOperation:
                     data['choice_options'].append(option.option_text)
 
         # TODO
-        elif name_of_field_type == 'Autocomplete':
-            pass
+        elif field_type == FieldType.Autocomplete.value:
+            settings_autocomplete = SettingAutocompleteService.filter(
+                field_id=field_id)
+            if settings_autocomplete:
+                settings_autocomplete = settings_autocomplete[0]
+
+            else:
+                print('no settins...')
+                return None
+
+            data['setting_autocomplete'] = {
+                'data_url': settings_autocomplete.data_url,
+                'sheet': settings_autocomplete.sheet,
+                'from_row': settings_autocomplete.from_row,
+                'to_row': settings_autocomplete.to_row
+            }
 
         return data
 
