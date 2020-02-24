@@ -3,6 +3,7 @@
 """
 
 import os
+import requests
 
 BASEDIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
@@ -20,6 +21,7 @@ GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
+GOOGLE_PROVIDER_CONFIG = requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 class Config:
@@ -40,3 +42,5 @@ class Config:
     SWAGGER_UI_REQUEST_DURATION = True
 
     LOG_DIR = os.path.join(BASEDIR, 'logs')
+
+    ERROR_404_HELP = False
