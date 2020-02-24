@@ -51,7 +51,7 @@ class FieldOperation:
         :param field_id:
         :param field_type:
         :return: dict of options or None if field_type == TextArea
-        E.G. data = {'range_max':250, 'range_min': 0}
+        E.G. data = {'range' = {'min' : 0, 'max' : 100}
              data = {'choice_options' = ['man', 'woman']}
         """
 
@@ -60,6 +60,11 @@ class FieldOperation:
         if field_type == FieldType.Number.value or \
            field_type == FieldType.Text.value:
             range_field = FieldRangeService.get_by_field_id(field_id)
+
+            field = FieldService.get_by_id(field_id)
+            if field.is_strict == True:
+                data['is_strict'] = True
+
             if range_field:
                 ranges = RangeService.get_by_id(range_field.range_id)
                 if ranges:

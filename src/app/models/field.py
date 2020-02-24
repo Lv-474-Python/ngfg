@@ -45,4 +45,4 @@ class FieldSchema(MA.Schema):
         Field schema meta
         """
         fields = (
-        "id", "owner_id", "name", "field_type", "is_strict")
+        "id", "owner_id", "name", "field_type")

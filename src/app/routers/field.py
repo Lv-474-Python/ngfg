@@ -79,6 +79,7 @@ class FieldAPI(Resource):
         fields_json = FieldService.to_json(fields, many=True)
 
         # add options to field json
+        print(fields_json)
         for field in fields_json:
             extra_options = FieldOperation.check_other_options(field['id'], field['field_type'])
             if extra_options:
