@@ -7,32 +7,32 @@ from flask_login import current_user
 from app import API
 from app.services.field_crud import FieldOperation, FieldService
 
-NS_FIELDS = API.namespace('fields', description='NgFg APIs')
+FIELDS_NS = API.namespace('fields', description='NgFg APIs')
 
-MAIN_MODEL = API.model('fields', {
+FIELD_MODEL = API.model('Field', {
     'name': fields.String(required=True),
     'owner_id': fields.Integer(required=True),
     'field_type': fields.Integer(required=True)
 })
-AUTOCOMPLETE_MODEL = API.model('setting_autocomplete', {
+AUTOCOMPLETE_MODEL = API.model('Setting_autocomplete', {
     "data_url": fields.String,
     "sheet": fields.String,
     "from_row": fields.String,
     "to_row": fields.String,
 })
-RANGE_MODEL = API.model('range', {
+RANGE_MODEL = API.model('Range', {
     'min': fields.Integer,
     'max': fields.Integer
 })
 
-EXTENDED_MODEL = API.inherit('extended_field', MAIN_MODEL, {
+EXTENDED_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
     "range": fields.Nested(RANGE_MODEL),
     "choice_options": fields.List(fields.String),
     "setting_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
-@NS_FIELDS.route("/")
+@FIELDS_NS.route("")
 class FieldAPI(Resource):
     """
     Field API
@@ -49,7 +49,7 @@ class FieldAPI(Resource):
         req = request.json
         data = FieldOperation.create(**req)
 
-        return {'data': data, 'SUCCESS': 'OK'}
+        return jsonify(data)
 
     @API.doc(
         responses={

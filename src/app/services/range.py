@@ -5,7 +5,7 @@ from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import RangeNotExist
 from app.models import Range
-from app.models.range import RangeSchema
+from app.models import RangeSchema
 
 
 class RangeService:

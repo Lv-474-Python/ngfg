@@ -1,8 +1,8 @@
 """
 Field operations
 """
-from app.services import FieldService, FieldRangeService, RangeService, \
-    ChoiceOptionService, SettingAutocompleteService
+from app.services import (FieldService, FieldRangeService, RangeService,
+                          ChoiceOptionService, SettingAutocompleteService)
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 from app.helper.errors import ChoiceNotSend, NotEnoughOptionsSend, SettingAutocompleteNotSend
@@ -46,7 +46,7 @@ class FieldOperation:
         data['field_type'] = field_type
         data['is_strict'] = is_strict
 
-        if field_type in(FieldType.Number.value, FieldType.Text.value):
+        if field_type in (FieldType.Number.value, FieldType.Text.value):
             instance_range = kwargs.get('range', None)
             if instance_range is not None:
                 range_min = instance_range.get('min', None)
