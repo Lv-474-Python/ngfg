@@ -4,6 +4,7 @@ FormResult model
 
 from sqlalchemy import func
 from app import DB
+from app import MA
 from .abstract_model import AbstractModel
 
 
@@ -25,4 +26,16 @@ class FormResult(AbstractModel):
 
     def __repr__(self):
         return (f"<FormResult {self.id}, user: {self.user.id}, "
-                f"answer: {self.answer}, form_id: {self.form.id}")
+                f"answer: {self.answers}, form_id: {self.form.id}")
+
+
+class FormResultSchema(MA.SQLAlchemyAutoSchema):
+    """
+    FormResult marshmallow schema
+    """
+    class Meta:
+        """
+        Schema meta
+        """
+        model = FormResult
+        include_fk = True

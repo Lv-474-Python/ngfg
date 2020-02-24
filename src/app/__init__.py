@@ -1,8 +1,8 @@
 """
     Initialise of app.
 """
-
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
 from flask_script import Manager
@@ -22,7 +22,7 @@ MIGRATE = Migrate(APP, DB, directory=APP.config['MIGRATION_DIR'])
 MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 LOGGER = create_logger(APP.config['LOG_DIR'])
-
+MA = Marshmallow(APP)
 BLUEPRINT = Blueprint('api', __name__, url_prefix='/api/v1')
 API = Api(
     app=BLUEPRINT,

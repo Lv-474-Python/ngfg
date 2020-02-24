@@ -5,6 +5,7 @@ FormResult service
 from app.models import FormResult
 from app import DB
 from app.helper.decorators import transaction_decorator
+from app.models.form_result import FormResultSchema
 
 
 class FormResultService:
@@ -71,4 +72,22 @@ class FormResultService:
             filter_data['created'] = created
 
         result = FormResult.query.filter_by(**filter_data).all()
+        return result
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = FormResultSchema(many=many)
+        result = schema.dump(data)
+        return result
+
+    @staticmethod
+    def from_json(data):
+        """
+        Get data in json format
+        """
+        schema = FormResultSchema()
+        result = schema.load(data)
         return result
