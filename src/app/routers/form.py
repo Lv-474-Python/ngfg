@@ -5,7 +5,7 @@ Form resource API
 from flask import request, jsonify
 from flask_restx import Resource, fields
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from app import API
 from app.services import FormService
@@ -49,6 +49,7 @@ class FormsAPI(Resource):
             404: 'Forms not found'
         }
     )
+    @login_required
     # pylint: disable=no-self-use
     def get(self):
         """
@@ -66,16 +67,24 @@ class FormsAPI(Resource):
         responses={
             200: 'OK',
             400: 'Invalid syntax',
-            401: 'Unauthorized'
-        }
+            401: 'Unauthorized',
+            403: 'Forbidden to update'
+        },
     )
     @API.expect(MODEL)
+    @login_required
     # pylint: disable=no-self-use
     def post(self):
         """
         Create new form
         """
         data = request.get_json()
+        is_correct, errors = FormService.validate_data(data)
+        if not is_correct:
+            raise BadRequest(errors)
+        if data['owner_id'] != current_user.id:
+            raise Forbidden("Create form is forbidden")
+
         form = FormService.create(**data)
         if form is None:
             raise BadRequest("Cannot create form instance")
@@ -84,7 +93,7 @@ class FormsAPI(Resource):
         return jsonify(form_json)
 
 
-@FORM_NS.route("/<int:id>")
+@FORM_NS.route("/<int:form_id>")
 class FormAPI(Resource):
     """
     Form API
@@ -99,16 +108,16 @@ class FormAPI(Resource):
             400: 'Invalid ID',
             404: 'Form not found'},
         params={
-            'id': 'Specify the Id associated with the form'}
+            'form_id': 'Specify the Id associated with the form'}
     )
     #pylint: disable=no-self-use
-    def get(self, id):  # pylint: disable=redefined-builtin
+    def get(self, form_id):  # pylint: disable=redefined-builtin
         """
         Get form by id
 
-        :param id: form id
+        :param form_id: form id
         """
-        form = FormService.get_by_id(id)
+        form = FormService.get_by_id(form_id)
         if form is None:
             raise NotFound("Form with given id wasn't found")
 
@@ -123,25 +132,35 @@ class FormAPI(Resource):
             403: 'Forbidden to update',
             404: 'Form not found'},
         params={
-            'id': 'Specify the Id associated with the form'}
+            'form_id': 'Specify the Id associated with the form'}
     )
     @API.expect(MODEL, validate=False)
+    @login_required
     # pylint: disable=no-self-use
-    def put(self, id):  # pylint: disable=redefined-builtin
+    def put(self, form_id):  # pylint: disable=redefined-builtin
         """
         Update form
 
-        :param id: form id
+        :param form_id: form id
         """
-
-        form = FormService.get_by_id(id)
+        form = FormService.get_by_id(form_id)
         if form is None:
             raise NotFound("Form with given id wasn't found")
         if form.owner != current_user:
             raise Forbidden("Updating form is forbidden")
 
+        form_json = FormService.to_json(form)
+        if form_json.get('id', None):
+            del form_json['id']
+
         data = request.get_json()
-        updated_form = FormService.update(form.id, **data)
+        form_json.update(data)
+        data = form_json
+        is_correct, errors = FormService.validate_data(data)
+        if not is_correct:
+            raise BadRequest(errors)
+
+        updated_form = FormService.update(form_id, **data)
         if updated_form is None:
             raise BadRequest("Couldn't update form")
 
@@ -156,23 +175,23 @@ class FormAPI(Resource):
             403: 'Forbidden to delete',
             404: 'Form not found'},
         params={
-            'id': 'Specify the Id associated with the form'}
+            'form_id': 'Specify the Id associated with the form'}
     )
+    @login_required
     # pylint: disable=no-self-use
-    def delete(self, id):  # pylint: disable=redefined-builtin
+    def delete(self, form_id):  # pylint: disable=redefined-builtin
         """
         Delete form
 
-        :param id: form id
+        :param form_id: form id
         """
-
-        form = FormService.get_by_id(id)
+        form = FormService.get_by_id(form_id)
         if form is None:
             raise NotFound("Form with given id wasn't found")
         if form.owner != current_user:
             raise Forbidden("Deleting form is forbidden")
 
-        is_deleted = bool(FormService.delete(id))
+        is_deleted = bool(FormService.delete(form_id))
         if not is_deleted:
             raise BadRequest("Couldn't delete form")
 
