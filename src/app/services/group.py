@@ -24,7 +24,6 @@ class GroupService:
         :return: Group model object or None
         """
         group = Group(name=name, owner_id=owner_id)
-
         DB.session.add(group)
         return group
 
