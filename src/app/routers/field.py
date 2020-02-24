@@ -71,7 +71,8 @@ class FieldAPI(Resource):
 
         # add options to field json
         for field in fields_json:
-            extra_options = FieldOperation.check_other_options(field['id'], field['field_type'])
+            extra_options = FieldOperation.check_other_options(field['id'],
+                                                               field['field_type'])
             if extra_options:
                 for key, value in extra_options.items():
                     field[key] = value
