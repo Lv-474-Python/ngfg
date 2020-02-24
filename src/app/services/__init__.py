@@ -14,3 +14,4 @@ from .form import FormService
 from .form_field import FormFieldService
 from .choice_option import ChoiceOptionService
 from .group import GroupService
+from .group_user import GroupUserService

@@ -49,7 +49,6 @@ class GroupService:
             group.owner_id = owner_id
 
         DB.session.merge(group)
-
         return group
 
     @staticmethod
