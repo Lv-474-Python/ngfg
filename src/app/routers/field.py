@@ -2,7 +2,6 @@ from flask_restx import fields, Resource
 from flask import request
 
 from app import API
-from app.models import Field
 from app.services.field_crud import FieldOperation, FieldService
 from flask import jsonify
 from flask_login import current_user
@@ -41,10 +40,6 @@ class FieldAPI(Resource):
     @API.expect(main_model)
     def post(self):
         try:
-            # name = request.json['name']
-            # owner_id = request.json['owner_id']
-            # field_type = request.json['field_type']
-
             req = request.json
             for i in req:
                 print(req[f'{i}'])
@@ -60,7 +55,7 @@ class FieldAPI(Resource):
                              status="Could not save information",
                              statusCode="500")
         except Exception as e:
-            name_space.abort(400,    e.__doc__,
+            name_space.abort(400, e.__doc__,
                              status="Could not save information",
                              statusCode="400")
 
@@ -85,5 +80,5 @@ class FieldAPI(Resource):
             if extra_options:
                 for key, value in extra_options.items():
                     field[key]=value
-
+        print(fields_json)
         return jsonify(fields_json)

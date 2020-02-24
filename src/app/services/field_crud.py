@@ -15,21 +15,15 @@ class FieldOperation:
                                              field_type=field_type,
                                              is_strict=is_strict)
 
-        if field_type == FieldType.Text.value:
-            range_min = kwargs.get('range_min', 0)
-            range_max = kwargs.get('range_max', 255)
-            range_instance = RangeService.create(range_min, range_max)
-            FieldRangeService.create(field_instance.id, range_instance.id)
+        if field_type == FieldType.Number.value or field_type == FieldType.Text.value:
+            instance_range = kwargs.get('range', None)
+            if instance_range is not None:
+                range_min = instance_range.get('min', None)
+                range_max = instance_range.get('max', None)
+                range_instance = RangeService.create(range_min, range_max)
+                FieldRangeService.create(field_instance.id, range_instance.id)
 
-        elif field_type == FieldType.Number.value:
-            range_min = kwargs.get('range_min', -2_147_483_647)
-            # max range will  be validated
-            range_max = kwargs.get('range_max', 2_147_483_647)
-            range_instance = RangeService.create(range_min, range_max)
-            FieldRangeService.create(field_instance.id, range_instance.id)
-
-        elif field_type == FieldType.Radio.value or \
-                field_type == FieldType.Checkbox.value:
+        elif field_type == FieldType.Radio.value or field_type == FieldType.Checkbox.value:
             choice_options = kwargs.get('choice_options')
             for option in choice_options:
                 ChoiceOptionService.create(field_instance.id, option)
@@ -58,7 +52,7 @@ class FieldOperation:
         data = {}
 
         if field_type == FieldType.Number.value or \
-           field_type == FieldType.Text.value:
+                field_type == FieldType.Text.value:
             range_field = FieldRangeService.get_by_field_id(field_id)
 
             field = FieldService.get_by_id(field_id)
@@ -72,15 +66,15 @@ class FieldOperation:
                     range_max = ranges.max
 
                     data['range'] = {
-                    'min': range_min,
-                    'max' : range_max
+                        'min': range_min,
+                        'max': range_max
                     }
 
         elif field_type == FieldType.TextArea.value:
             return None
 
         elif field_type == FieldType.Radio.value or \
-             field_type == FieldType.Checkbox.value:
+                field_type == FieldType.Checkbox.value:
             choice_options = ChoiceOptionService.filter(field_id=field_id)
             if choice_options:
                 data['choice_options'] = []
@@ -99,10 +93,10 @@ class FieldOperation:
                 return None
 
             data['setting_autocomplete'] = {
-                'data_url':settings_autocomplete.data_url,
-                'sheet':settings_autocomplete.sheet,
-                'from_row':settings_autocomplete.from_row,
-                'to_row':settings_autocomplete.to_row
+                'data_url': settings_autocomplete.data_url,
+                'sheet': settings_autocomplete.sheet,
+                'from_row': settings_autocomplete.from_row,
+                'to_row': settings_autocomplete.to_row
             }
 
         return data
