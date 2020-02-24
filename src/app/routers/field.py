@@ -47,9 +47,9 @@ class FieldAPI(Resource):
         :return: json
         """
         req = request.json
-        FieldOperation.create(**req)
+        data = FieldOperation.create(**req)
 
-        return {'SUCCESS': 'OK'}
+        return {'data': data, 'SUCCESS' : 'OK'}
 
     @API.doc(
         responses={
