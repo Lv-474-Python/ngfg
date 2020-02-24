@@ -3,7 +3,6 @@ Field Service
 """
 from app import DB
 from app.models import Field, FieldSchema
-from app.models.field import FieldNumberSchema
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FieldNotExist
 
@@ -120,5 +119,5 @@ class FieldService:
         """
         Get data in json format
         """
-        schema = FieldNumberSchema(many=many)
+        schema = FieldSchema(many=many)
         return schema.dump(data)

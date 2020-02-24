@@ -1,3 +1,6 @@
+"""
+Field operations
+"""
 from app.services import FieldService, FieldRangeService, RangeService, \
     ChoiceOptionService, SettingAutocompleteService
 from app.helper.decorators import transaction_decorator
@@ -6,17 +9,44 @@ from app.helper.errors import ChoiceNotSend, NotEnoughOptionsSend, SettingAutoco
 
 
 class FieldOperation:
-
+    """
+    Field operations
+    """
     @staticmethod
     @transaction_decorator
+    # pylint: disable=too-many-locals
     def create(name, owner_id, field_type, is_strict=False, **kwargs):
+        """
+        Create field and other options in db
+
+        :param name:
+        :param owner_id:
+        :param field_type:
+        :param is_strict:
+        :param kwargs: it may be:
+            range={min,max},
+            choice_options=['man', 'woman'],
+            settings_autocomplete = {
+                'data_url': 'http//...,
+                'sheet': 'sheet name',
+                'from_row': 'E1',
+                'to_row': 'E25'
+            }
+        :return: dict
+        """
+
+        data = {}
 
         field_instance = FieldService.create(name=name,
                                              owner_id=owner_id,
                                              field_type=field_type,
                                              is_strict=is_strict)
+        data['name'] = name
+        data['owner_id'] = owner_id
+        data['field_type'] = field_type
+        data['is_strict'] = is_strict
 
-        if field_type == FieldType.Number.value or field_type == FieldType.Text.value:
+        if field_type in(FieldType.Number.value, FieldType.Text.value):
             instance_range = kwargs.get('range', None)
             if instance_range is not None:
                 range_min = instance_range.get('min', None)
@@ -24,7 +54,13 @@ class FieldOperation:
                 range_instance = RangeService.create(range_min, range_max)
                 FieldRangeService.create(field_instance.id, range_instance.id)
 
-        elif field_type == FieldType.Radio.value or field_type == FieldType.Checkbox.value:
+                data['range'] = {
+                    'min': range_min,
+                    'max': range_max
+                }
+
+        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
+            data['choice_options'] = []
             choice_options = kwargs.get('choice_options', None)
             if choice_options is None:
                 raise ChoiceNotSend()
@@ -34,6 +70,7 @@ class FieldOperation:
                 raise NotEnoughOptionsSend()
 
             for option in choice_options:
+                data['choice_options'].append(option)
                 ChoiceOptionService.create(field_instance.id, option)
 
         elif field_type == FieldType.Autocomplete.value:
@@ -48,6 +85,15 @@ class FieldOperation:
             SettingAutocompleteService.create(data_url, sheet, from_row,
                                               to_row, field_instance.id)
 
+            data['setting_autocomplete'] = {
+                'data_url': data_url,
+                'sheet': sheet,
+                'from_row': from_row,
+                'to_row': to_row
+            }
+
+        return data
+
     @staticmethod
     def check_other_options(field_id, field_type):
         """
@@ -55,16 +101,20 @@ class FieldOperation:
 
         :param field_id:
         :param field_type:
-        :return: dict of options or None if field_type == TextArea
-        E.G. data = {'range_max':250, 'range_min': 0}
+        :return: dict of options or None
+        E.G. data = {'range' = {'min' : 0, 'max' : 100}
              data = {'choice_options' = ['man', 'woman']}
         """
 
         data = {}
 
-        if field_type == FieldType.Number.value or \
-                field_type == FieldType.Text.value:
+        if field_type in (FieldType.Number.value, FieldType.Text.value):
             range_field = FieldRangeService.get_by_field_id(field_id)
+
+            field = FieldService.get_by_id(field_id)
+            if field.is_strict:
+                data['is_strict'] = True
+
             if range_field:
                 ranges = RangeService.get_by_id(range_field.range_id)
                 if ranges:
@@ -79,23 +129,19 @@ class FieldOperation:
         elif field_type == FieldType.TextArea.value:
             return None
 
-        elif field_type == FieldType.Radio.value or \
-                field_type == FieldType.Checkbox.value:
+        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
             choice_options = ChoiceOptionService.filter(field_id=field_id)
             if choice_options:
                 data['choice_options'] = []
                 for option in choice_options:
                     data['choice_options'].append(option.option_text)
 
-        # TODO
         elif field_type == FieldType.Autocomplete.value:
             settings_autocomplete = SettingAutocompleteService.filter(
                 field_id=field_id)
             if settings_autocomplete:
                 settings_autocomplete = settings_autocomplete[0]
-
             else:
-                print('no settins...')
                 return None
 
             data['setting_autocomplete'] = {
