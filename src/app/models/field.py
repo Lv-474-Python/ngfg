@@ -4,6 +4,8 @@ Field model
 
 from app import DB, MA
 from .abstract_model import AbstractModel
+from .range import RangeSchema
+from marshmallow import fields
 
 
 class Field(AbstractModel):
@@ -35,6 +37,7 @@ class Field(AbstractModel):
     #     return (f'<Field {self.id}, name - {self.name}, '
     #             f'type - {self.field_type}, is_strict - {self.is_strict}>')
 
+
 class FieldSchema(MA.Schema):
     """
     Form schema
@@ -45,4 +48,10 @@ class FieldSchema(MA.Schema):
         Field schema meta
         """
         fields = (
-        "id", "owner_id", "name", "field_type", "is_strict")
+            "id", "owner_id", "name", "field_type", "is_strict")
+
+
+class FieldNumberSchema(MA.Schema):
+    range = fields.Nested(RangeSchema)
+    class Meta:
+        fields = ("id", "owner_id", "name", "field_type", "is_strict", 'range', )

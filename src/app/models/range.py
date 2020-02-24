@@ -26,6 +26,7 @@ class Range(AbstractModel):
     def __repr__(self):
         return f'<Range ID {self.id}, min {self.min}, max {self.max}>'
 
+
 class RangeSchema(MA.Schema):
     """
     Form schema
@@ -35,4 +36,4 @@ class RangeSchema(MA.Schema):
         """
         Field schema meta
         """
-        fields = ("range_min", "range_max")
+        fields = ("min", "max")

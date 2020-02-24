@@ -2,6 +2,7 @@ from app.services import FieldService, FieldRangeService, RangeService, \
     ChoiceOptionService, SettingAutocompleteService
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
+from app.helper.errors import ChoiceNotSend, NotEnoughOptionsSend, SettingAutocompleteNotSend
 
 
 class FieldOperation:
@@ -24,12 +25,22 @@ class FieldOperation:
                 FieldRangeService.create(field_instance.id, range_instance.id)
 
         elif field_type == FieldType.Radio.value or field_type == FieldType.Checkbox.value:
-            choice_options = kwargs.get('choice_options')
+            choice_options = kwargs.get('choice_options', None)
+            if choice_options is None:
+                raise ChoiceNotSend()
+
+            if field_type == FieldType.Radio.value and len(choice_options) < 2 or \
+                    field_type == FieldType.Checkbox.value and len(choice_options) < 1:
+                raise NotEnoughOptionsSend()
+
             for option in choice_options:
                 ChoiceOptionService.create(field_instance.id, option)
 
         elif field_type == FieldType.Autocomplete.value:
-            setting_autocomplete = kwargs.get('setting_autocomplete')
+            setting_autocomplete = kwargs.get('setting_autocomplete', None)
+            if setting_autocomplete is None:
+                raise SettingAutocompleteNotSend()
+
             data_url = setting_autocomplete.get('data_url')
             sheet = setting_autocomplete.get('sheet')
             from_row = setting_autocomplete.get('from_row')

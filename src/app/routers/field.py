@@ -6,7 +6,6 @@ from app.services.field_crud import FieldOperation, FieldService
 from flask import jsonify
 from flask_login import current_user
 
-
 name_space = API.namespace('FIELD_API', description='NgFg APIs')
 ns_forms = API.namespace('fields', description='NgFg APIs')
 
@@ -20,12 +19,12 @@ main_model = API.model('fields', {
     'owner_id': fields.Integer,
     'field_type': fields.Integer
 })
-autocomplete_model = API.model('setting_autocomplete',{
-        "data_url": fields.String,
-        "sheet": fields.String,
-        "from_row": fields.String,
-        "to_row": fields.String,
-    })
+autocomplete_model = API.model('setting_autocomplete', {
+    "data_url": fields.String,
+    "sheet": fields.String,
+    "from_row": fields.String,
+    "to_row": fields.String,
+})
 
 extended_model = API.inherit('extended_field', main_model, {
     "range_max": fields.Integer,
@@ -39,26 +38,10 @@ extended_model = API.inherit('extended_field', main_model, {
 class FieldAPI(Resource):
     @API.expect(main_model)
     def post(self):
-        try:
-            req = request.json
-            for i in req:
-                print(req[f'{i}'])
-            FieldOperation.create(**req)
-            # return {
-            #     "name": name,
-            #     "owner_id": owner_id,
-            #     "field_type": field_type
-            # }
-            return {'succ': 'kono Dio da'}
-        except KeyError as e:
-            name_space.abort(500, e.__doc__,
-                             status="Could not save information",
-                             statusCode="500")
-        except Exception as e:
-            name_space.abort(400, e.__doc__,
-                             status="Could not save information",
-                             statusCode="400")
-
+        req = request.get_json()
+        print(req)
+        FieldOperation.create(**req)
+        return {'success': 'kono Dio da'}
 
     @API.doc(
         responses={
@@ -72,12 +55,11 @@ class FieldAPI(Resource):
         fields = FieldOperation.get_user_fields(current_user.id)
 
         fields_json = FieldService.to_json(fields, many=True)
-
         # add options to field json
         for field in fields_json:
             extra_options = FieldOperation.check_other_options(field['id'], field['field_type'])
             if extra_options:
                 for key, value in extra_options.items():
-                    field[key]=value
+                    field[key] = value
         print(fields_json)
         return jsonify(fields_json)

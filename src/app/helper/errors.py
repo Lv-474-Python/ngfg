@@ -73,3 +73,27 @@ class ChoiceOptionNotExist(NotExist):
     """
     ChoiceOption not exist exception
     """
+
+
+class NotSend(CustomException):
+    """
+    Base not send exception
+    """
+
+
+class ChoiceNotSend(NotSend):
+    """
+    Choice not send exception
+    """
+
+
+class NotEnoughOptionsSend(NotSend):
+    """
+    Choice not enough options send exception
+    """
+
+
+class SettingAutocompleteNotSend(NotSend):
+    """
+    Setting autocomplete not send exception
+    """
