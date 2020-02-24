@@ -74,7 +74,7 @@ class FieldAPI(Resource):
     )
     def get(self):
 
-        fields = FieldOperation.get(current_user.id)
+        fields = FieldOperation.get_user_fields(current_user.id)
 
         fields_json = FieldService.to_json(fields, many=True)
 

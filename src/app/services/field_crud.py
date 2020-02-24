@@ -9,37 +9,33 @@ class FieldOperation:
     @staticmethod
     @transaction_decorator
     def create(name, owner_id, field_type, is_strict=False, **kwargs):
-        Number = 1
-        Text = 2
-        TextArea = 3
-        Radio = 4
-        Autocomplete = 5
-        Checkbox = 6
-
+        
         field_instance = FieldService.create(name=name,
                                              owner_id=owner_id,
                                              field_type=field_type,
                                              is_strict=is_strict)
 
-        ft = FieldType(field_type).name
-        print(ft)
-        if field_type == Text:
+        name_of_field_type = FieldType(field_type).name
+
+        if name_of_field_type == 'Text':
             range_min = kwargs.get('range_min', 0)
             range_max = kwargs.get('range_max', 255)
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(field_instance.id, range_instance.id)
-        elif field_type == Number:
+
+        elif name_of_field_type == 'Number':
             range_min = kwargs.get('range_min', -2_147_483_647)
             # max range will  be validated
             range_max = kwargs.get('range_max', 2_147_483_647)
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(field_instance.id, range_instance.id)
-        elif field_type == Radio or field_type == Checkbox:
+
+        elif name_of_field_type == 'Radio' or name_of_field_type == 'Checkbox':
             choice_options = kwargs.get('choice_options')
             for option in choice_options:
                 ChoiceOptionService.create(field_instance.id, option)
 
-        elif field_type == Autocomplete:
+        elif name_of_field_type == 'Autocomplete':
             data_url = kwargs.get('data_url')
             sheet = kwargs.get('sheet')
             from_row = kwargs.get('from_row')
@@ -58,17 +54,11 @@ class FieldOperation:
         E.G. data = {'range_max':250, 'range_min': 0}
              data = {'choice_options' = ['man', 'woman']}
         """
-        # TODO CHANGE COPY PASTE
-        Number = 1
-        Text = 2
-        TextArea = 3
-        Radio = 4
-        Autocomplete = 5
-        Checkbox = 6
-
+        name_of_field_type = FieldType(field_type).name
+        
         data = {}
 
-        if field_type == Number or field_type == Text:
+        if name_of_field_type == 'Number' or name_of_field_type == 'Text':
             range_field = FieldRangeService.get_by_field_id(field_id)
             if range_field:
                 ranges = RangeService.get_by_id(range_field.range_id)
@@ -79,10 +69,10 @@ class FieldOperation:
                     data['range_max'] = range_max
                     data['range_min'] = range_min
 
-        elif field_type == TextArea:
+        elif name_of_field_type == 'TextArea':
             return None
 
-        elif field_type == Radio or field_type == Checkbox:
+        elif name_of_field_type == 'Radio' or name_of_field_type == 'Checkbox':
             choice_options = ChoiceOptionService.filter(field_id=field_id)
             if choice_options:
                 data['choice_options'] = []
@@ -90,13 +80,13 @@ class FieldOperation:
                     data['choice_options'].append(option.option_text)
 
         # TODO
-        elif field_type == Autocomplete:
+        elif name_of_field_type == 'Autocomplete':
             pass
 
         return data
 
     @staticmethod
-    def get(user_id):
+    def get_user_fields(user_id):
         """
         Get list of user`s fields
 
