@@ -3,7 +3,7 @@ from flask import request
 
 from app import API
 from app.models import Field
-from app.services.field_post import FieldPost, FieldService
+from app.services.field_crud import FieldOperation, FieldService
 from flask import jsonify
 from flask_login import current_user
 
@@ -48,7 +48,7 @@ class FieldAPI(Resource):
             req = request.json
             for i in req:
                 print(req[f'{i}'])
-            FieldPost.create(**req)
+            FieldOperation.create(**req)
             # return {
             #     "name": name,
             #     "owner_id": owner_id,
@@ -74,13 +74,13 @@ class FieldAPI(Resource):
     )
     def get(self):
 
-        fields = FieldPost.get(current_user.id)
+        fields = FieldOperation.get(current_user.id)
 
         fields_json = FieldService.to_json(fields, many=True)
 
         # add options to field json
         for field in fields_json:
-            extra_options = FieldPost.check_other_options(field['id'], field['field_type'])
+            extra_options = FieldOperation.check_other_options(field['id'], field['field_type'])
             if extra_options:
                 for key, value in extra_options.items():
                     field[key]=value

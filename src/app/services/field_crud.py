@@ -4,7 +4,7 @@ from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 
 
-class FieldPost:
+class FieldOperation:
 
     @staticmethod
     @transaction_decorator
@@ -21,6 +21,8 @@ class FieldPost:
                                              field_type=field_type,
                                              is_strict=is_strict)
 
+        ft = FieldType(field_type).name
+        print(ft)
         if field_type == Text:
             range_min = kwargs.get('range_min', 0)
             range_max = kwargs.get('range_max', 255)
