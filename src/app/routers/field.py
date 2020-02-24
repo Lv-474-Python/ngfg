@@ -1,64 +1,55 @@
+"""
+Field router.
+"""
+from flask import request, jsonify
 from flask_restx import fields, Resource
-from flask import request
-
+from flask_login import current_user
 from app import API
 from app.services.field_crud import FieldOperation, FieldService
-from flask import jsonify
-from flask_login import current_user
 
 
-name_space = API.namespace('FIELD_API', description='NgFg APIs')
-ns_forms = API.namespace('fields', description='NgFg APIs')
 
-# main_model = API.model('fields', {
-#     'name': fields.String(required=True, description="Name of the field", help="Name cannot be blank."),
-#     'owner_id': fields.Integer(required=False, description="ID of owner", help="Name cannot be blank."),
-#     'field_type': fields.Integer(required=True, description="Type of field", help="Name cannot be blank.")
-# })
-main_model = API.model('fields', {
+
+NAME_SPACE = API.namespace('FIELD_API', description='NgFg APIs')
+NS_FORMS = API.namespace('fields', description='NgFg APIs')
+
+MAIN_MODEL = API.model('fields', {
     'name': fields.String,
     'owner_id': fields.Integer,
     'field_type': fields.Integer
 })
-autocomplete_model = API.model('setting_autocomplete',{
+AUTOCOMPLETE_MODEL = API.model('setting_autocomplete', {
         "data_url": fields.String,
         "sheet": fields.String,
         "from_row": fields.String,
         "to_row": fields.String,
     })
 
-extended_model = API.inherit('extended_field', main_model, {
+EXTENDED_MODEL = API.inherit('extended_field', MAIN_MODEL, {
     "range_max": fields.Integer,
     "range_min": fields.Integer,
     "choice_options": fields.List(fields.String),
-    "setting_autocomplete": fields.Nested(autocomplete_model)
+    "setting_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
-@name_space.route("/")
+@NAME_SPACE.route("/")
 class FieldAPI(Resource):
-    @API.expect(main_model)
+    """
+    Field API
+    """
+    @API.expect(MAIN_MODEL)
+    # pylint: disable=no-self-use
     def post(self):
-        try:
-            req = request.json
-            for i in req:
-                print(req[f'{i}'])
-            FieldOperation.create(**req)
-            # return {
-            #     "name": name,
-            #     "owner_id": owner_id,
-            #     "field_type": field_type
-            # }
-            return {'succ': 'kono Dio da'}
-        except KeyError as e:
-            name_space.abort(500, e.__doc__,
-                             status="Could not save information",
-                             statusCode="500")
-        except Exception as e:
-            name_space.abort(400, e.__doc__,
-                             status="Could not save information",
-                             statusCode="400")
+        """
+        Field POST method
 
+        :return: json
+        """
+        req = request.json
+        FieldOperation.create(**req)
+
+        return {'SUCCESS': 'OK'}
 
     @API.doc(
         responses={
@@ -67,18 +58,22 @@ class FieldAPI(Resource):
             404: 'Field not found'
         }
     )
+
+    # pylint: disable=no-self-use
     def get(self):
+        """
+        Field GET method
 
-        fields = FieldOperation.get_user_fields(current_user.id)
-
-        fields_json = FieldService.to_json(fields, many=True)
+        :return: json
+        """
+        field_list = FieldOperation.get_user_fields(current_user.id)
+        fields_json = FieldService.to_json(field_list, many=True)
 
         # add options to field json
-        print(fields_json)
         for field in fields_json:
             extra_options = FieldOperation.check_other_options(field['id'], field['field_type'])
             if extra_options:
                 for key, value in extra_options.items():
-                    field[key]=value
-        print(fields_json)
+                    field[key] = value
+
         return jsonify(fields_json)
