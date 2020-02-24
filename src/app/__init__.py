@@ -10,10 +10,12 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from oauthlib.oauth2 import WebApplicationClient
 from .logging_config import create_logger
+from flask_marshmallow import Marshmallow
 
 from .config import Config, GOOGLE_CLIENT_ID
 
 APP = Flask(__name__)
+MA = Marshmallow(APP)
 APP.config.from_object(Config)
 LOGIN_MANAGER = LoginManager()
 LOGIN_MANAGER.init_app(APP)
@@ -34,5 +36,5 @@ APP.register_blueprint(BLUEPRINT)
 
 GOOGLE_CLIENT = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-from .routers import main, auth  # pylint: disable=wrong-import-position
+from .routers import main, auth, form_field  # pylint: disable=wrong-import-position
 from .models import *  # pylint: disable=wrong-import-position

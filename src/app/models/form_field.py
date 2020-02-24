@@ -1,5 +1,5 @@
 """FormField model"""
-from app import DB
+from app import DB, MA
 from .abstract_model import AbstractModel
 
 
@@ -18,3 +18,14 @@ class FormField(AbstractModel):
 
     def __repr__(self):
         return f'form_id: {self.form_id}; field_id: {self.field_id}'
+
+
+class FormFieldSchema(MA.Schema):
+    """
+    FormField schema
+    """
+    class Meta:
+        """
+        FormField fields to expose
+        """
+        fields = ("id", "field_id", "question", "position")
