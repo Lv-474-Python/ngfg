@@ -29,11 +29,11 @@ class Range(AbstractModel):
 
 class RangeSchema(MA.Schema):
     """
-    Form schema
+    Range schema
     """
 
     class Meta:
         """
-        Field schema meta
+        Range schema meta
         """
         fields = ("min", "max")

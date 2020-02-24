@@ -7,38 +7,38 @@ from flask_login import current_user
 from app import API
 from app.services.field_crud import FieldOperation, FieldService
 
-
-
-
-NAME_SPACE = API.namespace('FIELD_API', description='NgFg APIs')
-NS_FORMS = API.namespace('fields', description='NgFg APIs')
+NS_FIELDS = API.namespace('fields', description='NgFg APIs')
 
 MAIN_MODEL = API.model('fields', {
-    'name': fields.String,
-    'owner_id': fields.Integer,
-    'field_type': fields.Integer
+    'name': fields.String(required=True),
+    'owner_id': fields.Integer(required=True),
+    'field_type': fields.Integer(required=True)
 })
 AUTOCOMPLETE_MODEL = API.model('setting_autocomplete', {
-        "data_url": fields.String,
-        "sheet": fields.String,
-        "from_row": fields.String,
-        "to_row": fields.String,
-    })
+    "data_url": fields.String,
+    "sheet": fields.String,
+    "from_row": fields.String,
+    "to_row": fields.String,
+})
+RANGE_MODEL = API.model('range', {
+    'min': fields.Integer,
+    'max': fields.Integer
+})
 
 EXTENDED_MODEL = API.inherit('extended_field', MAIN_MODEL, {
-    "range_max": fields.Integer,
-    "range_min": fields.Integer,
+    "range": fields.Nested(RANGE_MODEL),
     "choice_options": fields.List(fields.String),
     "setting_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
-@NAME_SPACE.route("/")
+@NS_FIELDS.route("/")
 class FieldAPI(Resource):
     """
     Field API
     """
-    @API.expect(MAIN_MODEL)
+
+    @API.expect(EXTENDED_MODEL)
     # pylint: disable=no-self-use
     def post(self):
         """
@@ -58,7 +58,6 @@ class FieldAPI(Resource):
             404: 'Field not found'
         }
     )
-
     # pylint: disable=no-self-use
     def get(self):
         """

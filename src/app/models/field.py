@@ -36,7 +36,7 @@ class Field(AbstractModel):
 
 class FieldSchema(MA.Schema):
     """
-    Form schema
+    Field schema
     """
 
     class Meta:
