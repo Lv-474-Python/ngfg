@@ -3,7 +3,7 @@ Init models
 '''
 from .user import User
 from .answer import Answer
-from .form import Form
+from .form import Form, FormSchema
 from .field import Field, FieldSchema
 from .choice_option import ChoiceOption
 from .form_field import FormField

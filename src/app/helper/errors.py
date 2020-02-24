@@ -75,6 +75,18 @@ class ChoiceOptionNotExist(NotExist):
     """
 
 
+class GroupNotExist(NotExist):
+    """
+    Group not exist exception
+    """
+
+
+class GroupUserNotExist(NotExist):
+    """
+    GroupUser not exist exception
+    """
+
+
 class NotSend(CustomException):
     """
     Base not send exception
