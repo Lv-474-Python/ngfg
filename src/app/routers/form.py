@@ -68,7 +68,7 @@ class FormsAPI(Resource):
             200: 'OK',
             400: 'Invalid syntax',
             401: 'Unauthorized',
-            403: 'Forbidden to update'
+            403: 'Forbidden to create'
         },
     )
     @API.expect(MODEL)
