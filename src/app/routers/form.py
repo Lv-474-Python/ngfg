@@ -4,16 +4,14 @@ Form resource API
 
 from flask import request, jsonify
 from flask_restx import Resource, fields
+from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 from flask_login import current_user
 
 from app import API
 from app.services import FormService
-from app.helper.errors import (
-    NotFound, BadRequest, Forbidden
-)
 
 
-NS = API.namespace('forms', description='Form APIs')
+FORM_NS = API.namespace('forms', description='Form APIs')
 MODEL = API.model('Form', {
     'owner_id': fields.Integer(
         required=True,
@@ -35,7 +33,7 @@ MODEL = API.model('Form', {
         description="If form is published")})
 
 
-@NS.route("/")
+@FORM_NS.route("/")
 class FormsAPI(Resource):
     """
     Forms API
@@ -86,7 +84,7 @@ class FormsAPI(Resource):
         return jsonify(form_json)
 
 
-@NS.route("/<int:id>")
+@FORM_NS.route("/<int:id>")
 class FormAPI(Resource):
     """
     Form API
@@ -140,7 +138,7 @@ class FormAPI(Resource):
         if form is None:
             raise NotFound("Form with given id wasn't found")
         if form.owner != current_user:
-            raise Forbidden("Updating form with is forbidden")
+            raise Forbidden("Updating form is forbidden")
 
         data = request.get_json()
         updated_form = FormService.update(form.id, **data)

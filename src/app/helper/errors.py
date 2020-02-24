@@ -74,33 +74,3 @@ class ChoiceOptionNotExist(NotExist):
     """
     ChoiceOption not exist exception
     """
-
-
-class BadRequest(HTTPException):
-    """
-    Base bad request exception
-    """
-    def __init__(self, description):
-        super().__init__()
-        self.code = 400
-        self.description = description
-
-
-class Forbidden(HTTPException):
-    """
-    Base forbidden exception
-    """
-    def __init__(self, description):
-        super().__init__()
-        self.code = 403
-        self.description = description
-
-
-class NotFound(HTTPException):
-    """
-    Base not found exception
-    """
-    def __init__(self, description):
-        super().__init__()
-        self.code = 404
-        self.description = description
