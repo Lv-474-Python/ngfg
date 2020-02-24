@@ -2,7 +2,7 @@
 Field model
 """
 
-from app import DB
+from app import DB, MA
 from .abstract_model import AbstractModel
 
 
@@ -30,6 +30,18 @@ class Field(AbstractModel):
     settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
     fields_range = DB.relationship('FieldRange', backref='field')
 
-    def __repr__(self):
-        return (f'<Field {self.id}, name - {self.name}, '
-                f'type - {self.field_type}, is_strict - {self.is_strict}>')
+    # def __repr__(self):
+    #     return (f'<Field {self.id}, name - {self.name}, '
+    #             f'type - {self.field_type}, is_strict - {self.is_strict}>')
+
+class FieldSchema(MA.Schema):
+    """
+    Form schema
+    """
+
+    class Meta:
+        """
+        Field schema meta
+        """
+        fields = (
+        "id", "owner_id", "name", "field_type", "is_strict")

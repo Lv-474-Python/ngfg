@@ -2,7 +2,7 @@
 Field Service
 """
 from app import DB
-from app.models import Field
+from app.models import Field, FieldSchema
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FieldNotExist
 
@@ -113,3 +113,11 @@ class FieldService:
             raise FieldNotExist()
         DB.session.delete(instance)
         return True
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = FieldSchema(many=many)
+        return schema.dump(data)

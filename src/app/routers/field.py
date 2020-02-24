@@ -3,7 +3,10 @@ from flask import request
 
 from app import API
 from app.models import Field
-from app.services.field_post import FieldPost
+from app.services.field_post import FieldPost, FieldService
+from flask import jsonify
+from flask_login import current_user
+
 
 name_space = API.namespace('FIELD_API', description='NgFg APIs')
 ns_forms = API.namespace('fields', description='NgFg APIs')
@@ -35,13 +38,21 @@ extended_model = API.inherit('extended_field', main_model, {
 
 @name_space.route("/")
 class FieldAPI(Resource):
-    @API.expect(main_model)
+    @API.expect(extended_model)
     def post(self):
         try:
-            data = request.json
-            print(data)
-            FieldPost.create(**data)
-            return {'success': '200'}
+            # name = request.json['name']
+            # owner_id = request.json['owner_id']
+            # field_type = request.json['field_type']
+            req = request.json
+            for i in req:
+                print(req[f'{i}'])
+            # return {
+            #     "name": name,
+            #     "owner_id": owner_id,
+            #     "field_type": field_type
+            # }
+            return {'succ': 'kono Dio da'}
         except KeyError as e:
             name_space.abort(500, e.__doc__,
                              status="Could not save information",
