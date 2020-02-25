@@ -2,6 +2,8 @@
 Field model
 """
 
+from app import DB, MA
+from .abstract_model import AbstractModel
 from marshmallow import fields
 from marshmallow.validate import Range
 
@@ -52,7 +54,7 @@ class FieldSchema(MA.Schema):
         """
         Field schema meta
         """
-        fields = ("owner_id", "name", "field_type", "is_strict", "range",
+        fields = ("id", "owner_id", "name", "field_type", "is_strict", "range",
                   "setting_autocomplete", "choice_options")
 
     name = fields.Str(required=True)
@@ -85,10 +87,10 @@ class FieldNumberTextSchema(MA.Schema):
     Field with type number or text schema
     """
     class Meta:
+        fields = ("owner_id", "name", "field_type", "range")
         """
         Field with type number or text schema
         """
-        fields = ("owner_id", "name", "field_type", "is_strict", "range")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
