@@ -49,7 +49,7 @@ class FormFieldsAPI(Resource):
     # pylint: disable=no-self-use
     def get(self, form_id):
         """
-        Get all fields that are contained within a particular form
+        Get all fields that are contained within a form
 
         :param form_id: ID of the form that contains fields
         """
@@ -79,7 +79,7 @@ class FormFieldsAPI(Resource):
     # pylint: disable=no-self-use
     def post(self, form_id):
         """
-        Add field to the particular form
+        Add field to a form
 
         :param form_id: ID of the form to which the field will be inserted
         """
@@ -120,7 +120,7 @@ class FormFieldAPI(Resource):
     # pylint: disable=no-self-use
     def get(self, form_id, form_field_id):
         """
-        Get field from the particular form
+        Get field from a form
 
         :param form_id: ID of the form
         :param form_field_id: ID of the field contained within a form
@@ -196,7 +196,7 @@ class FormFieldAPI(Resource):
     # pylint: disable=no-self-use
     def delete(self, form_id, form_field_id):
         """
-        Remove field from a particular form
+        Remove field from a form
 
         :param form_id: ID of the form
         :param form_field_id: ID of the field contained within a form

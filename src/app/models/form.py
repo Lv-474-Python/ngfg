@@ -2,6 +2,7 @@
 Form database model.
 Table for storing descriptive information about the form.
 """
+from marshmallow import fields
 
 from app import DB, MA
 from .abstract_model import AbstractModel
@@ -36,9 +37,21 @@ class Form(AbstractModel):
 class FormSchema(MA.Schema):
     """
     Form schema
+
+    :param owner_id - id
+    :param name - str
+    :param title - str
+    :param result_url - str
+    :param is_published - bool
     """
     class Meta:
         """
         Form schema meta
         """
         fields = ("id", "owner_id", "name", "title", "result_url", "is_published")
+
+    owner_id = fields.Int(required=True)
+    name = fields.Str(required=True)
+    title = fields.Str(required=True)
+    result_url = fields.Str(required=True)
+    is_published = fields.Bool(required=True)
