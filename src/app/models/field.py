@@ -2,12 +2,10 @@
 Field model
 """
 
-from app import DB, MA
-from .abstract_model import AbstractModel
 from marshmallow import fields
 from marshmallow.validate import Range
 
-from app import (DB, MA)
+from app import DB, MA
 from app.models.range import RangeSchema
 from app.models.setting_autocomplete import SettingAutocompleteSchema
 from .abstract_model import AbstractModel
@@ -87,6 +85,9 @@ class FieldNumberTextSchema(MA.Schema):
     Field with type number or text schema
     """
     class Meta:
+        """
+        Field with type number or text schema meta
+        """
         fields = ("owner_id", "name", "field_type", "range")
         """
         Field with type number or text schema

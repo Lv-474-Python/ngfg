@@ -6,11 +6,11 @@ from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 from app.helper.errors import FieldNotExist, ChoiceNotSend
-from app.models import Field, FieldSchema, FieldNumberTextSchema, RangeSchema, \
-    FieldSettingAutocompleteSchema, FieldChoiceOptionsSchema
+from app.models import Field, FieldSchema, FieldNumberTextSchema, FieldSettingAutocompleteSchema, \
+    FieldChoiceOptionsSchema
+from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
-from app.services.choice_option import ChoiceOptionService
 from app.services.setting_autocomplete import SettingAutocompleteService
 
 
@@ -267,7 +267,7 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_autocomplete_field(name,
+    def create_autocomplete_field(name,  # pylint: disable=too-many-arguments
                                   owner_id,
                                   field_type,
                                   is_strict=False,
