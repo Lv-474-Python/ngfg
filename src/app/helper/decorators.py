@@ -39,6 +39,5 @@ def transaction_decorator(func):
         except CustomException:
             pass
         DB.session.rollback()
-        LOGGER.warning('something went wrong')
         return None
     return wrapper
