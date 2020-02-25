@@ -1,4 +1,6 @@
 """FormField model"""
+from marshmallow import fields
+
 from app import DB, MA
 from .abstract_model import AbstractModel
 
@@ -29,3 +31,7 @@ class FormFieldSchema(MA.Schema):
         FormField fields to expose
         """
         fields = ("id", "field_id", "question", "position")
+
+    field_id = fields.Int(required=True)
+    question = fields.Str(required=True)
+    position = fields.Int(required=True)

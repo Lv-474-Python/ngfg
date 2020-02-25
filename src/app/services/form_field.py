@@ -116,3 +116,12 @@ class FormFieldService:
         """
         form_field_schema = FormFieldSchema(many=many)
         return form_field_schema.dump(data)
+
+    @staticmethod
+    def validate_data(data):
+        """
+        Validate data by FormSchema
+        """
+        schema = FormFieldSchema()
+        errors = schema.validate(data)
+        return not bool(errors), errors

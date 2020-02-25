@@ -39,7 +39,6 @@ class FormFieldsAPI(Resource):
         responses={
             200: 'OK',
             401: 'Unauthorized',
-            500: 'FormField not found'
         },
         params={
             'form_id': 'Specify ID of the form to view its fields'
@@ -59,6 +58,7 @@ class FormFieldsAPI(Resource):
             raise BadRequest("No such form")
         if form.owner_id != current_user.id:
             raise Forbidden("Can't view fields of the form that doesn't belong to you")
+
         form_fields = FormFieldService.filter(form_id=form.id)
         response = {"form_fields": FormFieldService.to_json(form_fields, True)}
         return response
@@ -85,11 +85,16 @@ class FormFieldsAPI(Resource):
         """
 
         form = FormService.get_by_id(form_id)
+
         if form is None:
             raise BadRequest("No such form")
         if form.owner_id != current_user.id:
             raise Forbidden("Can't insert fields into the form that doesn't belong to you")
         data = request.get_json()
+        is_correct, errors = FormFieldService.validate_data(data)
+        if not is_correct:
+            raise BadRequest(errors)
+
         form_field = FormFieldService.create(form_id=form_id, **data)
         if form_field is None:
             raise BadRequest("Couldn't create field")
@@ -108,8 +113,7 @@ class FormFieldAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid ID',
-            404: 'FormField not found'
+            400: 'Invalid FormField ID',
         },
         params={
             'form_id': 'Specify ID of the form that contains the field you want to view',
@@ -142,8 +146,7 @@ class FormFieldAPI(Resource):
             200: 'OK',
             400: 'Invalid syntax',
             401: 'Unauthorized',
-            403: 'Forbidden to update',
-            404: 'FormField not found'
+            403: 'Forbidden update',
         },
         params={
             'form_id': 'ID of the form that contains the field you want to update',
@@ -168,14 +171,21 @@ class FormFieldAPI(Resource):
             raise Forbidden("You can't update fields in this form")
         form_field = FormFieldService.get_by_id(form_field_id)
         if form_field is None:
-            raise BadRequest("There's no objects with the id you specified")
+            raise BadRequest("No such field")
         if form_field.form_id != form.id:
             raise BadRequest("The field with such id doesn't belong in this form")
 
+        form_field_json = FormFieldService.to_json(form_field, False)
         data = request.get_json()
+        form_field_json.update(**data)
+        is_correct, errors = FormFieldService.validate_data(form_field_json)
+        if not is_correct:
+            raise BadRequest(errors)
+
         updated_form_field = FormFieldService.update(form_field_id=form_field_id, **data)
         if updated_form_field is None:
             raise BadRequest("Couldn't update field")
+
         form_field_json = FormFieldService.to_json(updated_form_field, False)
         return jsonify(form_field_json)
 
@@ -185,7 +195,6 @@ class FormFieldAPI(Resource):
             400: 'Invalid syntax',
             401: 'Unauthorized',
             403: 'Forbidden deletion',
-            404: 'FormField not found'
         },
         params={
             'form_id': 'ID of the form from which you want the field removed',
@@ -212,8 +221,8 @@ class FormFieldAPI(Resource):
         if form_field.form_id != form.id:
             raise BadRequest("No such field in this form")
 
-        deletion_successful = FormFieldService.delete(form_field_id)
-        if not deletion_successful:
+        is_deleted = bool(FormFieldService.delete(form_field_id))
+        if not is_deleted:
             raise BadRequest("Failed to delete field")
-        response = {"deletion_success": deletion_successful}
+        response = {"deleted": is_deleted}
         return jsonify(response)
