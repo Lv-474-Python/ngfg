@@ -9,8 +9,7 @@ from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
 from app.helper.errors import SettingAutocompleteNotSend
-from app.services.field_crud import FieldOperation, FieldService
-from app.helper.decorators import transaction_decorator
+from app.services import FieldService
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
 
@@ -51,8 +50,8 @@ class FieldAPI(Resource):
 
         :return: json
         """
-        errors = FieldService.validate(request.json)
-        if errors:
+
+        if errors := FieldService.validate(request.json):
             print(errors)
             raise BadRequest('Invalid parameters')
 
@@ -120,16 +119,19 @@ class FieldAPI(Resource):
 
         :return: json
         """
-        field_list = FieldOperation.get_user_fields(current_user.id)
-        fields_json = FieldService.to_json(field_list, many=True)
+        field_list = FieldService.filter(owner_id=current_user.id)
+
+        response = []
 
         # add options to field json
-        for field in fields_json:
-            extra_options = FieldOperation.check_other_options(field['id'],
-                                                               field[
-                                                                   'field_type'])
+        for field in field_list:
+            extra_options = FieldService.check_other_options(field.id,
+                                                             field.field_type)
+
+            field = FieldService.text_or_number_to_json(field)
             if extra_options:
                 for key, value in extra_options.items():
                     field[key] = value
+            response.append(field)
 
-        return jsonify(fields_json)
+        return jsonify(response)

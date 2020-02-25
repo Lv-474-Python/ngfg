@@ -51,7 +51,7 @@ class FieldSchema(MA.Schema):
         """
         Field schema meta
         """
-        fields = ("owner_id", "name", "field_type", "is_strict", "range",
+        fields = ("id", "owner_id", "name", "field_type", "is_strict", "range",
                   "setting_autocomplete", "choice_options")
 
     name = fields.Str(required=True)
@@ -75,7 +75,7 @@ class FieldChoiceOptionsSchema(MA.Schema):
 
 class FieldNumberTextSchema(MA.Schema):
     class Meta:
-        fields = ("owner_id", "name", "field_type", "is_strict", "range")
+        fields = ("owner_id", "name", "field_type", "range")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)

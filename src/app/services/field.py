@@ -132,6 +132,30 @@ class FieldService:
         return schema.dump(data)
 
     @staticmethod
+    def text_or_number_to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = FieldNumberTextSchema(many=many)
+        return schema.dump(data)
+
+    @staticmethod
+    def choice_to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = FieldChoiceOptionsSchema(many=many)
+        return schema.dump(data)
+
+    @staticmethod
+    def setting_autocomplete_to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = FieldSettingAutocompleteSchema(many=many)
+        return schema.dump(data)
+
+    @staticmethod
     def validate(data):
         errors = FieldSchema().validate(data)
         return errors
@@ -290,4 +314,3 @@ class FieldService:
             }
 
         return data
-
