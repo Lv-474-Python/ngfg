@@ -49,7 +49,7 @@ def login():
     return redirect(url_for('index'))
 
 
-@APP.route('/login/callback')
+@APP.route('/api/v1/auth/login/callback')
 @GOOGLE_CLIENT.authorized_handler
 def callback(response):
     """

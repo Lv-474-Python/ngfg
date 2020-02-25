@@ -144,18 +144,6 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_autocomplete_settings(field_id,
-                                     data_url,
-                                     sheet,
-                                     from_row,
-                                     to_row):
-
-        SettingAutocompleteService.create(data_url, sheet, from_row,
-                                          to_row, field_id)
-
-
-    @staticmethod
-    @transaction_decorator
     def create_text_or_number_field(name, owner_id, field_type,
                                     is_strict=False,
                                     range_min=None, range_max=None):
@@ -165,13 +153,22 @@ class FieldService:
                                     field_type=field_type,
                                     is_strict=is_strict)
 
+        print('we are here1')
+        print(field)
         data = FieldSchema().dump(field)
 
         if range_min is not None or range_max is not None:
+            print('we are here2')
+            print(range_max, range_min)
             range_instance = FieldService.create_range(field_id=field.id,
                                       range_min=range_min,
                                       range_max=range_max)
-            data['range'] = RangeSchema.dump(range_instance)
+            print(range_instance)
+
+            data['range'] = {
+                    'min': range_min,
+                    'max': range_max
+                }
 
 
 
@@ -215,12 +212,17 @@ class FieldService:
                                     is_strict=is_strict)
 
         data = FieldSchema().dump(field)
-        setting = SettingAutocompleteService.create(data_url=data_url,
+        SettingAutocompleteService.create(data_url=data_url,
                                           sheet=sheet,
                                           from_row=from_row,
                                           to_row=to_row,
                                           field_id=field.id)
 
-        data['setting_autocomplete'] = SettingAutocompleteSchema().dump(setting)
+        data['setting_autocomplete'] = {
+            'data_url': data_url,
+            'sheet': sheet,
+            'from_row': from_row,
+            'to_row': to_row
+        }
 
         return data

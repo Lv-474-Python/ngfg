@@ -53,26 +53,54 @@ class FieldAPI(Resource):
         if errors:
             raise BadRequest()
 
-
         data = request.json
 
         field_type = data['field_type']
 
-        if field_type in(FieldType.Text.value, FieldType.Number.value):
+        if field_type in (FieldType.Text.value, FieldType.Number.value):
+            range_min, range_max = None, None
             if range := data.get('range'):
                 range_min = range.get('min')
                 range_max = range.get('max')
-                data = FieldService.create_text_or_number_field(name=data['name'],
-                                                     owner_id=data['owner_id'],
-                                                     field_type=data['field_type'],
-                                                     range_min=range_min,
-                                                     range_max=range_max)
 
-            return jsonify(data)
+            response = FieldService.create_text_or_number_field(
+                name=data['name'],
+                owner_id=data['owner_id'],
+                field_type=data['field_type'],
+                range_min=range_min,
+                range_max=range_max)
+
+        elif field_type == FieldType.TextArea.value:
+            response = FieldService.create(
+                name=data['name'],
+                owner_id=data['owner_id'],
+                field_type=data['field_type'],
+            )
+            response = FieldSchema().dump(response)
+
+        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
+
+            response = FieldService.create_choice_option_field(
+                name=data['name'],
+                owner_id=data['owner_id'],
+                field_type=data['field_type'],
+                choice_options=data['choice_options']
+            )
+
+        elif field_type == FieldType.Autocomplete.value:
+
+            response = FieldService.create_autocomplete_field(
+                name=data['name'],
+                owner_id=data['owner_id'],
+                field_type=data['field_type'],
+                data_url=data['setting_autocomplete']['data_url'],
+                sheet=data['setting_autocomplete']['sheet'],
+                from_row=data['setting_autocomplete']['from_row'],
+                to_row=data['setting_autocomplete']['to_row']
+            )
 
 
-
-        # return jsonify(data)
+        return jsonify(response)
 
     @API.doc(
         responses={
@@ -94,7 +122,8 @@ class FieldAPI(Resource):
         # add options to field json
         for field in fields_json:
             extra_options = FieldOperation.check_other_options(field['id'],
-                                                               field['field_type'])
+                                                               field[
+                                                                   'field_type'])
             if extra_options:
                 for key, value in extra_options.items():
                     field[key] = value
