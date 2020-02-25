@@ -60,4 +60,6 @@ class FieldSchema(MA.Schema):
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema)
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema)
-    choice_options = fields.List(fields.Str())
+    choice_options = fields.List(fields.Str(), required=False)
+
+

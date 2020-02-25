@@ -9,6 +9,7 @@ from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
 from app.services.field_crud import FieldOperation, FieldService
+from app.helper.decorators import transaction_decorator
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
 
