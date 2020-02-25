@@ -52,7 +52,8 @@ class FieldAPI(Resource):
         """
         errors = FieldService.validate(request.json)
         if errors:
-            raise BadRequest()
+            print(errors)
+            raise BadRequest('Invalid parameters')
 
         data = request.json
 

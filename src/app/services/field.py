@@ -4,6 +4,7 @@ Field Service
 
 from app import DB
 from app.helper.decorators import transaction_decorator
+from app.helper.enums import FieldType
 from app.helper.errors import FieldNotExist, ChoiceNotSend
 from app.models import Field, FieldSchema, RangeSchema, \
     SettingAutocompleteSchema
@@ -226,3 +227,64 @@ class FieldService:
         }
 
         return data
+
+    # YOI NAI BUDE
+    @staticmethod
+    def check_other_options(field_id, field_type):
+        """
+        Check if field has other extra options
+
+        :param field_id:
+        :param field_type:
+        :return: dict of options or None
+        E.G. data = {'range' = {'min' : 0, 'max' : 100}
+             data = {'choice_options' = ['man', 'woman']}
+        """
+
+        data = {}
+
+        if field_type in (FieldType.Number.value, FieldType.Text.value):
+            range_field = FieldRangeService.get_by_field_id(field_id)
+
+            field = FieldService.get_by_id(field_id)
+            if field.is_strict:
+                data['is_strict'] = True
+
+            if range_field:
+                ranges = RangeService.get_by_id(range_field.range_id)
+                if ranges:
+                    range_min = ranges.min
+                    range_max = ranges.max
+
+                    data['range'] = {
+                        'min': range_min,
+                        'max': range_max
+                    }
+
+        elif field_type == FieldType.TextArea.value:
+            return None
+
+        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
+            choice_options = ChoiceOptionService.filter(field_id=field_id)
+            if choice_options:
+                data['choice_options'] = []
+                for option in choice_options:
+                    data['choice_options'].append(option.option_text)
+
+        elif field_type == FieldType.Autocomplete.value:
+            settings_autocomplete = SettingAutocompleteService.filter(
+                field_id=field_id)
+            if settings_autocomplete:
+                settings_autocomplete = settings_autocomplete[0]
+            else:
+                return None
+
+            data['setting_autocomplete'] = {
+                'data_url': settings_autocomplete.data_url,
+                'sheet': settings_autocomplete.sheet,
+                'from_row': settings_autocomplete.from_row,
+                'to_row': settings_autocomplete.to_row
+            }
+
+        return data
+
