@@ -1,8 +1,9 @@
 """
 SettingsAutocomplete model
 """
-from app import DB
+from app import DB, MA
 from .abstract_model import AbstractModel
+from marshmallow import fields
 
 
 class SettingAutocomplete(AbstractModel):
@@ -27,3 +28,20 @@ class SettingAutocomplete(AbstractModel):
         return (f"<SettingAutocomplete {self.id}, data_url - {self.data_url}', "
                 f"sheet - {self.sheet}, from_row - {self.from_row}, "
                 f"to_row - {self.to_row}, Field - {self.field.id}")
+
+
+class SettingAutocompleteSchema(MA.Schema):
+    """
+
+    """
+
+    class Meta:
+        fields = ("data_url", "sheet", "from_row", "to_row")
+
+    data_url = fields.Str(required=True)
+    sheet = fields.Str(required=True)
+    from_row = fields.Str(required=True)
+    to_row = fields.Str(required=True)
+
+
+

@@ -4,7 +4,9 @@ Field model
 
 from app import DB, MA
 from .abstract_model import AbstractModel
-
+from marshmallow import fields
+from app.models.range import RangeSchema
+from app.models.setting_autocomplete import SettingAutocompleteSchema
 
 class Field(AbstractModel):
     """
@@ -34,13 +36,23 @@ class Field(AbstractModel):
         return (f'<Field {self.id}, name - {self.name}, '
                 f'type - {self.field_type}, is_strict - {self.is_strict}>')
 
+
 class FieldSchema(MA.Schema):
     """
     Field schema
     """
-
     class Meta:
         """
         Field schema meta
         """
-        fields = ("id", "owner_id", "name", "field_type")
+        fields = ("owner_id", "name", "field_type", "is_strict", "range", "setting_autocomplete", "choice_options")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(required=True)
+    is_strict = fields.Boolean(required=False)
+    range = fields.Nested(RangeSchema)
+    setting_autocomplete = fields.Nested(SettingAutocompleteSchema)
+    choice_options = fields.List(fields.Str())
+
+

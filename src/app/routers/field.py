@@ -38,7 +38,7 @@ class FieldAPI(Resource):
     Field API
     """
 
-    @API.expect(EXTENDED_MODEL)
+    @API.expect(FIELD_MODEL)
     # pylint: disable=no-self-use
     def post(self):
         """

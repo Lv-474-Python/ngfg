@@ -1,11 +1,15 @@
 """
-Field operations
+FieldService operations
 """
-from app.services import (FieldService, FieldRangeService, RangeService,
-                          ChoiceOptionService, SettingAutocompleteService)
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 from app.helper.errors import ChoiceNotSend, NotEnoughOptionsSend, SettingAutocompleteNotSend
+from app.services import (
+    FieldService,
+    FieldRangeService,
+    RangeService,
+    ChoiceOptionService,
+    SettingAutocompleteService)
 
 
 class FieldOperation:

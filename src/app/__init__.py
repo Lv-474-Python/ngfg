@@ -9,7 +9,6 @@ from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
-from oauthlib.oauth2 import WebApplicationClient
 from flask_oauthlib.client import OAuth
 
 from .logging_config import create_logger

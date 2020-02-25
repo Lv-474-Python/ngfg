@@ -2,6 +2,7 @@
 
 from app import DB, MA
 from .abstract_model import AbstractModel
+from marshmallow import fields
 
 
 class Range(AbstractModel):
@@ -37,3 +38,6 @@ class RangeSchema(MA.Schema):
         Range schema meta
         """
         fields = ("min", "max")
+
+    min = fields.Integer(required=False)
+    max = fields.Integer(required=False)
