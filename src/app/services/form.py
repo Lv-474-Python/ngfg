@@ -143,3 +143,12 @@ class FormService:
         """
         schema = FormSchema(many=many)
         return schema.dump(data)
+
+    @staticmethod
+    def validate_data(data):
+        """
+        Validate data by FormSchema
+        """
+        schema = FormSchema()
+        errors = schema.validate(data)
+        return (not bool(errors), errors)
