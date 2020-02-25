@@ -7,7 +7,7 @@ from .form import Form, FormSchema
 from .field import Field, FieldSchema
 from .choice_option import ChoiceOption
 from .form_field import FormField
-from .setting_autocomplete import SettingAutocomplete
+from .setting_autocomplete import SettingAutocomplete, SettingAutocompleteSchema
 from .shared_field import SharedField
 from .range import Range, RangeSchema
 from .form_result import FormResult

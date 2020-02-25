@@ -4,7 +4,10 @@ Field router.
 from flask import request, jsonify
 from flask_restx import fields, Resource
 from flask_login import current_user
+from werkzeug.exceptions import BadRequest
+from app.models.field import FieldSchema
 from app import API
+from app.helper.enums import FieldType
 from app.services.field_crud import FieldOperation, FieldService
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
@@ -46,10 +49,30 @@ class FieldAPI(Resource):
 
         :return: json
         """
-        req = request.json
-        data = FieldOperation.create(**req)
+        errors = FieldService.validate(request.json)
+        if errors:
+            raise BadRequest()
 
-        return jsonify(data)
+
+        data = request.json
+
+        field_type = data['field_type']
+
+        if field_type in(FieldType.Text.value, FieldType.Number.value):
+            if range := data.get('range'):
+                range_min = range.get('min')
+                range_max = range.get('max')
+                data = FieldService.create_text_or_number_field(name=data['name'],
+                                                     owner_id=data['owner_id'],
+                                                     field_type=data['field_type'],
+                                                     range_min=range_min,
+                                                     range_max=range_max)
+
+            return jsonify(data)
+
+
+
+        # return jsonify(data)
 
     @API.doc(
         responses={
