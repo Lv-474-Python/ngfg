@@ -1,7 +1,7 @@
 '''
 Init models
 '''
-from .user import User
+from .user import User, UserSchema
 from .answer import Answer
 from .form import Form, FormSchema
 from .field import Field
