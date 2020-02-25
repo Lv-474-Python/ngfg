@@ -63,3 +63,32 @@ class FieldSchema(MA.Schema):
     choice_options = fields.List(fields.Str(), required=False)
 
 
+class FieldChoiceOptionsSchema(MA.Schema):
+    class Meta:
+        fields = ("owner_id", "name", "field_type", 'choice_options')
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    choice_options = fields.List(fields.Str(), required=True)
+
+
+class FieldNumberTextSchema(MA.Schema):
+    class Meta:
+        fields = ("owner_id", "name", "field_type", "is_strict", "range")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    is_strict = fields.Boolean(required=False)
+    range = fields.Nested(RangeSchema, required=False)
+
+
+class FieldSettingAutocompleteSchema(MA.Schema):
+    class Meta:
+        fields = ("owner_id", "name", "field_type", "setting_autocomplete")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    setting_autocomplete = fields.Nested(SettingAutocompleteSchema, required=True)

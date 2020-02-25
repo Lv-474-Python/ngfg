@@ -8,8 +8,8 @@ from werkzeug.exceptions import BadRequest
 from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
+from app.helper.errors import SettingAutocompleteNotSend
 from app.services.field_crud import FieldOperation, FieldService
-from app.helper.decorators import transaction_decorator
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
 
@@ -52,7 +52,7 @@ class FieldAPI(Resource):
         """
         errors = FieldService.validate(request.json)
         if errors:
-            raise BadRequest()
+            raise BadRequest('Invalid parameters')
 
         data = request.json
 
@@ -60,9 +60,9 @@ class FieldAPI(Resource):
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
             range_min, range_max = None, None
-            if range := data.get('range'):
-                range_min = range.get('min')
-                range_max = range.get('max')
+            if range_instance := data.get('range'):
+                range_min = range_instance.get('min')
+                range_max = range_instance.get('max')
 
             response = FieldService.create_text_or_number_field(
                 name=data['name'],
@@ -89,7 +89,9 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Autocomplete.value:
-
+            if errors := FieldService.validate_setting_autocomplete(data):
+                print(errors)
+                raise SettingAutocompleteNotSend('SettingAutocompleteNotSend')
             response = FieldService.create_autocomplete_field(
                 name=data['name'],
                 owner_id=data['owner_id'],
@@ -99,7 +101,6 @@ class FieldAPI(Resource):
                 from_row=data['setting_autocomplete']['from_row'],
                 to_row=data['setting_autocomplete']['to_row']
             )
-
 
         return jsonify(response)
 

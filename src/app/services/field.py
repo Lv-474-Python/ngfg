@@ -5,8 +5,8 @@ Field Service
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FieldNotExist, ChoiceNotSend
-from app.models import Field, FieldSchema, RangeSchema, \
-    SettingAutocompleteSchema
+from app.models import Field, FieldSchema, FieldNumberTextSchema, RangeSchema, \
+    FieldSettingAutocompleteSchema, FieldChoiceOptionsSchema
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
 from app.services.choice_option import ChoiceOptionService
@@ -136,6 +136,10 @@ class FieldService:
         return errors
 
     @staticmethod
+    def validate_setting_autocomplete(data):
+        errors = FieldSettingAutocompleteSchema().validate(data)
+        return errors
+    @staticmethod
     @transaction_decorator
     def create_range(field_id, range_min, range_max):
         range_instance = RangeService.create(range_min, range_max)
@@ -155,7 +159,7 @@ class FieldService:
 
         print('we are here1')
         print(field)
-        data = FieldSchema().dump(field)
+        data = FieldNumberTextSchema().dump(field)
 
         if range_min is not None or range_max is not None:
             print('we are here2')
@@ -187,12 +191,11 @@ class FieldService:
                                     field_type=field_type,
                                     is_strict=is_strict)
 
-        data = FieldSchema().dump(field)
+        data = FieldChoiceOptionsSchema().dump(field)
 
         for option in choice_options:
             data['choice_options'].append(option)
             ChoiceOptionService.create(field.id, option)
-
         return data
 
     @staticmethod
@@ -211,7 +214,7 @@ class FieldService:
                                     field_type=field_type,
                                     is_strict=is_strict)
 
-        data = FieldSchema().dump(field)
+        data = FieldSettingAutocompleteSchema().dump(field)
         SettingAutocompleteService.create(data_url=data_url,
                                           sheet=sheet,
                                           from_row=from_row,
