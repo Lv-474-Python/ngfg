@@ -27,7 +27,7 @@ class UserAPI(Resource):
             200: 'OK',
             400: 'Invalid syntax'
         }, params={
-            'user_id': 'Specify the Id associated with the form'
+            'user_id': 'Specify the Id associated with the user'
         }
     )
     #pylint: disable=no-self-use
