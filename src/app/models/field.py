@@ -1,10 +1,8 @@
 """
 Field model
 """
-
 from marshmallow import fields
 from marshmallow.validate import Range
-
 from app import DB, MA
 from app.models.range import RangeSchema
 from app.models.setting_autocomplete import SettingAutocompleteSchema
@@ -68,6 +66,7 @@ class FieldChoiceOptionsSchema(MA.Schema):
     """
     Field with choice options schema
     """
+
     class Meta:
         """
         Field with choice options schema meta
@@ -84,14 +83,12 @@ class FieldNumberTextSchema(MA.Schema):
     """
     Field with type number or text schema
     """
+
     class Meta:
         """
         Field with type number or text schema meta
         """
         fields = ("owner_id", "name", "field_type", "range")
-        """
-        Field with type number or text schema
-        """
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
@@ -104,6 +101,7 @@ class FieldSettingAutocompleteSchema(MA.Schema):
     """
     Field with autocomplete settings schema
     """
+
     class Meta:
         """
         Field with autocomplete settings schema meat
@@ -113,4 +111,5 @@ class FieldSettingAutocompleteSchema(MA.Schema):
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
     field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
-    setting_autocomplete = fields.Nested(SettingAutocompleteSchema, required=True)
+    setting_autocomplete = fields.Nested(SettingAutocompleteSchema,
+                                         required=True)

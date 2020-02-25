@@ -5,7 +5,6 @@ from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import RangeNotExist
 from app.models import Range
-from app.models import RangeSchema
 
 
 class RangeService:
@@ -23,7 +22,8 @@ class RangeService:
         :param range_max: int value
         :return: created object of Range object or returns existing
         """
-        range_exist = Range.query.filter_by(min=range_min, max=range_max).first()
+        range_exist = Range.query.filter_by(min=range_min,
+                                            max=range_max).first()
         if range_exist:
             return range_exist
         instance = Range(min=range_min, max=range_max)
@@ -97,11 +97,3 @@ class RangeService:
             filter_data['max'] = range_max
         result = Range.query.filter_by(**filter_data).all()
         return result
-
-    @staticmethod
-    def to_json(data, many=False):
-        """
-        Get data in json format
-        """
-        schema = RangeSchema(many=many)
-        return schema.dump(data)

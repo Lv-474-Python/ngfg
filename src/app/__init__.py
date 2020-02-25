@@ -10,9 +10,9 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
-
 from .logging_config import create_logger
-from .config import Config, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_PROVIDER_CONFIG
+from .config import (Config, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                     GOOGLE_PROVIDER_CONFIG)
 
 APP = Flask(__name__)
 APP.config.from_object(Config)
@@ -49,8 +49,6 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_key=GOOGLE_CLIENT_ID,
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
-
-
 
 from .routers import main, auth, form, field, user  # pylint: disable=wrong-import-position
 from .models import *  # pylint: disable=wrong-import-position

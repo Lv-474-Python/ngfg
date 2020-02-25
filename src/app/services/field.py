@@ -1,13 +1,15 @@
 """
 Field Service
 """
-
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 from app.helper.errors import FieldNotExist, ChoiceNotSend
-from app.models import Field, FieldSchema, FieldNumberTextSchema, FieldSettingAutocompleteSchema, \
-    FieldChoiceOptionsSchema
+from app.models import (Field,
+                        FieldSchema,
+                        FieldNumberTextSchema,
+                        FieldSettingAutocompleteSchema,
+                        FieldChoiceOptionsSchema)
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
@@ -177,6 +179,26 @@ class FieldService:
         return errors
 
     @staticmethod
+    def validate_text_or_number(data):
+        """
+        Validation for setting autocomplete items
+        :param data:
+        :return: errors if validation failed else empty dict
+        """
+        errors = FieldNumberTextSchema().validate(data)
+        return errors
+
+    @staticmethod
+    def validate_choice(data):
+        """
+        Validation for setting autocomplete items
+        :param data:
+        :return: errors if validation failed else empty dict
+        """
+        errors = FieldChoiceOptionsSchema().validate(data)
+        return errors
+
+    @staticmethod
     @transaction_decorator
     def create_range(field_id, range_min, range_max):
         """
@@ -211,7 +233,8 @@ class FieldService:
         :return:
         """
 
-        field = FieldService.create(name=name,  # pylint: disable=too-many-arguments
+        field = FieldService.create(name=name,
+                                    # pylint: disable=too-many-arguments
                                     owner_id=owner_id,
                                     field_type=field_type,
                                     is_strict=is_strict)

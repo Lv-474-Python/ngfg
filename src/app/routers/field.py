@@ -36,7 +36,7 @@ EXTENDED_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 })
 
 
-@FIELDS_NS.route("")
+@FIELDS_NS.route("/")
 class FieldAPI(Resource):
     """
     Field API
@@ -60,6 +60,9 @@ class FieldAPI(Resource):
         field_type = data['field_type']
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
+            if errors := FieldService.validate_text_or_number(request.json):
+                print(errors)
+                raise BadRequest('Invalid Text/Number parameters')
             range_min, range_max = None, None
             if range_instance := data.get('range'):
                 range_min = range_instance.get('min')
@@ -81,7 +84,9 @@ class FieldAPI(Resource):
             response = FieldSchema().dump(response)
 
         elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
-
+            if errors := FieldService.validate_choice(request.json):
+                print(errors)
+                raise BadRequest('Invalid Choice parameters')
             response = FieldService.create_choice_option_field(
                 name=data['name'],
                 owner_id=data['owner_id'],
@@ -90,9 +95,9 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Autocomplete.value:
-            if errors := FieldService.validate_setting_autocomplete(data):
+            if errors := FieldService.validate_setting_autocomplete(request.json):
                 print(errors)
-                raise SettingAutocompleteNotSend('SettingAutocompleteNotSend')
+                raise BadRequest('Invalid Autocomplete parameters')
             response = FieldService.create_autocomplete_field(
                 name=data['name'],
                 owner_id=data['owner_id'],
