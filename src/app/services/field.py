@@ -132,27 +132,61 @@ class FieldService:
 
     @staticmethod
     def validate(data):
+        """
+        Global post validation
+
+        :param data:
+        :return: errors if validation failed else empty dict
+        """
         errors = FieldSchema().validate(data)
         return errors
 
     @staticmethod
     def validate_setting_autocomplete(data):
+        """
+        Validation for setting autocomplete items
+        :param data:
+        :return: errors if validation failed else empty dict
+        """
         errors = FieldSettingAutocompleteSchema().validate(data)
         return errors
+
     @staticmethod
     @transaction_decorator
     def create_range(field_id, range_min, range_max):
+        """
+        Creates range and range_field connection
+
+        :param field_id:
+        :param range_min:
+        :param range_max:
+        :return:
+        """
         range_instance = RangeService.create(range_min, range_max)
         FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
         return True
 
     @staticmethod
     @transaction_decorator
-    def create_text_or_number_field(name, owner_id, field_type,
+    def create_text_or_number_field(name,  # pylint: disable=too-many-arguments
+                                    owner_id,
+                                    field_type,
                                     is_strict=False,
-                                    range_min=None, range_max=None):
+                                    range_min=None,
+                                    range_max=None):
+        """
+        Creates number or text field with or without range
 
-        field = FieldService.create(name=name,
+        :param name:
+        :param owner_id:
+        :param field_type:
+        :param is_strict:
+        :param range_min:
+        :param range_max:
+        :return:
+        """
+
+        field = FieldService.create(name=name,  # pylint: disable=too-many-arguments
                                     owner_id=owner_id,
                                     field_type=field_type,
                                     is_strict=is_strict)
@@ -165,16 +199,14 @@ class FieldService:
             print('we are here2')
             print(range_max, range_min)
             range_instance = FieldService.create_range(field_id=field.id,
-                                      range_min=range_min,
-                                      range_max=range_max)
+                                                       range_min=range_min,
+                                                       range_max=range_max)
             print(range_instance)
 
             data['range'] = {
-                    'min': range_min,
-                    'max': range_max
-                }
-
-
+                'min': range_min,
+                'max': range_max
+            }
 
         return data
 
@@ -182,6 +214,16 @@ class FieldService:
     @transaction_decorator
     def create_choice_option_field(name, owner_id, field_type, is_strict=False,
                                    choice_options=None):
+        """
+        Creates radio or check field
+
+        :param name:
+        :param owner_id:
+        :param field_type:
+        :param is_strict:
+        :param choice_options:
+        :return:
+        """
 
         if choice_options is None:
             raise ChoiceNotSend()
@@ -208,6 +250,19 @@ class FieldService:
                                   sheet=None,
                                   from_row=None,
                                   to_row=None):
+        """
+        Creates autocomplete field
+
+        :param name:
+        :param owner_id:
+        :param field_type:
+        :param is_strict:
+        :param data_url:
+        :param sheet:
+        :param from_row:
+        :param to_row:
+        :return:
+        """
 
         field = FieldService.create(name=name,
                                     owner_id=owner_id,

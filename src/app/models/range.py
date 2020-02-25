@@ -1,8 +1,9 @@
 """Range model"""
 
+from marshmallow import fields
+
 from app import DB, MA
 from .abstract_model import AbstractModel
-from marshmallow import fields
 
 
 class Range(AbstractModel):

@@ -8,7 +8,7 @@ from sqlalchemy.exc import (
     ProgrammingError,
 )
 
-from app import DB, LOGGER
+from app import DB
 from .errors import CustomException
 
 

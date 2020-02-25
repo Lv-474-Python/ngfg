@@ -2,12 +2,13 @@
 Field model
 """
 
-from app import DB, MA
-from .abstract_model import AbstractModel
 from marshmallow import fields
 from marshmallow.validate import Range
+
+from app import (DB, MA)
 from app.models.range import RangeSchema
 from app.models.setting_autocomplete import SettingAutocompleteSchema
+from .abstract_model import AbstractModel
 
 
 class Field(AbstractModel):
@@ -64,7 +65,13 @@ class FieldSchema(MA.Schema):
 
 
 class FieldChoiceOptionsSchema(MA.Schema):
+    """
+    Field with choice options schema
+    """
     class Meta:
+        """
+        Field with choice options schema meta
+        """
         fields = ("owner_id", "name", "field_type", 'choice_options')
 
     name = fields.Str(required=True)
@@ -74,7 +81,13 @@ class FieldChoiceOptionsSchema(MA.Schema):
 
 
 class FieldNumberTextSchema(MA.Schema):
+    """
+    Field with type number or text schema
+    """
     class Meta:
+        """
+        Field with type number or text schema
+        """
         fields = ("owner_id", "name", "field_type", "is_strict", "range")
 
     name = fields.Str(required=True)
@@ -85,7 +98,13 @@ class FieldNumberTextSchema(MA.Schema):
 
 
 class FieldSettingAutocompleteSchema(MA.Schema):
+    """
+    Field with autocomplete settings schema
+    """
     class Meta:
+        """
+        Field with autocomplete settings schema meat
+        """
         fields = ("owner_id", "name", "field_type", "setting_autocomplete")
 
     name = fields.Str(required=True)
