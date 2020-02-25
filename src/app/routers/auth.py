@@ -11,12 +11,65 @@ from flask_login import (
     login_user,
     logout_user
 )
-
-from app import APP, GOOGLE_CLIENT
+from flask_restx import Resource
+from app import APP, GOOGLE_CLIENT, API
 from app.config import GOOGLE_PROVIDER_CONFIG
 from app.services import UserService
 
 APP.secret_key = os.environ.get("APP_SECRET_KEY")
+
+AUTH_NS = API.namespace('auth', "Auth APIs")
+
+
+@AUTH_NS.route('/login/')
+class LoginAPI(Resource):
+    """
+    Auth API
+
+    url: 'auth/login/'
+    methods: get
+    """
+
+    @API.doc(
+        responses={
+            302: 'Redirect to main page'
+        }
+    )
+    # pylint: disable=no-self-use
+    def get(self):
+        """
+        Doesn't work because Swagger doesn't support CORS requests
+        """
+        if not current_user.is_authenticated:
+            return GOOGLE_CLIENT.authorize(
+                callback=url_for('callback', _external=True)
+            )
+        return redirect(url_for('index'), code=302)
+
+
+@AUTH_NS.route('/logout/')
+class LogoutAPI(Resource):
+    """
+        Auth API
+
+        url: 'auth/logout/'
+        methods: get
+        """
+
+    @API.doc(
+        responses={
+            302: 'Redirect to main page',
+            401: 'Unauthorized'   # pylint: disable=duplicate-code
+        }
+    )
+    @login_required
+    # pylint: disable=no-self-use
+    def get(self):
+        """
+        Logout user
+        """
+        logout_user()
+        return redirect(url_for('index'), code=302)
 
 
 @APP.route('/home_page/')
@@ -29,27 +82,13 @@ def index():
     if current_user.is_authenticated:
         return (
             f"Hello, {current_user.username} <br>"
-            "<a class='button' href='/logout'>Logout</a>"
+            "<a class='button' href='/api/v1/auth/logout/'>Logout</a>"
         )
 
-    return '<a class="button" href="/login">Google Login</a>'
+    return '<a class="button" href="/api/v1/auth/login/">Google Login</a>'
 
 
-@APP.route('/login')
-def login():
-    """
-    View for google login page
-
-    :return:
-    """
-    if not current_user.is_authenticated:
-        return GOOGLE_CLIENT.authorize(
-            callback=url_for('callback', _external=True)
-        )
-    return redirect(url_for('index'))
-
-
-@APP.route('/login/callback')
+@APP.route('/api/v1/auth/login/callback')
 @GOOGLE_CLIENT.authorized_handler
 def callback(response):
     """
@@ -79,16 +118,4 @@ def callback(response):
         UserService.activate_user(user.id)
         login_user(user)
 
-    return redirect(url_for('index'))
-
-
-@APP.route('/logout/')
-@login_required
-def logout():
-    """
-    View for logout
-
-    :return:
-    """
-    logout_user()
     return redirect(url_for('index'))
