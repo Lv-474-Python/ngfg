@@ -60,8 +60,7 @@ class FormFieldsAPI(Resource):
             raise Forbidden("Can't view fields of the form that doesn't belong to you")
 
         form_fields = FormFieldService.filter(form_id=form.id)
-        response = {"form_fields": FormFieldService.to_json(form_fields, True)}
-        return response
+        return {"form_fields": FormFieldService.to_json(form_fields, True)}
 
     @API.doc(
         responses={
@@ -138,8 +137,7 @@ class FormFieldAPI(Resource):
             raise BadRequest("There's no field with this ID")
         if form_field.form_id != form.id:
             raise BadRequest("This field does not belong to the form you specified")
-        response = jsonify(FormFieldService.to_json(form_field, False))
-        return response
+        return jsonify(FormFieldService.to_json(form_field, False))
 
     @API.doc(
         responses={
@@ -186,8 +184,7 @@ class FormFieldAPI(Resource):
         if updated_form_field is None:
             raise BadRequest("Couldn't update field")
 
-        form_field_json = FormFieldService.to_json(updated_form_field, False)
-        return jsonify(form_field_json)
+        return jsonify(FormFieldService.to_json(updated_form_field, False))
 
     @API.doc(
         responses={
@@ -224,5 +221,4 @@ class FormFieldAPI(Resource):
         is_deleted = bool(FormFieldService.delete(form_field_id))
         if not is_deleted:
             raise BadRequest("Failed to delete field")
-        response = {"deleted": is_deleted}
-        return jsonify(response)
+        return jsonify({"deleted": is_deleted})

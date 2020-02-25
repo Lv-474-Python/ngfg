@@ -120,7 +120,7 @@ class FormFieldService:
     @staticmethod
     def validate_data(data):
         """
-        Validate data by FormSchema
+        Validate data with FormFieldSchema
         """
         schema = FormFieldSchema()
         errors = schema.validate(data)
