@@ -147,10 +147,10 @@ class FormAPI(Resource):
             raise Forbidden("Updating form is forbidden")
 
         # validate request body
-        form_json_data = FormService.to_json(form)
+        form_json = FormService.to_json(form)
         data = request.get_json()
-        form_json_data.update(data)
-        is_correct, errors = FormService.validate_data(form_json_data)
+        form_json.update(data)
+        is_correct, errors = FormService.validate_data(form_json)
         if not is_correct:
             raise BadRequest(errors)
 
