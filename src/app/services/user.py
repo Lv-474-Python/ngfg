@@ -3,7 +3,7 @@ User CRUD operations.
 """
 
 from app import DB, LOGIN_MANAGER
-from app.models import User
+from app.models import User, UserSchema
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import UserNotExist
 
@@ -133,3 +133,11 @@ class UserService:
         user.is_active = True
         DB.session.merge(user)
         return user
+
+    @staticmethod
+    def to_json(data):
+        """
+        Get data in json format
+        """
+        schema = UserSchema()
+        return schema.dump(data)
