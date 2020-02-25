@@ -6,6 +6,8 @@ from flask_restx import fields, Resource
 from flask_login import current_user
 from app import API
 from app.services.field_crud import FieldOperation, FieldService
+from app.models.field import FieldSchema
+from app.helper.decorators import transaction_decorator
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
 
@@ -46,10 +48,12 @@ class FieldAPI(Resource):
 
         :return: json
         """
-        req = request.json
-        data = FieldOperation.create(**req)
+        req = FieldSchema().load(request.json)
+        print(req)
+        # data = FieldOperation.create(**req)
 
-        return jsonify(data)
+        # return jsonify(data)
+        return jsonify(req)
 
     @API.doc(
         responses={
