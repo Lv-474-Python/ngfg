@@ -2,10 +2,16 @@
 FormResult service
 """
 
-from app.models import FormResult
+from app.helper.answer_validation import is_numeric
+from app.helper.constants import MAX_TEXT_LENGTH
+from app.helper.enums import FieldType
+from app.models import FormResult, FormResultSchema
 from app import DB
 from app.helper.decorators import transaction_decorator
-from app.models.form_result import FormResultSchema
+from app.services.field_range import FieldRangeService
+from app.services.range import RangeService
+from app.services.field import FieldService
+from app.services.form_field import FormFieldService
 
 
 class FormResultService:
@@ -84,10 +90,80 @@ class FormResultService:
         return result
 
     @staticmethod
-    def from_json(data):
+    def validate_answers_positions(form_result):
         """
-        Get data in json format
+        Method for comparing positions, passed in JSON answers with DB
+
+        :param form_result:
+        :return: True if positions matching, else False
         """
-        schema = FormResultSchema()
-        result = schema.load(data)
-        return result
+        form_fields = FormFieldService.filter(form_id=form_result["form_id"])
+        if len(form_fields) != len(form_result["answers"]):
+            return False, {"Amount": "Wrong answers amount"}
+        for form_field in form_fields:
+            for answer in form_result["answers"]:
+                if form_field.position == answer["position"]:
+                    break
+            else:
+                return False, {"Positions": "Wrong positions"}
+        return True, {}
+
+    @staticmethod
+    def validate_answers(form_result):
+        """
+
+        :param form_result:
+        :return:
+        """
+        errors = {}
+        form_fields = FormFieldService.filter(form_id=form_result["form_id"])
+        for answer in form_result["answers"]:
+            field_id = [form_field.field_id
+                        for form_field in form_fields
+                        if form_field.position == answer["position"]][0]
+            field = FieldService.get_by_id(field_id)
+            range_id = FieldRangeService.get_by_field_id(field_id=field.id).range_id
+            f_range = RangeService.get_by_id(range_id)
+            if field.field_type == FieldType.Number.value:
+                if not is_numeric(answer["answer"]):
+                    errors[answer["position"]] = "Value is not numeric"
+                    continue
+                if f_range is not None:
+                    if field.is_strict:
+                        if int(answer["answer"]) != answer["answer"]:
+                            errors[answer["position"]] = "Value is not strict number"
+                            continue
+                    if not f_range.min < answer["answer"] < f_range.max:
+                        errors[answer["position"]] = "Value is out of range!"
+                        continue
+
+            elif field.field_type == FieldType.Text.value:
+                if field.is_strict:
+                    if not str(answer["answer"]).isalpha():
+                        errors[answer["position"]] = "Value is not strict text"
+                        continue
+                if f_range is not None:
+                    if not f_range.min < len(answer["answer"]) < f_range.max:
+                        errors[answer["position"]] = "Value length is out of range!"
+                        continue
+                else:
+                    if len(answer["answer"]) > MAX_TEXT_LENGTH:
+                        errors[answer["position"]] = "Value length is out of range!"
+                        continue
+            elif field.field_type == FieldType.Checkbox.value:
+                pass
+
+        return [not bool(errors), errors]
+
+    @staticmethod
+    def validate_data(form_result):
+        """
+
+        :param form_result:
+        :return: True or False, errors
+        """
+        positions_passed, errors = FormResultService.validate_answers_positions(form_result)
+        if not positions_passed:
+            return positions_passed, errors
+        answers_passed, errors = FormResultService.validate_answers(form_result)
+        return answers_passed, errors

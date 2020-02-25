@@ -24,7 +24,5 @@ class User(AbstractModel, UserMixin):
     fields = DB.relationship('Field', backref='owner')
     shared_fields = DB.relationship('SharedField', backref='user')
     form_results = DB.relationship('FormResult', backref='user')
-#    groups = DB.relationship('Group', backref='user')
-#    groups_users = DB.relationship('GroupUser', backref='user')
-
-
+    groups = DB.relationship('Group', backref='user')
+    groups_users = DB.relationship('GroupUser', backref='user')

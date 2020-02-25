@@ -29,7 +29,7 @@ class FormResult(AbstractModel):
                 f"answer: {self.answers}, form_id: {self.form.id}")
 
 
-class FormResultSchema(MA.SQLAlchemyAutoSchema):
+class FormResultSchema(MA.SQLAlchemyAutoSchema):  # pylint: disable=too-many-ancestors
     """
     FormResult marshmallow schema
     """
