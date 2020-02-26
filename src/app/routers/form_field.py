@@ -9,7 +9,7 @@ from flask_restx import Resource, fields
 from werkzeug.exceptions import BadRequest, Forbidden
 
 from app import API
-from app.services import FormFieldService, FormService
+from app.services import (FormFieldService, FormService, SharedFieldService, FieldService)
 
 FORM_FIELD_NS = API.namespace('forms/<int:form_id>/fields', description='FormField APIs')
 MODEL = API.model('FormField', {
@@ -90,6 +90,11 @@ class FormFieldsAPI(Resource):
         if form.owner_id != current_user.id:
             raise Forbidden("Can't insert fields into the form that doesn't belong to you")
         data = request.get_json()
+        field = FieldService.get_by_id(int(data['field_id']))
+        if field is None:
+            raise BadRequest("Can't add nonexistent field to form")
+        if field.owner_id != current_user.id or field not in SharedFieldService.filter(user_id=current_user.id):
+            raise Forbidden("You don't have permission to add this field to your form")
         is_correct, errors = FormFieldService.validate_data(data)
         if not is_correct:
             raise BadRequest(errors)
