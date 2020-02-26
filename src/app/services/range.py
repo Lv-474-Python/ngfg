@@ -22,7 +22,8 @@ class RangeService:
         :param range_max: int value
         :return: created object of Range object or returns existing
         """
-        range_exist = Range.query.filter_by(min=range_min, max=range_max).first()
+        range_exist = Range.query.filter_by(min=range_min,
+                                            max=range_max).first()
         if range_exist:
             return range_exist
         instance = Range(min=range_min, max=range_max)
