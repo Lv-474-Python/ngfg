@@ -1,8 +1,9 @@
 """
 FormResult model
 """
-
+from marshmallow import fields
 from sqlalchemy import func
+
 from app import DB, MA
 from .abstract_model import AbstractModel
 
@@ -31,7 +32,7 @@ class FormResult(AbstractModel):
                 f"answers: {self.answers}, form_id: {self.form.id}")
 
 
-class FormResultSchema(MA.SQLAlchemyAutoSchema):  # pylint: disable=too-many-ancestors
+class FormResultSchema(MA.Schema):  # pylint: disable=too-many-ancestors
     """
     FormResult marshmallow schema
     """
@@ -39,5 +40,9 @@ class FormResultSchema(MA.SQLAlchemyAutoSchema):  # pylint: disable=too-many-anc
         """
         Schema meta
         """
-        model = FormResult
-        include_fk = True
+        fields = ("id", "user_id", "form_id", "created", "answers")
+
+    user_id = fields.Int(required=True)
+    form_id = fields.Int(required=True)
+    result_url = fields.Url(required=True)
+    answers = fields.List(fields.Dict(keys=fields.String(), values=fields.Raw()))

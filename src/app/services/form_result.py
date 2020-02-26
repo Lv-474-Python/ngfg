@@ -122,9 +122,11 @@ class FormResultService:
                         for form_field in form_fields
                         if form_field.position == answer["position"]][0]
             field = FieldService.get_by_id(field_id)
-            if field.field_type in (FieldType.Number.value,
-                                    FieldType.Text.value,
-                                    FieldType.Checkbox.value):
+            if field.field_type in (
+                    FieldType.Number.value,
+                    FieldType.Text.value,
+                    FieldType.Checkbox.value
+            ):
                 range_id = FieldRangeService.get_by_field_id(field_id=field.id)
                 if range_id is not None:
                     f_range = RangeService.get_by_id(range_id.range_id)
@@ -212,7 +214,7 @@ class FormResultService:
                 if int(answer["answer"]) != answer["answer"]:
                     errors[answer["position"]] = "Value is not strict number"
                     return False
-            if not f_range.min < answer["answer"] < f_range.max:
+            if not f_range.min <= answer["answer"] <= f_range.max:
                 errors[answer["position"]] = "Value is out of range!"
                 return False
         return True
@@ -232,7 +234,7 @@ class FormResultService:
                 errors[answer["position"]] = "Value is not strict text"
                 return False
         if f_range is not None:
-            if not f_range.min < len(answer["answer"]) < f_range.max:
+            if not f_range.min <= len(answer["answer"]) <= f_range.max:
                 errors[answer["position"]] = "Value length is out of range!"
                 return False
         else:
@@ -253,3 +255,12 @@ class FormResultService:
             return positions_passed, errors
         answers_passed, errors = FormResultService._validate_answers(form_result)
         return answers_passed, errors
+
+    @staticmethod
+    def validate_schema(data):
+        """
+        Validate data for FormResultSchema
+        """
+        schema = FormResultSchema()
+        errors = schema.validate(data)
+        return (not bool(errors), errors)

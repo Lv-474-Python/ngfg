@@ -32,7 +32,7 @@ MODEL = API.model('FormResult', {
         cls_or_instance=fields.Nested(ANSWER_MODEL),
         required=True,
         description="answers list",
-        help="JSON list of dicts {position:int, answer:text"
+        help="JSON list of dicts {position:int, answer:text}"
     )})
 
 
@@ -89,6 +89,9 @@ class AnswersAPI(Resource):
         :return: created FormResult with answer id's instead of text answers of user
         """
         result = request.get_json()
+        passed, errors = FormResultService.validate_schema(result)
+        if not passed:
+            raise BadRequest(errors)
         if result["form_id"] != form_id or result["user_id"] != current_user.id:
             raise BadRequest("Wrong form or/and user id's were passed ")
         passed, errors = FormResultService.validate_data(form_result=result)
@@ -116,6 +119,7 @@ class AnswerAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
+            400: 'Bad request',
             401: 'Unauthorized'
         },
         params={
