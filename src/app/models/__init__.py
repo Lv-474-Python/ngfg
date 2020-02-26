@@ -8,7 +8,8 @@ from .field import (Field,
                     FieldSchema,
                     FieldNumberTextSchema,
                     FieldChoiceOptionsSchema,
-                    FieldSettingAutocompleteSchema)
+                    FieldSettingAutocompleteSchema,
+                    FieldCheckboxSchema)
 from .choice_option import ChoiceOption
 from .form_field import FormField
 from .setting_autocomplete import SettingAutocomplete, SettingAutocompleteSchema

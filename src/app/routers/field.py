@@ -60,10 +60,7 @@ class FieldAPI(Resource):
         field_type = data['field_type']
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
-            range_min, range_max = None, None
-            if range_instance := data.get('range'):
-                range_min = range_instance.get('min')
-                range_max = range_instance.get('max')
+            range_min, range_max = FieldService.check_for_range(data)
 
             response = FieldService.create_text_or_number_field(
                 name=data['name'],
@@ -80,13 +77,26 @@ class FieldAPI(Resource):
             )
             response = FieldSchema().dump(response)
 
-        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
+        elif field_type == FieldType.Radio.value:
 
             response = FieldService.create_choice_option_field(
                 name=data['name'],
                 owner_id=data['owner_id'],
                 field_type=data['field_type'],
                 choice_options=data['choice_options']
+            )
+
+        elif field_type == FieldType.Checkbox.value:
+
+            range_min, range_max = FieldService.check_for_range(data)
+
+            response = FieldService.create_checkbox_field(
+                name=data['name'],
+                owner_id=data['owner_id'],
+                field_type=data['field_type'],
+                choice_options=data['choice_options'],
+                range_min=range_min,
+                range_max=range_max
             )
 
         elif field_type == FieldType.Autocomplete.value:

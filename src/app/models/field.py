@@ -9,6 +9,7 @@ from app import DB, MA
 from app.models.range import RangeSchema
 from app.models.setting_autocomplete import SettingAutocompleteSchema
 from .abstract_model import AbstractModel
+from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
 
 
 class Field(AbstractModel):
@@ -57,26 +58,42 @@ class FieldSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema)
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema)
     choice_options = fields.List(fields.Str(), required=False)
 
 
+class FieldCheckboxSchema(MA.Schema):
+    """
+    Field with checkbox options and optional range
+    """
+
+    class Meta:
+        fields = ("owner_id", "name", "field_type", "choice_options")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
+    choice_options = fields.List(fields.Str(), required=True)
+    range = fields.Nested(RangeSchema, required=False)
+
+
 class FieldChoiceOptionsSchema(MA.Schema):
     """
     Field with choice options schema
     """
+
     class Meta:
         """
         Field with choice options schema meta
         """
-        fields = ("owner_id", "name", "field_type", 'choice_options')
+        fields = ("owner_id", "name", "field_type", "choice_options")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
     choice_options = fields.List(fields.Str(), required=True)
 
 
@@ -84,6 +101,7 @@ class FieldNumberTextSchema(MA.Schema):
     """
     Field with type number or text schema
     """
+
     class Meta:
         """
         Field with type number or text schema meta
@@ -95,7 +113,7 @@ class FieldNumberTextSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema, required=False)
 
@@ -104,6 +122,7 @@ class FieldSettingAutocompleteSchema(MA.Schema):
     """
     Field with autocomplete settings schema
     """
+
     class Meta:
         """
         Field with autocomplete settings schema meat
@@ -112,5 +131,5 @@ class FieldSettingAutocompleteSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=1, max=6))
+    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema, required=True)
