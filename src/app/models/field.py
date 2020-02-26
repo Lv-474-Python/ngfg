@@ -4,10 +4,10 @@ Field model
 from marshmallow import fields
 from marshmallow.validate import Range
 from app import DB, MA
+from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
 from app.models.range import RangeSchema
 from app.models.setting_autocomplete import SettingAutocompleteSchema
 from .abstract_model import AbstractModel
-from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
 
 
 class Field(AbstractModel):
@@ -56,7 +56,9 @@ class FieldSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(required=True,
+                                validate=Range(min=MIN_FIELD_TYPE,
+                                               max=MAX_FIELD_TYPE))
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema)
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema)
@@ -69,11 +71,16 @@ class FieldCheckboxSchema(MA.Schema):
     """
 
     class Meta:
+        """
+        Field Checkbox Schema
+        """
         fields = ("owner_id", "name", "field_type", "choice_options", "range")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(required=True,
+                                validate=Range(min=MIN_FIELD_TYPE,
+                                               max=MAX_FIELD_TYPE))
     choice_options = fields.List(fields.Str(), required=True)
     range = fields.Nested(RangeSchema, required=False)
 
@@ -91,7 +98,9 @@ class FieldRadioSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(required=True,
+                                validate=Range(min=MIN_FIELD_TYPE,
+                                               max=MAX_FIELD_TYPE))
     choice_options = fields.List(fields.Str(), required=True)
 
 
@@ -108,7 +117,13 @@ class FieldNumberTextSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema, required=False)
 
@@ -126,6 +141,13 @@ class FieldSettingAutocompleteSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True, validate=Range(min=MIN_FIELD_TYPE, max=MAX_FIELD_TYPE))
-    setting_autocomplete = fields.Nested(SettingAutocompleteSchema,
-                                         required=True)
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
+    setting_autocomplete = fields.Nested(
+        SettingAutocompleteSchema,
+        required=True)

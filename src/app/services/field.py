@@ -57,8 +57,12 @@ class FieldService:
         return instance
 
     @staticmethod
-    def filter(field_id=None, name=None, owner_id=None, field_type=None,
-               is_strict=None):
+    def filter(
+            field_id=None,
+            name=None,
+            owner_id=None,
+            field_type=None,
+            is_strict=None):
         """
         Field model filter method
 
@@ -86,8 +90,12 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def update(field_id, name=None, owner_id=None, field_type=None,
-               is_strict=None):
+    def update(
+            field_id,
+            name=None,
+            owner_id=None,
+            field_type=None,
+            is_strict=None):
         """
         Field model update method
 
@@ -140,19 +148,9 @@ class FieldService:
     def field_to_json(data, many=False):
         """
         Get data in json format
+
         """
         schema = FieldNumberTextSchema(many=many)
-        # schema = FieldSchema(many=many)
-        return schema.dump(data)
-
-
-
-    @staticmethod
-    def setting_autocomplete_to_json(data, many=False):
-        """
-        Get data in json format
-        """
-        schema = FieldSettingAutocompleteSchema(many=many)
         return schema.dump(data)
 
     @staticmethod
@@ -171,6 +169,7 @@ class FieldService:
     def validate_setting_autocomplete(data):
         """
         Validation for setting autocomplete items
+
         :param data:
         :return: errors if validation failed else empty dict
         """
@@ -181,6 +180,7 @@ class FieldService:
     def validate_text_or_number(data):
         """
         Validation for setting autocomplete items
+
         :param data:
         :return: errors if validation failed else empty dict
         """
@@ -191,12 +191,12 @@ class FieldService:
     def validate_radio(data):
         """
         Validation for setting autocomplete items
+
         :param data:
         :return: errors if validation failed else empty dict
         """
         errors = FieldRadioSchema().validate(data)
         return (not bool(errors), errors)
-
 
     @staticmethod
     def validate_checkbox(data):
@@ -210,12 +210,13 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_text_or_number_field(name,  # pylint: disable=too-many-arguments
-                                    owner_id,
-                                    field_type,
-                                    is_strict=False,
-                                    range_min=None,
-                                    range_max=None):
+    def create_text_or_number_field( # pylint: disable=too-many-arguments
+            name,
+            owner_id,
+            field_type,
+            is_strict=False,
+            range_min=None,
+            range_max=None):
         """
         Creates number or text field with range if needed
 
@@ -252,8 +253,12 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_radio_field(name, owner_id, field_type, is_strict=False,
-                           choice_options=None):
+    def create_radio_field(
+            name,
+            owner_id,
+            field_type,
+            is_strict=False,
+            choice_options=None):
         """
         Creates radio or check field
 
@@ -282,7 +287,7 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_checkbox_field(
+    def create_checkbox_field( # pylint: disable=too-many-arguments
             name,
             owner_id,
             field_type,
@@ -314,7 +319,8 @@ class FieldService:
 
         if range_min is not None or range_max is not None:
             range_instance = RangeService.create(range_min, range_max)
-            FieldRangeService.create(field_id=field.id, range_id=range_instance.id)
+            FieldRangeService.create(field_id=field.id,
+                                     range_id=range_instance.id)
             data['range'] = {
                 'min': range_min,
                 'max': range_max
@@ -328,14 +334,15 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_autocomplete_field(name,  # pylint: disable=too-many-arguments
-                                  owner_id,
-                                  field_type,
-                                  is_strict=False,
-                                  data_url=None,
-                                  sheet=None,
-                                  from_row=None,
-                                  to_row=None):
+    def create_autocomplete_field( # pylint: disable=too-many-arguments
+            name,
+            owner_id,
+            field_type,
+            is_strict=False,
+            data_url=None,
+            sheet=None,
+            from_row=None,
+            to_row=None):
         """
         Creates autocomplete field
 
@@ -373,7 +380,13 @@ class FieldService:
         return data
 
     @staticmethod
-    def check_text_or_number_additional_options(field_id):
+    def _check_text_or_number_additional_options(field_id):
+        """
+        Check for choice additional options
+
+        :param field_id:
+        :return: dict
+        """
         data = {}
         range_field = FieldRangeService.get_by_field_id(field_id)
         field = FieldService.get_by_id(field_id)
@@ -395,7 +408,13 @@ class FieldService:
         return data
 
     @staticmethod
-    def check_choice_additional_options(field_id):
+    def _check_choice_additional_options(field_id):
+        """
+        Check for choice additional options
+
+        :param field_id:
+        :return: dict
+        """
         data = {}
         choice_options = ChoiceOptionService.filter(field_id=field_id)
         range_field = FieldRangeService.get_by_field_id(field_id)
@@ -421,7 +440,13 @@ class FieldService:
         return data
 
     @staticmethod
-    def check_autocomplete_additional_options(field_id):
+    def _check_autocomplete_additional_options(field_id):
+        """
+        Check for autocomplete additional options
+
+        :param field_id:
+        :return: dict
+        """
         data = {}
         settings_autocomplete = SettingAutocompleteService.filter(
             field_id=field_id)
@@ -443,7 +468,7 @@ class FieldService:
     @staticmethod
     def check_other_options(field_id, field_type):
         """
-        Check if field has other extra options
+        Check if field has other additional options
 
         :param field_id:
         :param field_type:
@@ -452,14 +477,14 @@ class FieldService:
              data = {'choice_options' = ['man', 'woman']}
         """
         if field_type in (FieldType.Number.value, FieldType.Text.value):
-            data = FieldService.check_text_or_number_additional_options(
+            data = FieldService._check_text_or_number_additional_options(
                 field_id)
 
         elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
-            data = FieldService.check_choice_additional_options(field_id)
+            data = FieldService._check_choice_additional_options(field_id)
 
         elif field_type == FieldType.Autocomplete.value:
-            data = FieldService.check_autocomplete_additional_options(field_id)
+            data = FieldService._check_autocomplete_additional_options(field_id)
 
         else:
             raise BadRequest("Invalid Data")
@@ -468,6 +493,12 @@ class FieldService:
 
     @staticmethod
     def check_for_range(data):
+        """
+        Check if range were send
+
+        :param data: dict
+        :return: range_min, range_max
+        """
         range_min, range_max = None, None
         if range_instance := data.get('range'):
             range_min = range_instance.get('min')

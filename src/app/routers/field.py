@@ -3,7 +3,7 @@ Field router.
 """
 from flask import request, jsonify
 from flask_restx import fields, Resource
-from flask_login import current_user
+from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
 from app.models.field import FieldSchema
 from app import API
@@ -41,7 +41,8 @@ class FieldAPI(Resource):
     Field API
     """
 
-    @API.expect(FIELD_MODEL)
+    @API.expect(EXTENDED_MODEL)
+    @login_required
     # pylint: disable=no-self-use
     def post(self):
         """
@@ -58,7 +59,8 @@ class FieldAPI(Resource):
         field_type = data['field_type']
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
-            is_correct, errors = FieldService.validate_text_or_number(request.json)
+            is_correct, errors = FieldService.validate_text_or_number(
+                request.json)
             if not is_correct:
                 raise BadRequest(errors)
 
@@ -107,7 +109,8 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Autocomplete.value:
-            is_correct, errors = FieldService.validate_setting_autocomplete(request.json)
+            is_correct, errors = FieldService.validate_setting_autocomplete(
+                request.json)
             if not is_correct:
                 raise BadRequest(errors)
 
@@ -121,6 +124,9 @@ class FieldAPI(Resource):
                 to_row=data['setting_autocomplete']['to_row']
             )
 
+        else:
+            raise BadRequest("Invalide Type")
+
         return jsonify(response)
 
     @API.doc(
@@ -130,6 +136,8 @@ class FieldAPI(Resource):
             404: 'Field not found'
         }
     )
+
+    @login_required
     # pylint: disable=no-self-use
     def get(self):
         """
