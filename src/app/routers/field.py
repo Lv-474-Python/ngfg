@@ -4,7 +4,8 @@ Field router.
 from flask import request, jsonify
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, Forbidden
+
 from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
@@ -39,6 +40,9 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 class FieldAPI(Resource):
     """
     Field API
+
+    url: '/fields'
+    methods: GET, POST
     """
 
     @API.doc(
@@ -53,7 +57,7 @@ class FieldAPI(Resource):
     # pylint: disable=no-self-use
     def post(self):
         """
-        Field POST method
+        Create new field
 
         :return: json
         """
@@ -63,7 +67,7 @@ class FieldAPI(Resource):
             raise BadRequest(errors)
 
         if current_user.id != int(data["owner_id"]):
-            raise BadRequest("Unexpected User")
+            raise Forbidden("Unexpected User")
 
         field_type = data['field_type']
 
@@ -143,12 +147,11 @@ class FieldAPI(Resource):
             404: 'Field not found'
         }
     )
-
     @login_required
     # pylint: disable=no-self-use
     def get(self):
         """
-        Field GET method
+        Get all user fields
 
         :return: json
         """
@@ -170,3 +173,45 @@ class FieldAPI(Resource):
             response.append(field)
 
         return jsonify(response)
+
+    @FIELDS_NS.route("/<int:field_id>")
+    class FieldIdAPI(Resource):
+        """
+            Field/{id} API
+
+            url: '/fields/{id}'
+            methods: GET, PUT, DELETE
+        """
+
+        @API.doc(
+            responses={
+                200: 'OK',
+                403: 'User is not the form owner',
+                404: 'Form not found',
+            }, params={
+                'field_id': 'Field id'
+            }
+        )
+        # pylint: disable=no-self-use
+        def get(self, field_id):
+            """
+            Get field by id
+
+            :param field_id: field id
+            :return: json
+            """
+            field = FieldService.get_by_id(field_id)
+
+            if field is None:
+                raise BadRequest("Field does not exist")
+
+            if current_user.id != field.owner_id:
+                raise Forbidden("Forbidden. User is not the form owner")
+
+            field_json = FieldService.field_to_json(field)
+            extra_options = FieldService.get_additional_options(field.id, field.field_type)
+            if extra_options:
+                for key, value in extra_options.items():
+                    field_json[key] = value
+
+            return jsonify(field_json)

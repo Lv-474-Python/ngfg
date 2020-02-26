@@ -480,7 +480,7 @@ class FieldService:
 
         :param field_id:
         :param field_type:
-        :return: dict of options or None
+        :return: dict of options
         E.G. data = {'range' = {'min' : 0, 'max' : 100}
              data = {'choice_options' = ['man', 'woman']}
         """
