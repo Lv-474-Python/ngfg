@@ -60,7 +60,7 @@ class FormFieldsAPI(Resource):
             raise Forbidden("Can't view fields of the form that doesn't belong to you")
 
         form_fields = FormFieldService.filter(form_id=form.id)
-        return {"form_fields": FormFieldService.to_json(form_fields, True)}
+        return jsonify({"form_fields": FormFieldService.to_json(form_fields, True)})
 
     @API.doc(
         responses={
