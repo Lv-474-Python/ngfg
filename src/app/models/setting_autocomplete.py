@@ -2,7 +2,6 @@
 SettingsAutocomplete model
 """
 from marshmallow import fields
-
 from app import DB, MA
 from .abstract_model import AbstractModel
 
@@ -22,13 +21,15 @@ class SettingAutocomplete(AbstractModel):
     sheet = DB.Column(DB.Text, nullable=False)
     from_row = DB.Column(DB.String, nullable=True)
     to_row = DB.Column(DB.String, nullable=True)
-    field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'),
+    field_id = DB.Column(DB.Integer,
+                         DB.ForeignKey('fields.id', ondelete='CASCADE'),
                          nullable=False)
 
     def __repr__(self):
-        return (f"<SettingAutocomplete {self.id}, data_url - {self.data_url}', "
-                f"sheet - {self.sheet}, from_row - {self.from_row}, "
-                f"to_row - {self.to_row}, Field - {self.field.id}")
+        return (
+            f"<SettingAutocomplete {self.id}, data_url - {self.data_url}', "
+            f"sheet - {self.sheet}, from_row - {self.from_row}, "
+            f"to_row - {self.to_row}, Field - {self.field.id}")
 
 
 class SettingAutocompleteSchema(MA.Schema):

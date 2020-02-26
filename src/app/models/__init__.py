@@ -7,7 +7,7 @@ from .form import Form, FormSchema
 from .field import (Field,
                     FieldSchema,
                     FieldNumberTextSchema,
-                    FieldChoiceOptionsSchema,
+                    FieldRadioSchema,
                     FieldSettingAutocompleteSchema,
                     FieldCheckboxSchema)
 from .choice_option import ChoiceOption
