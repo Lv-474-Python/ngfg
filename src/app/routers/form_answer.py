@@ -4,13 +4,22 @@ Form answers API
 
 from flask import request, jsonify
 from flask_restx import Resource, fields
-from flask_login import current_user
-from werkzeug.exceptions import BadRequest, Forbidden
+from flask_login import current_user, login_required
+from werkzeug.exceptions import BadRequest
 
 from app import API
 from app.services import FormService, FormResultService, AnswerService
 
 FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='NgFg APIs')
+
+ANSWER_MODEL = API.model('Answer', {
+    'position': fields.Integer(
+        required=True
+    ),
+    'answer': fields.String(
+        required=True
+    ),
+})
 
 MODEL = API.model('FormResult', {
     'user_id': fields.Integer(
@@ -19,14 +28,11 @@ MODEL = API.model('FormResult', {
     'form_id': fields.Integer(
         required=True,
         description="Form id"),
-    'created': fields.DateTime(
-        required=False,
-        description="Created"),
     'answers': fields.List(
-        cls_or_instance=fields.String,
+        cls_or_instance=fields.Nested(ANSWER_MODEL),
         required=True,
         description="answers list",
-        help="JSON list of dicts {position:int, answer_id:text"
+        help="JSON list of dicts {position:int, answer:text"
     )})
 
 
@@ -41,11 +47,12 @@ class AnswersAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid Argument',
-            500: 'Mapping Key Error'
+            401: 'Unauthorized'
         },
-        params={'form_id': 'Specify the form_id'})
+        params={'form_id': 'Specify the form_id'}
+    )
     # pylint: disable=no-self-use
+    @login_required
     def get(self, form_id):
         """
         Get method for form answers
@@ -53,8 +60,6 @@ class AnswersAPI(Resource):
         :param form_id:
         :return: All answers for form if owner, else answer of current user.
         """
-        if current_user.is_anonymous:
-            raise Forbidden('You are not logged in!')
         form = FormService.get_by_id(form_id)
         answers = []
         if form.owner_id == current_user.id:
@@ -69,9 +74,12 @@ class AnswersAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid Argument',
-            500: 'Mapping Key Error'},)
+            400: 'Invalid syntax',
+            401: 'Unauthorized',
+            403: 'Forbidden to create'}
+    )
     @API.expect(MODEL)
+    @login_required
     # pylint: disable=no-self-use
     def post(self, form_id):
         """
@@ -83,17 +91,14 @@ class AnswersAPI(Resource):
         result = request.get_json()
         if result["form_id"] != form_id or result["user_id"] != current_user.id:
             raise BadRequest("Wrong form or/and user id's were passed ")
-        #if not FormResultService.validate_answers_positions(result):
-        #    raise BadRequest("Wrong positions have been passed")
         passed, errors = FormResultService.validate_data(form_result=result)
         if not passed:
-            raise BadRequest(str(errors))
+            raise BadRequest(errors)
         for answer in result['answers']:
-            ans = AnswerService.create(answer['answer'])
-            if ans:
-                answer['answer_id'] = ans.id
+            if isinstance(answer['answer'], list):
+                answer['answer_id'] = [a.id for a in AnswerService.create(answer['answer'])]
             else:
-                answer['answer_id'] = AnswerService.get_by_value(str(answer['answer'])).id
+                answer['answer_id'] = AnswerService.create(answer['answer']).id
             del answer['answer']
         result = FormResultService.create(**result)
         if result is None:
@@ -111,13 +116,14 @@ class AnswerAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid Argument',
-            500: 'Mapping Key Error'
+            401: 'Unauthorized'
         },
         params={
             'form_id': 'Specify the form_id',
             'result_id': 'Specify the result_id'
-        })
+        }
+    )
+    @login_required
     # pylint: disable=no-self-use
     def get(self, form_id, result_id):
         """

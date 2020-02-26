@@ -5,7 +5,7 @@ FormResult service
 from app.helper.answer_validation import is_numeric
 from app.helper.constants import MAX_TEXT_LENGTH
 from app.helper.enums import FieldType
-from app.models import FormResult, FormResultSchema
+from app.models import FormResult, FormResultSchema, Range
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.services.field_range import FieldRangeService
@@ -90,7 +90,7 @@ class FormResultService:
         return result
 
     @staticmethod
-    def validate_answers_positions(form_result):
+    def _validate_answers_positions(form_result):
         """
         Method for comparing positions, passed in JSON answers with DB
 
@@ -109,7 +109,7 @@ class FormResultService:
         return True, {}
 
     @staticmethod
-    def validate_answers(form_result):
+    def _validate_answers(form_result):
         """
 
         :param form_result:
@@ -122,38 +122,124 @@ class FormResultService:
                         for form_field in form_fields
                         if form_field.position == answer["position"]][0]
             field = FieldService.get_by_id(field_id)
-            range_id = FieldRangeService.get_by_field_id(field_id=field.id).range_id
-            f_range = RangeService.get_by_id(range_id)
-            if field.field_type == FieldType.Number.value:
-                if not is_numeric(answer["answer"]):
-                    errors[answer["position"]] = "Value is not numeric"
-                    continue
-                if f_range is not None:
-                    if field.is_strict:
-                        if int(answer["answer"]) != answer["answer"]:
-                            errors[answer["position"]] = "Value is not strict number"
-                            continue
-                    if not f_range.min < answer["answer"] < f_range.max:
-                        errors[answer["position"]] = "Value is out of range!"
-                        continue
+            if field.field_type in (FieldType.Number.value,
+                                    FieldType.Text.value,
+                                    FieldType.Checkbox.value):
+                range_id = FieldRangeService.get_by_field_id(field_id=field.id)
+                if range_id is not None:
+                    f_range = RangeService.get_by_id(range_id.range_id)
 
+            if field.field_type == FieldType.Number.value:
+                FormResultService._check_number_field(field, answer, f_range, errors)
             elif field.field_type == FieldType.Text.value:
-                if field.is_strict:
-                    if not str(answer["answer"]).isalpha():
-                        errors[answer["position"]] = "Value is not strict text"
-                        continue
-                if f_range is not None:
-                    if not f_range.min < len(answer["answer"]) < f_range.max:
-                        errors[answer["position"]] = "Value length is out of range!"
-                        continue
-                else:
-                    if len(answer["answer"]) > MAX_TEXT_LENGTH:
-                        errors[answer["position"]] = "Value length is out of range!"
-                        continue
+                FormResultService._check_text_field(field, answer, f_range, errors)
             elif field.field_type == FieldType.Checkbox.value:
+                FormResultService._check_checkbox_field(field, answer, f_range, errors)
+            elif field.field_type == FieldType.Radio.value:
+                FormResultService._check_radio_field(field, answer, errors)
+            elif field.field_type == FieldType.TextArea.value:
                 pass
+            elif field.field_type == FieldType.Autocomplete.value:
+                pass
+            f_range = None
 
         return [not bool(errors), errors]
+
+    @staticmethod
+    def _check_radio_field(field, answer, errors):
+        """
+
+        :param field:
+        :param answer:
+        :param errors:
+        :return:
+        """
+        radio_answer = answer["answer"]
+        if not isinstance(radio_answer, list):
+            errors[answer["position"]] = "Must be list."
+            return False
+        if len(radio_answer) != 1:
+            errors[answer["position"]] = "Must be exactly one choice."
+            return False
+        radio_answer = str(radio_answer[0])
+        choice_options = [co.option_text for co in field.choice_options]
+        if radio_answer not in choice_options:
+            errors[answer["position"]] = "No such choice in this field."
+            return False
+        return True
+
+    @staticmethod
+    def _check_checkbox_field(field, answer, f_range, errors):
+        """
+
+        :param field:
+        :param answer:
+        :param f_range:
+        :param errors:
+        :return:
+        """
+        answers = answer["answer"]
+        if not isinstance(answers, list):
+            errors[answer["position"]] = "Answers must be list type."
+            return False
+        choice_options = [co.option_text for co in field.choice_options]
+        if f_range is None:
+            f_range = Range(min=0, max=len(choice_options))
+        if not f_range.min <= len(answers) <= f_range.max:
+            errors[answer["position"]] = "Answers amount out of range."
+            return False
+        for ans in answers:
+            if ans not in choice_options:
+                errors[answer["position"]] = "No such choice in this field."
+                return False
+        return True
+
+    @staticmethod
+    def _check_number_field(field, answer, f_range, errors):
+        """
+
+        :param field:
+        :param answer:
+        :param f_range:
+        :param errors:
+        :return:
+        """
+        if not is_numeric(answer["answer"]):
+            errors[answer["position"]] = "Value is not numeric"
+            return False
+        if f_range is not None:
+            if field.is_strict:
+                if int(answer["answer"]) != answer["answer"]:
+                    errors[answer["position"]] = "Value is not strict number"
+                    return False
+            if not f_range.min < answer["answer"] < f_range.max:
+                errors[answer["position"]] = "Value is out of range!"
+                return False
+        return True
+
+    @staticmethod
+    def _check_text_field(field, answer, f_range, errors):
+        """
+
+        :param field:
+        :param answer:
+        :param f_range:
+        :param errors:
+        :return:
+        """
+        if field.is_strict:
+            if not str(answer["answer"]).isalpha():
+                errors[answer["position"]] = "Value is not strict text"
+                return False
+        if f_range is not None:
+            if not f_range.min < len(answer["answer"]) < f_range.max:
+                errors[answer["position"]] = "Value length is out of range!"
+                return False
+        else:
+            if len(answer["answer"]) > MAX_TEXT_LENGTH:
+                errors[answer["position"]] = "Value length is out of range!"
+                return False
+        return True
 
     @staticmethod
     def validate_data(form_result):
@@ -162,8 +248,8 @@ class FormResultService:
         :param form_result:
         :return: True or False, errors
         """
-        positions_passed, errors = FormResultService.validate_answers_positions(form_result)
+        positions_passed, errors = FormResultService._validate_answers_positions(form_result)
         if not positions_passed:
             return positions_passed, errors
-        answers_passed, errors = FormResultService.validate_answers(form_result)
+        answers_passed, errors = FormResultService._validate_answers(form_result)
         return answers_passed, errors
