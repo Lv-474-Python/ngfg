@@ -21,9 +21,11 @@ class SettingAutocomplete(AbstractModel):
     sheet = DB.Column(DB.Text, nullable=False)
     from_row = DB.Column(DB.String, nullable=True)
     to_row = DB.Column(DB.String, nullable=True)
-    field_id = DB.Column(DB.Integer,
-                         DB.ForeignKey('fields.id', ondelete='CASCADE'),
-                         nullable=False)
+    field_id = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('fields.id', ondelete='CASCADE'),
+        nullable=False
+    )
 
     def __repr__(self):
         return (
@@ -43,7 +45,7 @@ class SettingAutocompleteSchema(MA.Schema):
         """
         fields = ("data_url", "sheet", "from_row", "to_row")
 
-    data_url = fields.Str(required=True)
+    data_url = fields.Url(required=True)
     sheet = fields.Str(required=True)
     from_row = fields.Str(required=True)
     to_row = fields.Str(required=True)

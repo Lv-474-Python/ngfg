@@ -4,12 +4,14 @@ Init models
 from .user import User, UserSchema
 from .answer import Answer
 from .form import Form, FormSchema
-from .field import (Field,
-                    FieldSchema,
-                    FieldNumberTextSchema,
-                    FieldRadioSchema,
-                    FieldSettingAutocompleteSchema,
-                    FieldCheckboxSchema)
+from .field import (
+    Field,
+    FieldSchema,
+    FieldNumberTextSchema,
+    FieldRadioSchema,
+    FieldSettingAutocompleteSchema,
+    FieldCheckboxSchema
+)
 from .choice_option import ChoiceOption
 from .form_field import FormField
 from .setting_autocomplete import SettingAutocomplete, SettingAutocompleteSchema

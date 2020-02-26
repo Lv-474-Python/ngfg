@@ -11,8 +11,12 @@ from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
 from .logging_config import create_logger
-from .config import (Config, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-                     GOOGLE_PROVIDER_CONFIG)
+from .config import (
+    Config,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_PROVIDER_CONFIG
+)
 
 APP = Flask(__name__)
 APP.config.from_object(Config)

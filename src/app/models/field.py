@@ -25,16 +25,17 @@ class Field(AbstractModel):
     )
 
     name = DB.Column(DB.String, unique=False, nullable=False)
-    owner_id = DB.Column(DB.Integer,
-                         DB.ForeignKey('users.id', ondelete='SET NULL'),
-                         nullable=True)
+    owner_id = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('users.id', ondelete='SET NULL'),
+        nullable=True
+    )
     field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
     is_strict = DB.Column(DB.Boolean, default=False)
 
     choice_options = DB.relationship('ChoiceOption', backref='field')
     shared_fields = DB.relationship('SharedField', backref='field')
-    settings_autocomplete = DB.relationship('SettingAutocomplete',
-                                            backref='field')
+    settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
     fields_range = DB.relationship('FieldRange', backref='field')
 
     def __repr__(self):
@@ -56,9 +57,13 @@ class FieldSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True,
-                                validate=Range(min=MIN_FIELD_TYPE,
-                                               max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema)
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema)
@@ -78,9 +83,13 @@ class FieldCheckboxSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True,
-                                validate=Range(min=MIN_FIELD_TYPE,
-                                               max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
     choice_options = fields.List(fields.Str(), required=True)
     range = fields.Nested(RangeSchema, required=False)
 
@@ -98,9 +107,13 @@ class FieldRadioSchema(MA.Schema):
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(required=True,
-                                validate=Range(min=MIN_FIELD_TYPE,
-                                               max=MAX_FIELD_TYPE))
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
     choice_options = fields.List(fields.Str(), required=True)
 
 

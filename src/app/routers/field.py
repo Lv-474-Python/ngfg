@@ -18,7 +18,7 @@ FIELD_MODEL = API.model('Field', {
     'field_type': fields.Integer(required=True)
 })
 AUTOCOMPLETE_MODEL = API.model('Setting_autocomplete', {
-    "data_url": fields.String,
+    "data_url": fields.Url,
     "sheet": fields.String,
     "from_row": fields.String,
     "to_row": fields.String,
@@ -28,7 +28,7 @@ RANGE_MODEL = API.model('Range', {
     'max': fields.Integer
 })
 
-EXTENDED_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
+EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
     "range": fields.Nested(RANGE_MODEL),
     "choice_options": fields.List(fields.String),
     "setting_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
@@ -41,7 +41,14 @@ class FieldAPI(Resource):
     Field API
     """
 
-    @API.expect(EXTENDED_MODEL)
+    @API.doc(
+        responses={
+            200: 'OK',
+            401: 'Unauthorized',
+            404: 'Field not found'
+        }
+    )
+    @API.expect(EXTENDED_FIELD_MODEL)
     @login_required
     # pylint: disable=no-self-use
     def post(self):
@@ -50,17 +57,18 @@ class FieldAPI(Resource):
 
         :return: json
         """
-        is_correct, errors = FieldService.validate(request.json)
+        data = request.json
+        is_correct, errors = FieldService.validate(data)
         if not is_correct:
             raise BadRequest(errors)
 
-        data = request.json
+        if current_user.id != int(data["owner_id"]):
+            raise BadRequest("Unexpected User")
 
         field_type = data['field_type']
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
-            is_correct, errors = FieldService.validate_text_or_number(
-                request.json)
+            is_correct, errors = FieldService.validate_text_or_number(data)
             if not is_correct:
                 raise BadRequest(errors)
 
@@ -82,7 +90,7 @@ class FieldAPI(Resource):
             response = FieldSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
-            is_correct, errors = FieldService.validate_radio(request.json)
+            is_correct, errors = FieldService.validate_radio(data)
             if not is_correct:
                 raise BadRequest(errors)
 
@@ -94,7 +102,7 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Checkbox.value:
-            is_correct, errors = FieldService.validate_checkbox(request.json)
+            is_correct, errors = FieldService.validate_checkbox(data)
             if not is_correct:
                 raise BadRequest(errors)
             range_min, range_max = FieldService.check_for_range(data)
@@ -109,8 +117,7 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Autocomplete.value:
-            is_correct, errors = FieldService.validate_setting_autocomplete(
-                request.json)
+            is_correct, errors = FieldService.validate_setting_autocomplete(data)
             if not is_correct:
                 raise BadRequest(errors)
 
@@ -124,8 +131,8 @@ class FieldAPI(Resource):
                 to_row=data['setting_autocomplete']['to_row']
             )
 
-        else:
-            raise BadRequest("Invalide Type")
+        if response is None:
+            raise BadRequest("Could not create")
 
         return jsonify(response)
 
@@ -151,11 +158,7 @@ class FieldAPI(Resource):
 
         # add options to field json
         for field in field_list:
-            # Text area does not have additional options
-            if field.field_type == FieldType.TextArea.value:
-                continue
-
-            extra_options = FieldService.check_other_options(
+            extra_options = FieldService.get_additional_options(
                 field.id,
                 field.field_type
             )
