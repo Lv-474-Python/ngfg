@@ -5,7 +5,6 @@ from flask import request, jsonify
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
-from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
 from app.services import FieldService
@@ -48,7 +47,7 @@ class FieldAPI(Resource):
             404: 'Field not found'
         }
     )
-    @API.expect(EXTENDED_FIELD_MODEL)
+    @API.expect(EXTENDED_FIELD_MODEL)  # pylint: disable=too-many-branches
     @login_required
     # pylint: disable=no-self-use
     def post(self):
@@ -82,12 +81,15 @@ class FieldAPI(Resource):
                 range_max=range_max)
 
         elif field_type == FieldType.TextArea.value:
-            response = FieldService.create(
+            is_correct, errors = FieldService.validate_textarea(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
+            response = FieldService.create_text_area(
                 name=data['name'],
                 owner_id=data['owner_id'],
                 field_type=data['field_type'],
             )
-            response = FieldSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
             is_correct, errors = FieldService.validate_radio(data)
@@ -143,7 +145,6 @@ class FieldAPI(Resource):
             404: 'Field not found'
         }
     )
-
     @login_required
     # pylint: disable=no-self-use
     def get(self):
