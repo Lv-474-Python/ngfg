@@ -1,6 +1,8 @@
 """
 Field Service
 """
+from werkzeug.exceptions import BadRequest
+
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
@@ -166,7 +168,8 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = FieldSchema().validate(data)
-        return errors
+
+        return (not bool(errors), errors)
 
     @staticmethod
     def validate_setting_autocomplete(data):
@@ -176,7 +179,7 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = FieldSettingAutocompleteSchema().validate(data)
-        return errors
+        return (not bool(errors), errors)
 
     @staticmethod
     def validate_text_or_number(data):
@@ -186,7 +189,7 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = FieldNumberTextSchema().validate(data)
-        return errors
+        return (not bool(errors), errors)
 
     @staticmethod
     def validate_choice(data):
@@ -196,22 +199,7 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = FieldChoiceOptionsSchema().validate(data)
-        return errors
-
-    @staticmethod
-    @transaction_decorator
-    def create_range(field_id, range_min, range_max):
-        """
-        Creates range and range_field connection
-
-        :param field_id:
-        :param range_min:
-        :param range_max:
-        :return:
-        """
-        range_instance = RangeService.create(range_min, range_max)
-        FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
-        return True
+        return (not bool(errors), errors)
 
     @staticmethod
     @transaction_decorator
@@ -222,7 +210,7 @@ class FieldService:
                                     range_min=None,
                                     range_max=None):
         """
-        Creates number or text field with or without range
+        Creates number or text field with range if needed
 
         :param name:
         :param owner_id:
@@ -233,23 +221,20 @@ class FieldService:
         :return:
         """
 
-        field = FieldService.create(name=name,
-                                    # pylint: disable=too-many-arguments
-                                    owner_id=owner_id,
-                                    field_type=field_type,
-                                    is_strict=is_strict)
+        field = FieldService.create(
+            name=name,
+            owner_id=owner_id,
+            field_type=field_type,
+            is_strict=is_strict
+        )
 
-        print('we are here1')
-        print(field)
         data = FieldNumberTextSchema().dump(field)
 
         if range_min is not None or range_max is not None:
-            print('we are here2')
-            print(range_max, range_min)
-            range_instance = FieldService.create_range(field_id=field.id,
-                                                       range_min=range_min,
-                                                       range_max=range_max)
-            print(range_instance)
+            range_instance = RangeService.create(range_min, range_max)
+            FieldRangeService.create(
+                field_id=field.id,
+                range_id=range_instance.id)
 
             data['range'] = {
                 'min': range_min,
@@ -318,11 +303,12 @@ class FieldService:
                                     is_strict=is_strict)
 
         data = FieldSettingAutocompleteSchema().dump(field)
-        SettingAutocompleteService.create(data_url=data_url,
-                                          sheet=sheet,
-                                          from_row=from_row,
-                                          to_row=to_row,
-                                          field_id=field.id)
+        SettingAutocompleteService.create(
+            data_url=data_url,
+            sheet=sheet,
+            from_row=from_row,
+            to_row=to_row,
+            field_id=field.id)
 
         data['setting_autocomplete'] = {
             'data_url': data_url,
@@ -333,7 +319,74 @@ class FieldService:
 
         return data
 
-    # YOI NAI BUDE
+    @staticmethod
+    def check_text_or_number_additional_options(field_id):
+        data = {}
+        range_field = FieldRangeService.get_by_field_id(field_id)
+        field = FieldService.get_by_id(field_id)
+
+        if field.is_strict:
+            data['is_strict'] = True
+
+        if range_field:
+            ranges = RangeService.get_by_id(range_field.range_id)
+            if ranges:
+                range_min = ranges.min
+                range_max = ranges.max
+
+                data['range'] = {
+                    'min': range_min,
+                    'max': range_max
+                }
+
+        return data
+
+    @staticmethod
+    def check_choice_additional_options(field_id):
+        data = {}
+        choice_options = ChoiceOptionService.filter(field_id=field_id)
+        range_field = FieldRangeService.get_by_field_id(field_id)
+
+        if choice_options:
+            data['choice_options'] = []
+            for option in choice_options:
+                data['choice_options'].append(option.option_text)
+        else:
+            raise BadRequest('Choice Options Error')
+
+        if range_field:
+            ranges = RangeService.get_by_id(range_field.range_id)
+            if ranges:
+                range_min = ranges.min
+                range_max = ranges.max
+
+                data['range'] = {
+                    'min': range_min,
+                    'max': range_max
+                }
+
+        return data
+
+    @staticmethod
+    def check_autocomplete_additional_options(field_id):
+        data = {}
+        settings_autocomplete = SettingAutocompleteService.filter(
+            field_id=field_id)
+
+        if settings_autocomplete:
+            settings_autocomplete = settings_autocomplete[0]
+        else:
+            raise BadRequest('Setting Autocomplete Error')
+
+        data['setting_autocomplete'] = {
+            'data_url': settings_autocomplete.data_url,
+            'sheet': settings_autocomplete.sheet,
+            'from_row': settings_autocomplete.from_row,
+            'to_row': settings_autocomplete.to_row
+        }
+
+        return data
+
     @staticmethod
     def check_other_options(field_id, field_type):
         """
@@ -345,50 +398,17 @@ class FieldService:
         E.G. data = {'range' = {'min' : 0, 'max' : 100}
              data = {'choice_options' = ['man', 'woman']}
         """
-
-        data = {}
-
         if field_type in (FieldType.Number.value, FieldType.Text.value):
-            range_field = FieldRangeService.get_by_field_id(field_id)
-
-            field = FieldService.get_by_id(field_id)
-            if field.is_strict:
-                data['is_strict'] = True
-
-            if range_field:
-                ranges = RangeService.get_by_id(range_field.range_id)
-                if ranges:
-                    range_min = ranges.min
-                    range_max = ranges.max
-
-                    data['range'] = {
-                        'min': range_min,
-                        'max': range_max
-                    }
-
-        elif field_type == FieldType.TextArea.value:
-            return None
+            data = FieldService.check_text_or_number_additional_options(
+                field_id)
 
         elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
-            choice_options = ChoiceOptionService.filter(field_id=field_id)
-            if choice_options:
-                data['choice_options'] = []
-                for option in choice_options:
-                    data['choice_options'].append(option.option_text)
+            data = FieldService.check_choice_additional_options(field_id)
 
         elif field_type == FieldType.Autocomplete.value:
-            settings_autocomplete = SettingAutocompleteService.filter(
-                field_id=field_id)
-            if settings_autocomplete:
-                settings_autocomplete = settings_autocomplete[0]
-            else:
-                return None
+            data = FieldService.check_autocomplete_additional_options(field_id)
 
-            data['setting_autocomplete'] = {
-                'data_url': settings_autocomplete.data_url,
-                'sheet': settings_autocomplete.sheet,
-                'from_row': settings_autocomplete.from_row,
-                'to_row': settings_autocomplete.to_row
-            }
+        else:
+            raise BadRequest("Invalid Data")
 
         return data

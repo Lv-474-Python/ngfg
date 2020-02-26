@@ -49,19 +49,19 @@ class FieldAPI(Resource):
 
         :return: json
         """
-
-        if errors := FieldService.validate(request.json):
-            print(errors)
-            raise BadRequest('Invalid parameters')
+        is_correct, errors = FieldService.validate(request.json)
+        if not is_correct:
+            raise BadRequest(errors)
 
         data = request.json
 
         field_type = data['field_type']
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
-            if errors := FieldService.validate_text_or_number(request.json):
-                print(errors)
-                raise BadRequest('Invalid Text/Number parameters')
+            is_correct, errors = FieldService.validate_text_or_number(request.json)
+            if not is_correct:
+                raise BadRequest(errors)
+
             range_min, range_max = None, None
             if range_instance := data.get('range'):
                 range_min = range_instance.get('min')
@@ -83,9 +83,10 @@ class FieldAPI(Resource):
             response = FieldSchema().dump(response)
 
         elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
-            if errors := FieldService.validate_choice(request.json):
-                print(errors)
-                raise BadRequest('Invalid Choice parameters')
+            is_correct, errors = FieldService.validate_choice(request.json)
+            if not is_correct:
+                raise BadRequest(errors)
+
             response = FieldService.create_choice_option_field(
                 name=data['name'],
                 owner_id=data['owner_id'],
@@ -94,9 +95,10 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Autocomplete.value:
-            if errors := FieldService.validate_setting_autocomplete(request.json):
-                print(errors)
-                raise BadRequest('Invalid Autocomplete parameters')
+            is_correct, errors = FieldService.validate_setting_autocomplete(request.json)
+            if not is_correct:
+                raise BadRequest(errors)
+
             response = FieldService.create_autocomplete_field(
                 name=data['name'],
                 owner_id=data['owner_id'],
@@ -129,8 +131,14 @@ class FieldAPI(Resource):
 
         # add options to field json
         for field in field_list:
-            extra_options = FieldService.check_other_options(field.id,
-                                                             field.field_type)
+            # Text area does not have additional options
+            if field.field_type == FieldType.TextArea.value:
+                continue
+
+            extra_options = FieldService.check_other_options(
+                field.id,
+                field.field_type
+            )
 
             field = FieldService.text_or_number_to_json(field)
             if extra_options:
