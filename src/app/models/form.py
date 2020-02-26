@@ -41,7 +41,7 @@ class FormSchema(MA.Schema):
     :param owner_id - id
     :param name - str
     :param title - str
-    :param result_url - str
+    :param result_url - url
     :param is_published - bool
     """
     class Meta:
@@ -53,5 +53,5 @@ class FormSchema(MA.Schema):
     owner_id = fields.Int(required=True)
     name = fields.Str(required=True)
     title = fields.Str(required=True)
-    result_url = fields.Str(required=True)
+    result_url = fields.Url(required=True)
     is_published = fields.Bool(required=True)
