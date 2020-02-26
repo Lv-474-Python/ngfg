@@ -125,9 +125,3 @@ class FormFieldService:
         schema = FormFieldSchema()
         errors = schema.validate(data)
         return not bool(errors), errors
-
-    @staticmethod
-    def validate_position(data):
-        """
-        Validate position value
-        """

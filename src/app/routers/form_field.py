@@ -89,11 +89,14 @@ class FormFieldsAPI(Resource):
             raise BadRequest("No such form")
         if form.owner_id != current_user.id:
             raise Forbidden("Can't insert fields into the form that doesn't belong to you")
+
         data = request.get_json()
         field = FieldService.get_by_id(int(data['field_id']))
+        shared_fields = [fld.field_id for fld in SharedFieldService.filter(user_id=current_user.id)]
+
         if field is None:
             raise BadRequest("Can't add nonexistent field to form")
-        if field.owner_id != current_user.id or field not in SharedFieldService.filter(user_id=current_user.id):
+        if field.owner_id != current_user.id and field.id not in shared_fields:
             raise Forbidden("You don't have permission to add this field to your form")
         is_correct, errors = FormFieldService.validate_data(data)
         if not is_correct:
