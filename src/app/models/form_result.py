@@ -1,7 +1,7 @@
 """
 FormResult model
 """
-from marshmallow import fields
+from marshmallow import fields, ValidationError
 from sqlalchemy import func
 
 from app import DB, MA
@@ -32,6 +32,26 @@ class FormResult(AbstractModel):
                 f"answers: {self.answers}, form_id: {self.form.id}")
 
 
+class Keys(fields.Field):
+    """
+    Custom field to check answers dict keys
+    """
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        """
+        Deserialization method
+
+        :param value:
+        :param attr:
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        if value not in ("position", "answer"):
+            raise ValidationError("Wrong answer key")
+        return value
+
+
 class FormResultSchema(MA.Schema):  # pylint: disable=too-many-ancestors
     """
     FormResult marshmallow schema
@@ -45,4 +65,4 @@ class FormResultSchema(MA.Schema):  # pylint: disable=too-many-ancestors
     user_id = fields.Int(required=True)
     form_id = fields.Int(required=True)
     result_url = fields.Url(required=True)
-    answers = fields.List(fields.Dict(keys=fields.String(), values=fields.Raw()))
+    answers = fields.List(fields.Dict(keys=Keys, values=fields.Raw()))
