@@ -5,7 +5,7 @@ from flask import request, jsonify
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.models.field import FieldSchema
+from app.models.field import FieldSchema, FieldPutSchema
 from app import API
 from app.helper.enums import FieldType
 from app.services import FieldService
@@ -218,26 +218,35 @@ class FieldAPI(Resource):
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
             range_min, range_max = FieldService.check_for_range(data)
-            updated_field = FieldService.update_text_or_number_field(
+            response = FieldService.update_text_or_number_field(
                 field_id=field_id,
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=field.owner_id,
                 field_type=field_type,
                 range_min=range_min,
                 range_max=range_max
             )
-            return updated_field
+            return response
 
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
                 field_id=field_id,
-                name=data["name"],
+                name=data.get("name"),
                 owner_id=field.owner_id,
                 field_type=field_type,
                 is_strict=False
             )
-            response = FieldSchema().dump(response)
+            response = FieldPutSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
-            added_choice_options = data["added_choice_options"]
-            removed_choice_options = data["removed_choice_options"]
+            added_choice_options = data.get("added_choice_options")
+            removed_choice_options = data.get("removed_choice_options")
+            response = FieldService.update_radio_field(
+                field_id=field_id,
+                name=data.get("name"),
+                owner_id=field.owner_id,
+                field_type=field_type,
+                added_choice_options=added_choice_options,
+                removed_choice_options=removed_choice_options
+            )
+            return response
