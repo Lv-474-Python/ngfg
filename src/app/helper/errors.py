@@ -129,6 +129,12 @@ class NotCreated(CustomException):
     """
 
 
+class NotDeleted(CustomException):
+    """
+    Base not deleted exception
+    """
+
+
 class GroupNotCreated(NotCreated):
     """
     Group not created exception
@@ -147,7 +153,7 @@ class GroupUserNotCreated(NotCreated):
     """
 
 
-class GroupUserNotDeleted(NotCreated):
+class GroupUserNotDeleted(NotDeleted):
     """
     Group user not deleted exception
     """

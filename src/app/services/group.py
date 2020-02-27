@@ -12,7 +12,10 @@ from app.helper.errors import (
     GroupNotCreated,
     UserNotCreated,
     GroupUserNotCreated,
-    GroupUserNotDeleted, GroupNameAlreadyExist, GroupUserAlreadyExist, UserNotExist)
+    GroupUserNotDeleted,
+    GroupNameAlreadyExist,
+    GroupUserAlreadyExist,
+    UserNotExist)
 
 
 class GroupService:

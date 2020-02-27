@@ -34,9 +34,10 @@ class BaseGroupSchema(MA.Schema):
         """
         Base group schema meta
         """
-        fields = ("id", "name", "owner_id")
+        fields = ("id", "owner_id",  "name")
 
     name = fields.Str(required=True)
+    owner_id = fields.Int(required=True)
 
 
 class GroupPutSchema(BaseGroupSchema):
@@ -65,5 +66,4 @@ class GroupPostSchema(BaseGroupSchema):
         """
         fields = ("id", "owner_id", "name", "users_emails")
 
-    owner_id = fields.Int(required=True)
     users_emails = fields.List(cls_or_instance=fields.Email, required=True)
