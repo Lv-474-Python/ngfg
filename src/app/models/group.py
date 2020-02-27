@@ -5,7 +5,6 @@ from marshmallow import fields
 
 from app import DB, MA
 from .abstract_model import AbstractModel
-from .user import UserSchema
 
 
 class Group(AbstractModel):
@@ -59,4 +58,3 @@ class GroupPostSchema(BaseGroupSchema):
         fields = ("id", "owner_id", "name", "users_emails")
 
     users_emails = fields.List(cls_or_instance=fields.Email, required=True)
-

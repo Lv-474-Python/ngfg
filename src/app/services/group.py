@@ -134,6 +134,9 @@ class GroupService:
 
     @staticmethod
     def to_json_all(data):
+        """
+        Get all group objects
+        """
         result = GroupService.to_json(data, many=True)
 
         if not isinstance(result, list):
