@@ -174,44 +174,44 @@ class FieldsAPI(Resource):
 
         return jsonify(response)
 
-    @FIELDS_NS.route("/<int:field_id>")
-    class FieldAPI(Resource):
+@FIELDS_NS.route("/<int:field_id>")
+class FieldAPI(Resource):
+    """
+        Field/{id} API
+
+        url: '/fields/{id}'
+        methods: GET, PUT, DELETE
+    """
+
+    @API.doc(
+        responses={
+            200: 'OK',
+            403: 'User is not the field owner',
+            404: 'Field not found',
+        }, params={
+            'field_id': 'Field id'
+        }
+    )
+    # pylint: disable=no-self-use
+    def get(self, field_id):
         """
-            Field/{id} API
+        Get field by id
 
-            url: '/fields/{id}'
-            methods: GET, PUT, DELETE
+        :param field_id: field id
+        :return: json
         """
+        field = FieldService.get_by_id(field_id)
 
-        @API.doc(
-            responses={
-                200: 'OK',
-                403: 'User is not the field owner',
-                404: 'Field not found',
-            }, params={
-                'field_id': 'Field id'
-            }
-        )
-        # pylint: disable=no-self-use
-        def get(self, field_id):
-            """
-            Get field by id
+        if field is None:
+            raise BadRequest("Field does not exist")
 
-            :param field_id: field id
-            :return: json
-            """
-            field = FieldService.get_by_id(field_id)
+        if current_user.id != field.owner_id:
+            raise Forbidden("Forbidden. User is not the field owner")
 
-            if field is None:
-                raise BadRequest("Field does not exist")
+        field_json = FieldService.field_to_json(field)
+        extra_options = FieldService.get_additional_options(field.id, field.field_type)
+        if extra_options:
+            for key, value in extra_options.items():
+                field_json[key] = value
 
-            if current_user.id != field.owner_id:
-                raise Forbidden("Forbidden. User is not the field owner")
-
-            field_json = FieldService.field_to_json(field)
-            extra_options = FieldService.get_additional_options(field.id, field.field_type)
-            if extra_options:
-                for key, value in extra_options.items():
-                    field_json[key] = value
-
-            return jsonify(field_json)
+        return jsonify(field_json)
