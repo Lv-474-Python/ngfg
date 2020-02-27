@@ -207,6 +207,10 @@ class FieldAPI(Resource):
             raise Forbidden("Can't update field you don't own")
 
         data = request.get_json()
+        is_correct, errors = FieldService.validate_update_field(data)
+        if not is_correct:
+            raise BadRequest(errors)
+
         field_type = field.field_type
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):

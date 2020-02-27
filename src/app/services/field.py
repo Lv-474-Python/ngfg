@@ -11,7 +11,8 @@ from app.models import (
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
-    FieldCheckboxSchema
+    FieldCheckboxSchema,
+    UpdateFieldSchema
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
@@ -208,8 +209,18 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
+    def validate_update_field(data):
+        """
+
+        :param data:
+        :return: errors if validation failed
+        """
+        errors = UpdateFieldSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
     @transaction_decorator
-    def create_text_or_number_field( # pylint: disable=too-many-arguments
+    def create_text_or_number_field(  # pylint: disable=too-many-arguments
             name,
             owner_id,
             field_type,
@@ -288,7 +299,7 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_checkbox_field( # pylint: disable=too-many-arguments
+    def create_checkbox_field(  # pylint: disable=too-many-arguments
             name,
             owner_id,
             field_type,
@@ -336,7 +347,7 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def create_autocomplete_field( # pylint: disable=too-many-arguments
+    def create_autocomplete_field(  # pylint: disable=too-many-arguments
             name,
             owner_id,
             field_type,
@@ -515,7 +526,7 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def update_text_or_number_field( #pylint: disable=too-many-arguments
+    def update_text_or_number_field(  # pylint: disable=too-many-arguments
             field_id,
             name,
             owner_id,

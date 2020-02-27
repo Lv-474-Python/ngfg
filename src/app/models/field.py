@@ -164,3 +164,31 @@ class FieldSettingAutocompleteSchema(MA.Schema):
     setting_autocomplete = fields.Nested(
         SettingAutocompleteSchema,
         required=True)
+
+
+class UpdateFieldSchema(MA.Schema):
+    class Meta:
+        fields = ("id",
+                  "owner_id",
+                  "name",
+                  "field_type",
+                  "is_strict",
+                  "range",
+                  "setting_autocomplete",
+                  "added_choice_options",
+                  "removed_choice_options")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
+    is_strict = fields.Boolean(required=False)
+    range = fields.Nested(RangeSchema, required=False)
+    setting_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)
+    added_choice_options = fields.List(fields.Str(required=False))
+    removed_choice_options = fields.List(fields.Str(), required=False)
