@@ -512,3 +512,44 @@ class FieldService:
             range_min = range_instance.get('min')
             range_max = range_instance.get('max')
         return range_min, range_max
+
+    @staticmethod
+    @transaction_decorator
+    def update_text_or_number_field( #pylint: disable=too-many-arguments
+            field_id,
+            name,
+            owner_id,
+            field_type,
+            is_strict=False,
+            range_min=None,
+            range_max=None
+    ):
+        """
+        Method to update field with number or text type.
+
+        :param field_id: ID of the field that's being updated
+        :param name: new name for the field
+        :param field_type: type of the field
+        :param is_strict: whether the field is restricted or not
+        :param range_min: new minimum value for range object associated with the field
+        :param range_max: new maximum value for range object associated with the field
+        :return: json object with updated field
+        """
+        field_range = FieldRangeService.get_by_field_id(field_id)
+        if range_min is not None or range_max is not None:
+            is_strict = True
+            range_instance = RangeService.create(range_min=range_min, range_max=range_max)
+            if field_range is not None:
+                FieldRangeService.update(field_id=field_id, range_id=range_instance.id)
+            FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
+        if field_range is not None:
+            FieldRangeService.delete(field_id=field_id)
+        field = FieldService.update(
+            field_id=field_id,
+            name=name,
+            owner_id=owner_id,
+            field_type=field_type,
+            is_strict=is_strict
+        )
+        data = FieldNumberTextSchema().dump(field)
+        return data

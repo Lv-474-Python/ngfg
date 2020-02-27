@@ -4,7 +4,7 @@ Field router.
 from flask import request, jsonify
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, Forbidden
 from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
@@ -36,7 +36,7 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 
 
 @FIELDS_NS.route("/")
-class FieldAPI(Resource):
+class FieldsAPI(Resource):
     """
     Field API
     """
@@ -170,3 +170,62 @@ class FieldAPI(Resource):
             response.append(field)
 
         return jsonify(response)
+
+
+@FIELDS_NS.route("/<int:field_id>/")
+class FieldAPI(Resource):
+    """
+    Fields API
+
+    url: '/fields/{id}'
+    methods: get, put, delete
+    """
+
+    @API.doc(
+        responses={
+            200: "OK",
+            400: "Invalid syntax",
+            401: "Unauthorized",
+            403: "Forbidden update"
+        },
+        params={
+            "field_id": "Specify ID of the field you want to update"
+        }
+    )
+    @API.expect(EXTENDED_FIELD_MODEL, validate=False)
+    @login_required
+    #pylint: disable = no-self-use
+    def put(self, field_id):
+        """
+        Field PUT method
+
+        :param field_id: ID of the field
+        """
+        field = FieldService.get_by_id(field_id)
+
+        if field.owner_id != current_user.id:
+            raise Forbidden("Can't update field you don't own")
+
+        data = request.get_json()
+        field_type = field.field_type
+
+        if field_type in (FieldType.Number.value, FieldType.Text.value):
+            range_min, range_max = FieldService.check_for_range(data)
+            response = FieldService.update_text_or_number_field(
+                field_id=field_id,
+                name=data['name'],
+                owner_id=field.owner_id,
+                field_type=field_type,
+                range_min=range_min,
+                range_max=range_max
+            )
+
+        elif field_type == FieldType.TextArea.value:
+            response = FieldService.update(
+                field_id=field_id,
+                name=data["name"],
+                owner_id=field.owner_id,
+                field_type=field_type,
+                is_strict=False
+            )
+            response = FieldSchema().dump(response)
