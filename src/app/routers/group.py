@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
 
 from app import API
-from app.services import GroupService, GroupUserService
+from app.services import GroupService
 
 
 GROUP_NS = API.namespace('groups', description='Group APIs')
@@ -28,8 +28,16 @@ GROUP_POST_MODEL = API.inherit('GroupPost', GROUP_MODEL, {
         help="List can be empty")
 })
 GROUP_PUT_MODEL = API.inherit('GroupPut', GROUP_MODEL, {
-    "emails_add": fields.List(fields.String),
-    "emails_delete": fields.List(fields.String)
+    "emails_add": fields.List(
+        cls_or_instance=fields.String,
+        required=False,
+        description='Group users to add',
+        help="List can be empty"),
+    "emails_delete": fields.List(
+        cls_or_instance=fields.String,
+        required=False,
+        description='Group users to delete',
+        help="List can be empty")
 })
 
 
@@ -97,52 +105,71 @@ class GroupsAPI(Resource):
 @GROUP_NS.route("<int:group_id>")
 class GroupAPI(Resource):
     """
-    Class
+    Group API
+
+    url: '/groups/'
+    methods: get, put, delete
     """
+    @API.doc(
+        responses={
+            401: 'Unauthorized',
+            200: 'OK',
+        }
+    )
     @login_required
     # pylint: disable=no-self-use
     def get(self, group_id):
         """
+        Get group by id
 
         :param group_id:
-        :return:
+        :return: Group
         """
         group = GroupService.get_by_id(group_id=group_id)
         if group is None:
             raise BadRequest("Group is not found")
-        group_json = GroupService.to_json(group, many=False)
+        group_json = GroupService.to_json_single(group)
         return jsonify(group_json)
 
+    @API.doc(
+        responses={
+            201: 'Created',
+            400: 'Invalid data',
+            401: 'Unauthorized',
+            403: 'Forbidden to update group'
+        }
+    )
     @API.expect(GROUP_PUT_MODEL)
     @login_required
     # pylint: disable=no-self-use
     def put(self, group_id):
         """
+        Update single group
 
         :param group_id:
-        :return:
+        :return: 200 if updated
         """
-        data = request.get_json()
         group = GroupService.get_by_id(group_id=group_id)
-        passed, errors = GroupService.validate_put_data(data)
-        if not passed:
-            return jsonify(errors)
-        if group is None:  # need transactions to all these checks
+        if group is None:
             raise BadRequest("Group is not found")
-        is_updated = GroupService.update(group_id, name=data["name"])
-        if is_updated is None:
-            raise BadRequest("Couldn't update group name")
-        passed, errors = GroupUserService.delete_users_by_email(
-            group_id,
-            data["emails_delete"]
-        )
+
+        if group.owner_id != current_user.id:
+            raise BadRequest("You can't update someone else's group")
+
+        group_json = GroupService.to_json(group)
+        data = request.get_json()
+        group_json.update(**data)
+
+        passed, errors = GroupService.validate_put_data(group_json)
         if not passed:
-            return jsonify(errors)
-        passed, errors = GroupUserService.add_users_by_email(
+            return BadRequest(errors)
+
+        updated = GroupService.update_group_name_and_users(
             group_id,
-            data["emails_add"]
-        )
-        if not passed:
-            return jsonify(errors)
-        #form_json = GroupService.to_json(updated_form, many=False)
-        return jsonify("form_json")
+            group_json["emails_add"],
+            group_json["emails_delete"],
+            group_json["name"])
+
+        if not updated:
+            raise BadRequest("Cannot update group")
+        return Response(status=200)

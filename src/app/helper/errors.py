@@ -145,3 +145,21 @@ class GroupUserNotCreated(NotCreated):
     """
     Group user not created exception
     """
+
+
+class GroupUserNotDeleted(NotCreated):
+    """
+    Group user not deleted exception
+    """
+
+
+class GroupNameAlreadyExist(AlreadyExist):
+    """
+    Group name already exist exception
+    """
+
+
+class GroupUserAlreadyExist(AlreadyExist):
+    """
+    Group name already exist exception
+    """
