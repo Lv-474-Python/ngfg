@@ -616,7 +616,6 @@ class FieldService:
             name,
             added_choice_options=None,
             removed_choice_options=None,
-            is_strict=False
     ):
         """
         Updates field with radio type
@@ -625,12 +624,10 @@ class FieldService:
         :param name: updated name
         :param added_choice_options: choice options to add to the field
         :param removed_choice_options: choice options to remove from the field
-        :param is_strict: whether the field has restrictions
         """
         field = FieldService.update(
             field_id=field_id,
-            name=name,
-            is_strict=is_strict
+            name=name
         )
 
         if added_choice_options:
@@ -697,7 +694,6 @@ class FieldService:
             range_min,
             added_choice_options=None,
             removed_choice_options=None,
-            is_strict=False
     ):
         """
         Method to update field with checkbox type
@@ -708,12 +704,10 @@ class FieldService:
         :param range_min: minimum value of options that can be chosen
         :param added_choice_options: options to be added to the field
         :param removed_choice_options: options to be removed from the field
-        :param is_strict: whether the field has restrictions
         """
         field = FieldService.update(
             field_id=field_id,
-            name=name,
-            is_strict=is_strict
+            name=name
         )
         field_range = FieldRangeService.get_by_field_id(field_id)
 
