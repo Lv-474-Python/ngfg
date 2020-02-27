@@ -54,5 +54,5 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
 
-from .routers import main, auth, form, field, user  # pylint: disable=wrong-import-position
+from .routers import main, auth, form, field, user, form_field  # pylint: disable=wrong-import-position
 from .models import *  # pylint: disable=wrong-import-position
