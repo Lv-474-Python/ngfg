@@ -2,13 +2,13 @@
 Field router.
 """
 from flask import request, jsonify
-from flask_restx import fields, Resource
 from flask_login import current_user, login_required
+from flask_restx import fields, Resource
 from werkzeug.exceptions import BadRequest, Forbidden
 
-from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
+from app.models.field import FieldSchema
 from app.services import FieldService
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
@@ -37,7 +37,7 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 
 
 @FIELDS_NS.route("/")
-class FieldAPI(Resource):
+class FieldsAPI(Resource):
     """
     Field API
 
@@ -175,7 +175,7 @@ class FieldAPI(Resource):
         return jsonify(response)
 
     @FIELDS_NS.route("/<int:field_id>")
-    class FieldIdAPI(Resource):
+    class FieldAPI(Resource):
         """
             Field/{id} API
 
@@ -186,8 +186,8 @@ class FieldAPI(Resource):
         @API.doc(
             responses={
                 200: 'OK',
-                403: 'User is not the form owner',
-                404: 'Form not found',
+                403: 'User is not the field owner',
+                404: 'Field not found',
             }, params={
                 'field_id': 'Field id'
             }
@@ -206,7 +206,7 @@ class FieldAPI(Resource):
                 raise BadRequest("Field does not exist")
 
             if current_user.id != field.owner_id:
-                raise Forbidden("Forbidden. User is not the form owner")
+                raise Forbidden("Forbidden. User is not the field owner")
 
             field_json = FieldService.field_to_json(field)
             extra_options = FieldService.get_additional_options(field.id, field.field_type)
