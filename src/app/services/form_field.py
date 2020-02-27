@@ -2,7 +2,7 @@
 FormField Service
 """
 from app import DB
-from app.models import FormField
+from app.models import FormField, FormFieldSchema
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FormFieldNotExist
 
@@ -108,3 +108,20 @@ class FormFieldService:
             raise FormFieldNotExist()
         DB.session.delete(instance)
         return True
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+        A method to get object data in json format
+        """
+        form_field_schema = FormFieldSchema(many=many)
+        return form_field_schema.dump(data)
+
+    @staticmethod
+    def validate_data(data):
+        """
+        Validate data with FormFieldSchema
+        """
+        schema = FormFieldSchema()
+        errors = schema.validate(data)
+        return not bool(errors), errors
