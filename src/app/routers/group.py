@@ -13,14 +13,14 @@ from app.services import GroupService
 
 GROUP_NS = API.namespace('groups', description='Group APIs')
 GROUP_MODEL = API.model('Group', {
-    'owner_id': fields.Integer(
-        required=True,
-        description="Owner id"),
     'name': fields.String(
         required=True,
         description="Group name"),
 })
 GROUP_POST_MODEL = API.inherit('GroupPost', GROUP_MODEL, {
+    'owner_id': fields.Integer(
+        required=True,
+        description="Owner id"),
     'users_emails': fields.List(
         cls_or_instance=fields.String,
         required=False,
