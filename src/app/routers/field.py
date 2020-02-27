@@ -221,6 +221,7 @@ class FieldAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
+            401: 'Unauthorized',
             400: 'Bad Request',
             403: 'User is not the field owner'
         }, params={
@@ -246,4 +247,4 @@ class FieldAPI(Resource):
         if not is_deleted:
             raise BadRequest("Could not delete field")
 
-        return {'deleted': is_deleted}
+        return Response(status=200)
