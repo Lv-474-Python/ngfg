@@ -121,7 +121,7 @@ class FieldNumberTextSchema(BasicField):
         """
         Field with type number or text schema meta
         """
-        fields = ("owner_id", "name", "field_type", "range")
+        fields = ("id", "owner_id", "name", "field_type", "range")
 
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema, required=False)

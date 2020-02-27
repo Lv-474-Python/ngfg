@@ -1,7 +1,7 @@
 """
 Field Service
 """
-from app import DB
+from app import DB, LOGGER
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
 from app.helper.errors import (
@@ -518,22 +518,27 @@ class FieldService:
 
         :param field_id:
         :param field_type:
-        :return: dict of options or None
+        :return: dict of options
         E.G. data = {'range' = {'min' : 0, 'max' : 100}
              data = {'choice_options' = ['man', 'woman']}
         """
-        if field_type in (FieldType.Number.value, FieldType.Text.value):
-            data = FieldService._get_text_or_number_additional_options(
-                field_id)
+        data = None
 
-        elif field_type == FieldType.TextArea.value:
-            data = {}
+        try:
+            if field_type in (FieldType.Number.value, FieldType.Text.value):
+                data = FieldService._get_text_or_number_additional_options(field_id)
 
-        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
-            data = FieldService._get_choice_additional_options(field_id)
+            elif field_type == FieldType.TextArea.value:
+                data = {}
 
-        elif field_type == FieldType.Autocomplete.value:
-            data = FieldService._get_autocomplete_additional_options(field_id)
+            elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
+                data = FieldService._get_choice_additional_options(field_id)
+
+            elif field_type == FieldType.Autocomplete.value:
+                data = FieldService._get_autocomplete_additional_options(field_id)
+
+        except FieldNotExist():
+            LOGGER.error('Couldn`t GET additional options')
 
         return data
 
