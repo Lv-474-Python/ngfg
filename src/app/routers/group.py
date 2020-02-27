@@ -54,12 +54,12 @@ class GroupsAPI(Resource):
         Create new group
         """
         data = request.get_json()
-        if int(data['owner_id']) != current_user.id:
-            raise Forbidden("You cannot create group not for yourself")
-
         is_correct, errors = GroupService.validate_data(data)
         if not is_correct:
             raise BadRequest(errors)
+
+        if int(data['owner_id']) != current_user.id:
+            raise Forbidden("You cannot create group not for yourself")
 
         group = GroupService.create_group_with_users(
             group_name=data['name'],
