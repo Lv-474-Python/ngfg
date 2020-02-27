@@ -8,7 +8,6 @@ from werkzeug.exceptions import BadRequest, Forbidden
 
 from app import API
 from app.helper.enums import FieldType
-from app.models.field import FieldSchema
 from app.services import FieldService
 
 FIELDS_NS = API.namespace('fields', description='NgFg APIs')
