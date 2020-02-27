@@ -57,28 +57,18 @@ class GroupsAPI(Resource):
         if int(data['owner_id']) != current_user.id:
             raise Forbidden("You cannot create group not for yourself")
 
-        # validate data
         is_correct, errors = GroupService.validate_data(data)
         if not is_correct:
             raise BadRequest(errors)
 
-        # create group
-        group = GroupService.create(data['name'], data['owner_id'])
+        group = GroupService.create_group_users_group_users(
+            group_name=data['name'],
+            group_owner_id=data['owner_id'],
+            emails=data['users_emails']
+        )
         if group is None:
             raise BadRequest("Cannot create group")
 
-        # create users by email
-        emails = data['users_emails']
-        users = GroupService.create_users_by_emails(emails)
-        if users is None:
-            raise BadRequest("Cannot create users")
-
-        # create groups_users
-        group_users = GroupService.create_group_users(group.id, users)
-        if group_users is None:
-            raise BadRequest("Cannot create group users")
-
-        # return json response
         group_json = GroupService.to_json(group, many=False)
-        group_json['users_emails'] = emails
+        group_json['users_emails'] = data['users_emails']
         return jsonify(group_json)

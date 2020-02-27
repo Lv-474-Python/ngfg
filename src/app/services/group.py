@@ -8,7 +8,13 @@ from app.models import Group, GroupSchema
 from app.services.group_user import GroupUserService
 from app.services.user import UserService
 from app.helper.decorators import transaction_decorator
-from app.helper.errors import GroupNotExist
+from app.helper.errors import (
+    GroupNotExist,
+    GroupNotCreated,
+    UserNotCreated,
+    GroupUserNotCreated
+)
+
 
 
 class GroupService:
@@ -120,6 +126,37 @@ class GroupService:
         schema = GroupSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    @transaction_decorator
+    def create_group_users_group_users(
+            group_name,
+            group_owner_id,
+            emails):
+        """
+        Create group, users by email and group users
+
+        :param group_name: group name
+        :param group_owner_id: group owner id
+        :param emails: lis of emails
+        """
+
+        # create group
+        group = GroupService.create(group_name, group_owner_id)
+        if group is None:
+            raise GroupNotCreated()
+
+        # create users by email
+        users = GroupService.create_users_by_emails(emails)
+        if users is None:
+            raise UserNotCreated()
+
+        # create groups_users
+        group_users = GroupService.create_group_users(group.id, users)
+        if group_users is None:
+            raise GroupUserNotCreated()
+
+        return group
 
     @staticmethod
     @transaction_decorator
