@@ -145,10 +145,10 @@ class FieldSettingAutocompleteSchema(BasicField):
 
 class FieldPutSchema(MA.Schema):
     class Meta:
-        fields = ("name", "range", "added_choice_options", "removed_choice_options", "settings_autocomplete")
+        fields = ("updated_name", "range", "added_choice_options", "removed_choice_options", "updated_autocomplete")
 
-    name = fields.Str(required=False)
+    updated_name = fields.Str(required=False)
     range = fields.Nested(RangeSchema, required=False)
     added_choice_options = fields.List(fields.Str(), required=False)
     removed_choice_options = fields.List(fields.Str(), required=False)
-    settings_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)
+    updated_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)

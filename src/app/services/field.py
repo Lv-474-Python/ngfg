@@ -624,10 +624,12 @@ class FieldService:
 
         if added_choice_options:
             for added_option in added_choice_options:
+                data['added_choice_options'] = [added_option for added_option in added_choice_options]
                 ChoiceOptionService.create(field_id=field_id, option_text=added_option)
 
         if removed_choice_options:
             for removed_option in removed_choice_options:
+                data['removed_choice_options'] = [removed_option for removed_option in removed_choice_options]
                 option = ChoiceOptionService.get_by_field_and_text(field_id=field_id, option_text=removed_option)
                 ChoiceOptionService.delete(option_id=option.id)
 
