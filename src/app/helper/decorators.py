@@ -6,6 +6,7 @@ import functools
 from sqlalchemy.exc import (
     IntegrityError,
     ProgrammingError,
+    SQLAlchemyError
 )
 
 from app import DB, LOGGER
@@ -38,6 +39,8 @@ def transaction_decorator(func):
             LOGGER.error('ProgrammingError')
         except CustomException:
             LOGGER.error('CustomException')
+        except SQLAlchemyError:
+            LOGGER.error('SQLAlchemyError')
         DB.session.rollback()
         return None
     return wrapper

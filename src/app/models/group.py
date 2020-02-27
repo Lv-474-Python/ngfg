@@ -29,11 +29,7 @@ class Group(AbstractModel):
 class BaseGroupSchema(MA.Schema):
     """
     Base group schema
-
-    :param name - str
-    :param owner_id - id
     """
-
     class Meta:
         """
         Base group schema meta
@@ -44,16 +40,29 @@ class BaseGroupSchema(MA.Schema):
     owner_id = fields.Int(required=True)
 
 
+class GroupPutSchema(BaseGroupSchema):
+    """
+    GroupPut schema
+    """
+    class Meta:
+        """
+        GroupPut schema meta
+        """
+        fields = ("id", "name", "owner_id", "emails_add", "emails_delete", "users")
+
+    emails_add = fields.List(fields.Email)
+    emails_delete = fields.List(fields.Email)
+
+
 class GroupPostSchema(BaseGroupSchema):
     """
     Group post schema
 
     :param users_emails - list of emails
     """
-
     class Meta:
         """
-        Group schema meta
+        Group post schema meta
         """
         fields = ("id", "owner_id", "name", "users_emails")
 

@@ -11,6 +11,7 @@ from .field import (
     FieldRadioSchema,
     FieldSettingAutocompleteSchema,
     FieldCheckboxSchema,
+    FieldPutSchema,
     BasicField
 )
 from .choice_option import ChoiceOption
@@ -21,4 +22,4 @@ from .range import Range, RangeSchema
 from .form_result import FormResult, FormResultSchema
 from .field_range import FieldRange
 from .group_user import GroupUser
-from .group import Group, BaseGroupSchema
+from .group import Group, BaseGroupSchema, GroupPutSchema, GroupPostSchema

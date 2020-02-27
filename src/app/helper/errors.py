@@ -121,3 +121,63 @@ class FieldAlreadyExist(AlreadyExist):
     """
     Field exist exception
     """
+
+
+class NotCreated(CustomException):
+    """
+    Base not created exception
+    """
+
+
+class NotDeleted(CustomException):
+    """
+    Base not deleted exception
+    """
+
+
+class GroupNotCreated(NotCreated):
+    """
+    Group not created exception
+    """
+
+
+class UserNotCreated(NotCreated):
+    """
+    User not created exception
+    """
+
+
+class GroupUserNotCreated(NotCreated):
+    """
+    Group user not created exception
+    """
+
+
+class GroupUserNotDeleted(NotDeleted):
+    """
+    Group user not deleted exception
+    """
+
+
+class GroupNameAlreadyExist(AlreadyExist):
+    """
+    Group name already exist exception
+    """
+
+
+class GroupUserAlreadyExist(AlreadyExist):
+    """
+    Group name already exist exception
+    """
+
+
+class ChoiceOptionNotCreated(NotCreated):
+    """
+    ChoiceOption not created exception
+    """
+
+
+class ChoiceOptionNotDeleted(NotDeleted):
+    """
+    ChoiceOption not deleted error
+    """
