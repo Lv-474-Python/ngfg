@@ -23,7 +23,7 @@ class Group(AbstractModel):
     name = DB.Column(DB.String, unique=False, nullable=False)
     owner_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete="SET NULL"), nullable=False)
 
-    groups_users = DB.relationship('GroupUser', backref='group')
+    groups_users = DB.relationship('GroupUser', backref='group', cascade='all,delete')
 
 
 class BaseGroupSchema(MA.Schema):
