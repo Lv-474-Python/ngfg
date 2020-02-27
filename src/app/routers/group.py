@@ -40,7 +40,6 @@ class GroupAPI(Resource):
         group_json = GroupService.to_json(group, many=False)
         return jsonify(group_json)
 
-    @login_required
     @API.expect(GROUP_PUT_MODEL)
     @login_required
     # pylint: disable=no-self-use
