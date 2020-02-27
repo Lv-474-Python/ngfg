@@ -10,7 +10,8 @@ from .field import (
     FieldNumberTextSchema,
     FieldRadioSchema,
     FieldSettingAutocompleteSchema,
-    FieldCheckboxSchema
+    FieldCheckboxSchema,
+    FieldPutSchema
 )
 from .choice_option import ChoiceOption
 from .form_field import FormField, FormFieldSchema

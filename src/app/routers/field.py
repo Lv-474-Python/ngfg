@@ -27,11 +27,18 @@ RANGE_MODEL = API.model('Range', {
     'min': fields.Integer,
     'max': fields.Integer
 })
-
 EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
     "range": fields.Nested(RANGE_MODEL),
     "choice_options": fields.List(fields.String),
     "setting_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
+})
+
+FIELD_PUT_MODEL = API.model('FieldPut', {
+    "name": fields.String,
+    "range": fields.Nested(RANGE_MODEL),
+    "added_choice_options": fields.List(fields.String),
+    "removed_choice_options": fields.List(fields.String),
+    "settings_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
@@ -192,7 +199,7 @@ class FieldAPI(Resource):
             "field_id": "Specify ID of the field you want to update"
         }
     )
-    @API.expect(EXTENDED_FIELD_MODEL, validate=False)
+    @API.expect(FIELD_PUT_MODEL, validate=False)
     @login_required
     #pylint: disable = no-self-use
     def put(self, field_id):
@@ -211,7 +218,7 @@ class FieldAPI(Resource):
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
             range_min, range_max = FieldService.check_for_range(data)
-            response = FieldService.update_text_or_number_field(
+            updated_field = FieldService.update_text_or_number_field(
                 field_id=field_id,
                 name=data['name'],
                 owner_id=field.owner_id,
@@ -219,6 +226,7 @@ class FieldAPI(Resource):
                 range_min=range_min,
                 range_max=range_max
             )
+            return updated_field
 
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
@@ -229,3 +237,7 @@ class FieldAPI(Resource):
                 is_strict=False
             )
             response = FieldSchema().dump(response)
+
+        elif field_type == FieldType.Radio.value:
+            added_choice_options = data["added_choice_options"]
+            removed_choice_options = data["removed_choice_options"]

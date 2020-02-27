@@ -23,6 +23,8 @@ class ChoiceOptionService:
         :return: created choice option instance
         """
         instance = ChoiceOption(field_id=field_id, option_text=option_text)
+        if instance:
+            return instance
         DB.session.add(instance)
         return instance
 
