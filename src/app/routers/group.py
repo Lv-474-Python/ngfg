@@ -2,7 +2,7 @@
 Form resource API
 """
 
-from flask import request, Response
+from flask import request, jsonify, Response
 from flask_restx import Resource, fields
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
@@ -37,6 +37,24 @@ class GroupsAPI(Resource):
     url: '/groups/'
     methods: get, post
     """
+
+    @API.doc(
+        responses={
+            401: 'Unauthorized',
+            200: 'OK',
+        }
+    )
+    @login_required
+    # pylint: disable=no-self-use
+    def get(self):
+        """
+        Get all groups created by user
+
+        """
+        groups = GroupService.filter(owner_id=current_user.id)
+
+        groups_json = GroupService.to_json_all(groups)
+        return jsonify(groups_json)
 
     @API.doc(
         responses={

@@ -111,6 +111,18 @@ class SettingAutocompleteNotSend(NotSend):
     """
 
 
+class AlreadyExist(CustomException):
+    """
+    Already exist exception
+    """
+
+
+class FieldAlreadyExist(AlreadyExist):
+    """
+    Field exist exception
+    """
+
+
 class NotCreated(CustomException):
     """
     Base not created exception

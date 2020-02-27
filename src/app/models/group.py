@@ -1,7 +1,6 @@
 """
 Group model
 """
-
 from marshmallow import fields
 
 from app import DB, MA
