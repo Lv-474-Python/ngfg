@@ -1,18 +1,24 @@
 """
 Field Service
 """
-from app import DB
+from app import DB, LOGGER
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
-from app.helper.errors import FieldNotExist, ChoiceNotSend, SettingAutocompleteNotExist
+from app.helper.errors import (
+    FieldNotExist,
+    ChoiceNotSend,
+    SettingAutocompleteNotExist,
+    FieldAlreadyExist
+)
 from app.models import (
+    BasicField,
     Field,
     FieldSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
     FieldCheckboxSchema,
-    UpdateFieldSchema
+    FieldPutSchema
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
@@ -209,13 +215,23 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
+    def validate_textarea(data):
+        """
+        Validation for text area field
+        :param data:
+        :return: errors if validation failed else empty dict
+        """
+        errors = BasicField().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
     def validate_update_field(data):
         """
 
         :param data:
         :return: errors if validation failed
         """
-        errors = UpdateFieldSchema().validate(data)
+        errors = FieldPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
@@ -245,7 +261,8 @@ class FieldService:
             field_type=field_type,
             is_strict=is_strict
         )
-
+        if field is None:
+            raise FieldAlreadyExist()
         data = FieldNumberTextSchema().dump(field)
 
         if range_min is not None or range_max is not None:
@@ -259,6 +276,27 @@ class FieldService:
                 'max': range_max
             }
 
+        return data
+
+    @staticmethod
+    @transaction_decorator
+    def create_text_area(name, owner_id, field_type):
+        """
+
+        :param name:
+        :param owner_id:
+        :param field_type:
+        :return:
+        """
+
+        field = FieldService.create(
+            name=name,
+            owner_id=owner_id,
+            field_type=field_type,
+        )
+        if field is None:
+            raise FieldAlreadyExist()
+        data = BasicField().dump(field)
         return data
 
     @staticmethod
@@ -491,22 +529,27 @@ class FieldService:
 
         :param field_id:
         :param field_type:
-        :return: dict of options or None
+        :return: dict of options
         E.G. data = {'range' = {'min' : 0, 'max' : 100}
              data = {'choice_options' = ['man', 'woman']}
         """
-        if field_type in (FieldType.Number.value, FieldType.Text.value):
-            data = FieldService._get_text_or_number_additional_options(
-                field_id)
+        data = None
 
-        elif field_type == FieldType.TextArea.value:
-            data = {}
+        try:
+            if field_type in (FieldType.Number.value, FieldType.Text.value):
+                data = FieldService._get_text_or_number_additional_options(field_id)
 
-        elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
-            data = FieldService._get_choice_additional_options(field_id)
+            elif field_type == FieldType.TextArea.value:
+                data = {}
 
-        elif field_type == FieldType.Autocomplete.value:
-            data = FieldService._get_autocomplete_additional_options(field_id)
+            elif field_type in (FieldType.Radio.value, FieldType.Checkbox.value):
+                data = FieldService._get_choice_additional_options(field_id)
+
+            elif field_type == FieldType.Autocomplete.value:
+                data = FieldService._get_autocomplete_additional_options(field_id)
+
+        except FieldNotExist():
+            LOGGER.error('Couldn`t GET additional options')
 
         return data
 
@@ -540,21 +583,24 @@ class FieldService:
 
         :param field_id: ID of the field that's being updated
         :param name: new name for the field
+        :param owner_id: id of field owner
         :param field_type: type of the field
         :param is_strict: whether the field is restricted or not
         :param range_min: new minimum value for range object associated with the field
         :param range_max: new maximum value for range object associated with the field
         :return: json object with updated field
         """
+
         field_range = FieldRangeService.get_by_field_id(field_id)
+
         if range_min is not None or range_max is not None:
-            is_strict = True
             range_instance = RangeService.create(range_min=range_min, range_max=range_max)
             if field_range is not None:
                 FieldRangeService.update(field_id=field_id, range_id=range_instance.id)
             FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
         if field_range is not None:
             FieldRangeService.delete(field_id=field_id)
+
         field = FieldService.update(
             field_id=field_id,
             name=name,
@@ -563,4 +609,36 @@ class FieldService:
             is_strict=is_strict
         )
         data = FieldNumberTextSchema().dump(field)
+
+        return data
+
+    @staticmethod
+    @transaction_decorator
+    def update_radio_field(
+            field_id,
+            name,
+            owner_id,
+            field_type,
+            added_choice_options=None,
+            removed_choice_options=None,
+            is_strict=False
+    ):
+        field = FieldService.update(
+            field_id=field_id,
+            name=name,
+            owner_id=owner_id,
+            field_type=field_type,
+            is_strict=is_strict
+        )
+        data = FieldPutSchema().dump(field)
+
+        if added_choice_options:
+            for added_option in added_choice_options:
+                ChoiceOptionService.create(field_id=field_id, option_text=added_option)
+
+        if removed_choice_options:
+            for removed_option in removed_choice_options:
+                option = ChoiceOptionService.get_by_field_and_text(field_id=field_id, option_text=removed_option)
+                ChoiceOptionService.delete(option_id=option.id)
+
         return data
