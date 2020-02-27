@@ -169,3 +169,15 @@ class GroupUserAlreadyExist(AlreadyExist):
     """
     Group name already exist exception
     """
+
+
+class ChoiceOptionNotCreated(NotCreated):
+    """
+    ChoiceOption not created exception
+    """
+
+
+class ChoiceOptionNotDeleted(NotDeleted):
+    """
+    ChoiceOption not deleted error
+    """
