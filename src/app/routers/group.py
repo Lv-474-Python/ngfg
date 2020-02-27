@@ -112,8 +112,9 @@ class GroupAPI(Resource):
     """
     @API.doc(
         responses={
-            401: 'Unauthorized',
             200: 'OK',
+            400: 'Bad request',
+            401: 'Unauthorized',
         }
     )
     @login_required
