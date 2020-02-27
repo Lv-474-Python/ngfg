@@ -1,7 +1,7 @@
 """
 Field router.
 """
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
@@ -42,9 +42,8 @@ class FieldAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            201: 'Created',
+            401: 'Unauthorized'
         }
     )
     @API.expect(EXTENDED_FIELD_MODEL)  # pylint: disable=too-many-branches
@@ -136,13 +135,12 @@ class FieldAPI(Resource):
         if response is None:
             raise BadRequest("Could not create")
 
-        return jsonify(response)
+        return Response(status=201)
 
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            401: 'Unauthorized'
         }
     )
     @login_required
