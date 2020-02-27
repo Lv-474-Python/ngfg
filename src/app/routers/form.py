@@ -2,7 +2,7 @@
 Form resource API
 """
 
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_restx import Resource, fields
 from werkzeug.exceptions import BadRequest, Forbidden
 from flask_login import current_user, login_required
@@ -62,8 +62,8 @@ class FormsAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
-            400: 'Invalid syntax',
+            201: 'Created',
+            400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to create'
         }
@@ -80,14 +80,13 @@ class FormsAPI(Resource):
         if not is_correct:
             raise BadRequest(errors)
         if int(data['owner_id']) != current_user.id:
-            raise Forbidden("Create form is forbidden")
+            raise Forbidden("You cannot create form not for yourself")
 
         form = FormService.create(**data)
         if form is None:
             raise BadRequest("Cannot create form instance")
 
-        form_json = FormService.to_json(form, many=False)
-        return jsonify(form_json)
+        return Response(status=201)
 
 
 @FORM_NS.route("/<int:form_id>")
@@ -102,7 +101,7 @@ class FormAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid ID'
+            400: 'Invalid data'
         }, params={
             'form_id': 'Specify the Id associated with the form'
         }
@@ -124,7 +123,7 @@ class FormAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid syntax',
+            400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to update'
         }, params={
@@ -159,13 +158,12 @@ class FormAPI(Resource):
         if updated_form is None:
             raise BadRequest("Couldn't update form")
 
-        form_json = FormService.to_json(updated_form, many=False)
-        return jsonify(form_json)
+        return Response(status=200)
 
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid syntax',
+            400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to delete'
         }, params={
@@ -186,8 +184,8 @@ class FormAPI(Resource):
         if form.owner != current_user:
             raise Forbidden("Deleting form is forbidden")
 
-        is_deleted = bool(FormService.delete(form_id))
-        if not is_deleted:
+        is_deleted = FormService.delete(form_id)
+        if is_deleted is None:
             raise BadRequest("Couldn't delete form")
 
-        return jsonify({'is_deleted': is_deleted})
+        return Response(status=200)
