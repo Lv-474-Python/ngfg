@@ -18,7 +18,7 @@ from .form_field import FormField, FormFieldSchema
 from .setting_autocomplete import SettingAutocomplete, SettingAutocompleteSchema
 from .shared_field import SharedField
 from .range import Range, RangeSchema
-from .form_result import FormResult
+from .form_result import FormResult, FormResultSchema
 from .field_range import FieldRange
 from .group_user import GroupUser
-from .group import Group
+from .group import Group, BaseGroupSchema
