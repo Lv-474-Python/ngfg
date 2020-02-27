@@ -104,6 +104,12 @@ class GroupService:
 
     @staticmethod
     def get_users_by_group(group_id):
+        """
+        Get all users in group by group_id
+
+        :param group_id:
+        :return: list of Users objects or empty list
+        """
         group = GroupService.get_by_id(group_id)
         if group is None:
             raise GroupNotExist
@@ -117,7 +123,9 @@ class GroupService:
 
     @staticmethod
     def to_json(data, many=False):
-        # REFACTOR
+        """
+        Get data in json format
+        """
         schema = GroupScheme(many=many)
 
         result = schema.dump(data)

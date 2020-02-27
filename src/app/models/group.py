@@ -28,6 +28,9 @@ class Group(AbstractModel):
 
 
 class GroupScheme(MA.Schema):
+    """
+    Group schema
+    """
     class Meta:
         """
         Group schema meta
@@ -37,4 +40,3 @@ class GroupScheme(MA.Schema):
     name = fields.Str(required=True)
     owner_id = fields.Int(required=True)
     users = fields.List(fields.Nested(UserSchema))
-
