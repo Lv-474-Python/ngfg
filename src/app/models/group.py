@@ -59,10 +59,9 @@ class GroupPostSchema(BaseGroupSchema):
 
     :param users_emails - list of emails
     """
-
     class Meta:
         """
-        Group schema meta
+        Group post schema meta
         """
         fields = ("id", "owner_id", "name", "users_emails")
 
