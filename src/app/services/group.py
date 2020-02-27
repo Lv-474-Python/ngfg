@@ -129,30 +129,32 @@ class GroupService:
 
     @staticmethod
     @transaction_decorator
-    def create_group_users_group_users(
+    def create_group_with_users(
             group_name,
             group_owner_id,
             emails):
         """
-        Create group, users by email and group users
+        Create group
+        - create group
+        - create users by email
+        - assign group users
 
         :param group_name: group name
         :param group_owner_id: group owner id
         :param emails: lis of emails
         """
-
         # create group
         group = GroupService.create(group_name, group_owner_id)
         if group is None:
             raise GroupNotCreated()
 
         # create users by email
-        users = GroupService.create_users_by_emails(emails)
+        users = UserService.create_users_by_emails(emails)
         if users is None:
             raise UserNotCreated()
 
-        # create groups_users
-        group_users = GroupService.create_group_users(group.id, users)
+        # assign groups_users
+        group_users = GroupService.assign_users_to_group(group.id, users)
         if group_users is None:
             raise GroupUserNotCreated()
 
@@ -160,22 +162,7 @@ class GroupService:
 
     @staticmethod
     @transaction_decorator
-    def create_users_by_emails(emails):
-        """
-        Having list of emails create users
-
-        :param emails: list of emails
-        :return: list of users
-        """
-        users = []
-        for email in emails:
-            user = UserService.create_user_by_email(email)
-            users.append(user)
-        return users
-
-    @staticmethod
-    @transaction_decorator
-    def create_group_users(group_id, users):
+    def assign_users_to_group(group_id, users):
         """
         Having group id and list of users create Groups_Users
 
@@ -186,5 +173,7 @@ class GroupService:
         group_users = []
         for user in users:
             group_user = GroupUserService.create(group_id, user.id)
+            if group_user is None:
+                raise GroupUserNotCreated()
             group_users.append(group_user)
         return group_users

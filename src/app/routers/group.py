@@ -2,7 +2,7 @@
 Form resource API
 """
 
-from flask import request, jsonify
+from flask import request, Response
 from flask_restx import Resource, fields
 from werkzeug.exceptions import BadRequest, Forbidden
 from flask_login import current_user, login_required
@@ -40,7 +40,7 @@ class GroupsAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
+            201: 'OK Created',
             400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to create group'
@@ -61,7 +61,7 @@ class GroupsAPI(Resource):
         if not is_correct:
             raise BadRequest(errors)
 
-        group = GroupService.create_group_users_group_users(
+        group = GroupService.create_group_with_users(
             group_name=data['name'],
             group_owner_id=data['owner_id'],
             emails=data['users_emails']
@@ -69,6 +69,4 @@ class GroupsAPI(Resource):
         if group is None:
             raise BadRequest("Cannot create group")
 
-        group_json = GroupService.to_json(group, many=False)
-        group_json['users_emails'] = data['users_emails']
-        return jsonify(group_json)
+        return Response(status=201)
