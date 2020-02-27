@@ -138,3 +138,14 @@ class SettingAutocompleteService:
 
         result = SettingAutocomplete.query.filter_by(**filter_data).all()
         return result
+
+    @staticmethod
+    def get_by_field_id(field_id):
+        """
+        Get SettingAutocomplete model by field_id
+
+        :param setting_autocomplete_id:
+        :return: SettingAutocomplete object or None
+        """
+        setting_autocomplete = SettingAutocomplete.query.filter_by(field_id=field_id).first()
+        return setting_autocomplete
