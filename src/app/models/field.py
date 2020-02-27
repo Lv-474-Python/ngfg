@@ -43,7 +43,29 @@ class Field(AbstractModel):
                 f'type - {self.field_type}, is_strict - {self.is_strict}>')
 
 
-class FieldSchema(MA.Schema):
+class BasicField(MA.Schema):
+    """
+    Basic field schema (also used as TextAreas Schema)
+    """
+
+    class Meta:
+        """
+        Basic field schema meta
+        """
+        fields = ("owner_id", "name", "field_type")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Integer(required=True)
+    field_type = fields.Integer(
+        required=True,
+        validate=Range(
+            min=MIN_FIELD_TYPE,
+            max=MAX_FIELD_TYPE
+        )
+    )
+
+
+class FieldSchema(BasicField):
     """
     Field schema
     """
@@ -55,22 +77,13 @@ class FieldSchema(MA.Schema):
         fields = ("id", "owner_id", "name", "field_type", "is_strict", "range",
                   "setting_autocomplete", "choice_options")
 
-    name = fields.Str(required=True)
-    owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(
-        required=True,
-        validate=Range(
-            min=MIN_FIELD_TYPE,
-            max=MAX_FIELD_TYPE
-        )
-    )
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema)
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema)
     choice_options = fields.List(fields.Str(required=False))
 
 
-class FieldCheckboxSchema(MA.Schema):
+class FieldCheckboxSchema(BasicField):
     """
     Field with checkbox options and optional range
     """
@@ -81,20 +94,11 @@ class FieldCheckboxSchema(MA.Schema):
         """
         fields = ("owner_id", "name", "field_type", "choice_options", "range")
 
-    name = fields.Str(required=True)
-    owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(
-        required=True,
-        validate=Range(
-            min=MIN_FIELD_TYPE,
-            max=MAX_FIELD_TYPE
-        )
-    )
     choice_options = fields.List(fields.Str(), required=True)
     range = fields.Nested(RangeSchema, required=False)
 
 
-class FieldRadioSchema(MA.Schema):
+class FieldRadioSchema(BasicField):
     """
     Field with choice options schema
     """
@@ -105,19 +109,10 @@ class FieldRadioSchema(MA.Schema):
         """
         fields = ("owner_id", "name", "field_type", "choice_options")
 
-    name = fields.Str(required=True)
-    owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(
-        required=True,
-        validate=Range(
-            min=MIN_FIELD_TYPE,
-            max=MAX_FIELD_TYPE
-        )
-    )
     choice_options = fields.List(fields.Str(), required=True)
 
 
-class FieldNumberTextSchema(MA.Schema):
+class FieldNumberTextSchema(BasicField):
     """
     Field with type number or text schema
     """
@@ -128,20 +123,11 @@ class FieldNumberTextSchema(MA.Schema):
         """
         fields = ("id", "owner_id", "name", "field_type", "range")
 
-    name = fields.Str(required=True)
-    owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(
-        required=True,
-        validate=Range(
-            min=MIN_FIELD_TYPE,
-            max=MAX_FIELD_TYPE
-        )
-    )
     is_strict = fields.Boolean(required=False)
     range = fields.Nested(RangeSchema, required=False)
 
 
-class FieldSettingAutocompleteSchema(MA.Schema):
+class FieldSettingAutocompleteSchema(BasicField):
     """
     Field with autocomplete settings schema
     """
@@ -152,15 +138,6 @@ class FieldSettingAutocompleteSchema(MA.Schema):
         """
         fields = ("owner_id", "name", "field_type", "setting_autocomplete")
 
-    name = fields.Str(required=True)
-    owner_id = fields.Integer(required=True)
-    field_type = fields.Integer(
-        required=True,
-        validate=Range(
-            min=MIN_FIELD_TYPE,
-            max=MAX_FIELD_TYPE
-        )
-    )
     setting_autocomplete = fields.Nested(
         SettingAutocompleteSchema,
         required=True)

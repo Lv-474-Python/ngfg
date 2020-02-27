@@ -1,9 +1,9 @@
 """
 Field router.
 """
-from flask import request, jsonify
-from flask_login import current_user, login_required
+from flask import request, jsonify, Response
 from flask_restx import fields, Resource
+from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
 
 from app import API
@@ -47,12 +47,11 @@ class FieldsAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            201: 'Created',
+            401: 'Unauthorized'
         }
     )
-    @API.expect(EXTENDED_FIELD_MODEL)
+    @API.expect(EXTENDED_FIELD_MODEL)  # pylint: disable=too-many-branches
     @login_required
     # pylint: disable=no-self-use
     def post(self):
@@ -86,12 +85,15 @@ class FieldsAPI(Resource):
                 range_max=range_max)
 
         elif field_type == FieldType.TextArea.value:
-            response = FieldService.create(
+            is_correct, errors = FieldService.validate_textarea(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
+            response = FieldService.create_text_area(
                 name=data['name'],
                 owner_id=data['owner_id'],
                 field_type=data['field_type'],
             )
-            response = FieldSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
             is_correct, errors = FieldService.validate_radio(data)
@@ -138,13 +140,12 @@ class FieldsAPI(Resource):
         if response is None:
             raise BadRequest("Could not create")
 
-        return jsonify(response)
+        return Response(status=201)
 
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            401: 'Unauthorized'
         }
     )
     @login_required
@@ -187,8 +188,7 @@ class FieldAPI(Resource):
         responses={
             200: 'OK',
             400: 'Bad Request',
-            403: 'User is not the field owner',
-            404: 'Field not found',
+            403: 'User is not the field owner'
         }, params={
             'field_id': 'Field id'
         }

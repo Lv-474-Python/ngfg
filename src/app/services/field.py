@@ -4,14 +4,20 @@ Field Service
 from app import DB, LOGGER
 from app.helper.decorators import transaction_decorator
 from app.helper.enums import FieldType
-from app.helper.errors import FieldNotExist, ChoiceNotSend, SettingAutocompleteNotExist
+from app.helper.errors import (
+    FieldNotExist,
+    ChoiceNotSend,
+    SettingAutocompleteNotExist,
+    FieldAlreadyExist
+)
 from app.models import (
     Field,
     FieldSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
-    FieldCheckboxSchema
+    FieldCheckboxSchema,
+    BasicField
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
@@ -208,6 +214,16 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
+    def validate_textarea(data):
+        """
+        Validation for text area field
+        :param data:
+        :return: errors if validation failed else empty dict
+        """
+        errors = BasicField().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
     @transaction_decorator
     def create_text_or_number_field(  # pylint: disable=too-many-arguments
             name,
@@ -234,7 +250,8 @@ class FieldService:
             field_type=field_type,
             is_strict=is_strict
         )
-
+        if field is None:
+            raise FieldAlreadyExist()
         data = FieldNumberTextSchema().dump(field)
 
         if range_min is not None or range_max is not None:
@@ -248,6 +265,27 @@ class FieldService:
                 'max': range_max
             }
 
+        return data
+
+    @staticmethod
+    @transaction_decorator
+    def create_text_area(name, owner_id, field_type):
+        """
+
+        :param name:
+        :param owner_id:
+        :param field_type:
+        :return:
+        """
+
+        field = FieldService.create(
+            name=name,
+            owner_id=owner_id,
+            field_type=field_type,
+        )
+        if field is None:
+            raise FieldAlreadyExist()
+        data = BasicField().dump(field)
         return data
 
     @staticmethod

@@ -109,3 +109,15 @@ class SettingAutocompleteNotSend(NotSend):
     """
     Setting autocomplete not send exception
     """
+
+
+class AlreadyExist(CustomException):
+    """
+    Already exist exception
+    """
+
+
+class FieldAlreadyExist(AlreadyExist):
+    """
+    Field exist exception
+    """
