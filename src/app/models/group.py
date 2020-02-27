@@ -26,20 +26,34 @@ class Group(AbstractModel):
 
     groups_users = DB.relationship('GroupUser', backref='group')
 
-class GroupSchema(MA.Schema):
+
+class BaseGroupSchema(MA.Schema):
     """
-    Group schema
+    Base group schema
 
     :param name - str
     :param owner_id - id
+    """
+    class Meta:
+        """
+        Base group schema meta
+        """
+        fields = ("id", "owner_id", "name")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Int(required=True)
+
+
+class GroupPostSchema(BaseGroupSchema):
+    """
+    Group post schema
+
     :param users_emails - list of emails
     """
     class Meta:
         """
-        Group schema meta
+        Group post schema meta
         """
         fields = ("id", "owner_id", "name", "users_emails")
 
-    name = fields.Str(required=True)
-    owner_id = fields.Int(required=True)
     users_emails = fields.List(cls_or_instance=fields.Email, required=True)

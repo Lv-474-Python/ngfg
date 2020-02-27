@@ -4,8 +4,8 @@ Form resource API
 
 from flask import request, Response
 from flask_restx import Resource, fields
-from werkzeug.exceptions import BadRequest, Forbidden
 from flask_login import current_user, login_required
+from werkzeug.exceptions import BadRequest, Forbidden
 
 from app import API
 from app.services import GroupService
