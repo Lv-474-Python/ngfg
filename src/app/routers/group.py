@@ -1,5 +1,5 @@
 """
-Group api
+Group resource API
 """
 from flask import request, jsonify
 from flask_restx import Resource, fields
@@ -19,6 +19,33 @@ GROUP_PUT_MODEL = API.inherit('GroupPut', GROUP_MODEL, {
     "emails_add": fields.List(fields.String),
     "emails_delete": fields.List(fields.String)
 })
+
+
+@GROUP_NS.route("/")
+class GroupsAPI(Resource):
+    """
+        Groups API
+
+        url: '/groups/'
+        methods: get
+    """
+    @API.doc(
+        responses={
+            401: 'Unauthorized',
+            200: 'OK',
+        }
+    )
+    @login_required
+    # pylint: disable=no-self-use
+    def get(self):
+        """
+        Get all groups created by user
+
+        """
+        groups = GroupService.filter(owner_id=current_user.id)
+
+        groups_json = GroupService.to_json_all(groups)
+        return jsonify(groups_json)
 
 
 @GROUP_NS.route("<int:group_id>")
@@ -73,3 +100,6 @@ class GroupAPI(Resource):
             return jsonify(errors)
         #form_json = GroupService.to_json(updated_form, many=False)
         return jsonify("form_json")
+
+
+

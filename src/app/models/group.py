@@ -26,20 +26,20 @@ class Group(AbstractModel):
     groups_users = DB.relationship('GroupUser', backref='group')
 
 
-class GroupSchema(MA.Schema):
+class BaseGroupSchema(MA.Schema):
     """
-    Group schema
+    Base group schema
     """
     class Meta:
         """
-        Group schema meta
+        Base group schema meta
         """
         fields = ("id", "name", "owner_id", "users")
 
     name = fields.Str(required=True)
 
 
-class GroupPutSchema(GroupSchema):
+class GroupPutSchema(BaseGroupSchema):
     """
     GroupPut schema
     """
@@ -51,3 +51,20 @@ class GroupPutSchema(GroupSchema):
 
     emails_add = fields.List(fields.Email)
     emails_delete = fields.List(fields.Email)
+
+
+class GroupPostSchema(BaseGroupSchema):
+    """
+    Group post schema
+
+    :param users_emails - list of emails
+    """
+
+    class Meta:
+        """
+        Group schema meta
+        """
+        fields = ("id", "owner_id", "name", "users_emails")
+
+    owner_id = fields.Int(required=True)
+    users_emails = fields.List(cls_or_instance=fields.Email, required=True)

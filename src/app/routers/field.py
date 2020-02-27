@@ -1,11 +1,11 @@
 """
 Field router.
 """
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
-from werkzeug.exceptions import BadRequest
-from app.models.field import FieldSchema
+from werkzeug.exceptions import BadRequest, Forbidden
+
 from app import API
 from app.helper.enums import FieldType
 from app.services import FieldService
@@ -36,24 +36,26 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 
 
 @FIELDS_NS.route("/")
-class FieldAPI(Resource):
+class FieldsAPI(Resource):
     """
     Field API
+
+    url: '/fields'
+    methods: GET, POST
     """
 
     @API.doc(
         responses={
-            200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            201: 'Created',
+            401: 'Unauthorized'
         }
     )
-    @API.expect(EXTENDED_FIELD_MODEL)
+    @API.expect(EXTENDED_FIELD_MODEL)  # pylint: disable=too-many-branches
     @login_required
     # pylint: disable=no-self-use
     def post(self):
         """
-        Field POST method
+        Create new field
 
         :return: json
         """
@@ -63,7 +65,7 @@ class FieldAPI(Resource):
             raise BadRequest(errors)
 
         if current_user.id != int(data["owner_id"]):
-            raise BadRequest("Unexpected User")
+            raise Forbidden("Unexpected User")
 
         field_type = data['field_type']
 
@@ -82,12 +84,15 @@ class FieldAPI(Resource):
                 range_max=range_max)
 
         elif field_type == FieldType.TextArea.value:
-            response = FieldService.create(
+            is_correct, errors = FieldService.validate_textarea(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
+            response = FieldService.create_text_area(
                 name=data['name'],
                 owner_id=data['owner_id'],
                 field_type=data['field_type'],
             )
-            response = FieldSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
             is_correct, errors = FieldService.validate_radio(data)
@@ -134,21 +139,19 @@ class FieldAPI(Resource):
         if response is None:
             raise BadRequest("Could not create")
 
-        return jsonify(response)
+        return Response(status=201)
 
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            401: 'Unauthorized'
         }
     )
-
     @login_required
     # pylint: disable=no-self-use
     def get(self):
         """
-        Field GET method
+        Get all user fields
 
         :return: json
         """
@@ -170,3 +173,45 @@ class FieldAPI(Resource):
             response.append(field)
 
         return jsonify(response)
+
+@FIELDS_NS.route("/<int:field_id>")
+class FieldAPI(Resource):
+    """
+        Field/{id} API
+
+        url: '/fields/{id}'
+        methods: GET, PUT, DELETE
+    """
+
+    @API.doc(
+        responses={
+            200: 'OK',
+            400: 'Bad Request',
+            403: 'User is not the field owner'
+        }, params={
+            'field_id': 'Field id'
+        }
+    )
+    # pylint: disable=no-self-use
+    def get(self, field_id):
+        """
+        Get field by id
+
+        :param field_id: field id
+        :return: json
+        """
+        field = FieldService.get_by_id(field_id)
+
+        if field is None:
+            raise BadRequest("Field does not exist")
+
+        if current_user.id != field.owner_id:
+            raise Forbidden("Forbidden. User is not the field owner")
+
+        field_json = FieldService.field_to_json(field)
+        extra_options = FieldService.get_additional_options(field.id, field.field_type)
+        if extra_options:
+            for key, value in extra_options.items():
+                field_json[key] = value
+
+        return jsonify(field_json)

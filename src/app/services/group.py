@@ -2,7 +2,7 @@
 Group service
 """
 
-from app.models import Group, GroupSchema, GroupPutSchema
+from app.models import Group, BaseGroupSchema, GroupPutSchema
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import GroupNotExist
@@ -105,13 +105,14 @@ class GroupService:
     @staticmethod
     def get_users_by_group(group_id):
         """
+        Get all users in group by group_id
 
         :param group_id:
-        :return:
+        :return: list of Users objects or empty list
         """
         group = GroupService.get_by_id(group_id)
         if group is None:
-            raise GroupNotExist
+            raise GroupNotExist()
 
         users = []
 
@@ -120,17 +121,23 @@ class GroupService:
 
         return users
 
+    # @staticmethod
+    # def to_json(data, many=False):
+
     @staticmethod
     def to_json(data, many=False):
         """
-
-        :param data:
-        :param many:
-        :return:
+        Get data in json format
         """
-        schema = GroupSchema(many=many)
+        schema = BaseGroupSchema(many=many)
+        return schema.dump(data)
 
-        result = schema.dump(data)
+    @staticmethod
+    def to_json_all(data):
+        """
+        Get all group objects
+        """
+        result = GroupService.to_json(data, many=True)
 
         if not isinstance(result, list):
             result = [result]
@@ -145,7 +152,7 @@ class GroupService:
         """
         Validate data by GroupScheme
         """
-        schema = GroupSchema()
+        schema = BaseGroupSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
 
