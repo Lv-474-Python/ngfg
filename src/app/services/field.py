@@ -8,7 +8,9 @@ from app.helper.errors import (
     FieldNotExist,
     ChoiceNotSend,
     SettingAutocompleteNotExist,
-    FieldAlreadyExist
+    FieldAlreadyExist,
+    ChoiceOptionNotCreated,
+    ChoiceOptionNotDeleted
 )
 from app.models import (
     BasicField,
@@ -576,8 +578,7 @@ class FieldService:
             name,
             range_min,
             range_max,
-            is_strict=False
-
+            is_strict
     ):
         """
         Method to update field with number or text type.
@@ -595,7 +596,6 @@ class FieldService:
             name=name,
             is_strict=is_strict
         )
-        data = FieldPutSchema().dump(field)
         field_range = FieldRangeService.get_by_field_id(field_id)
 
         if range_min is not None or range_max is not None:
@@ -607,7 +607,7 @@ class FieldService:
         if field_range is not None:
             FieldRangeService.delete(field_id=field_id)
 
-        return data
+        return field
 
     @staticmethod
     @transaction_decorator
@@ -632,26 +632,29 @@ class FieldService:
             name=name,
             is_strict=is_strict
         )
-        data = FieldPutSchema().dump(field)
 
         if added_choice_options:
             for added_option in added_choice_options:
-                ChoiceOptionService.create(field_id=field_id, option_text=added_option)
+                option_update = ChoiceOptionService.create(field_id=field_id,
+                                                           option_text=added_option)
+                if option_update is None:
+                    raise ChoiceOptionNotCreated()
 
         if removed_choice_options:
             for removed_option in removed_choice_options:
                 option = ChoiceOptionService.get_by_field_and_text(field_id=field_id,
                                                                    option_text=removed_option)
-                ChoiceOptionService.delete(option_id=option.id)
+                option_update = ChoiceOptionService.delete(option_id=option.id)
+                if option_update is None:
+                    raise ChoiceOptionNotDeleted()
 
-        return data
+        return field
 
     @staticmethod
     @transaction_decorator
     def update_autocomplete_field(  # pylint: disable=too-many-arguments
             field_id,
             name,
-            field_type,
             data_url,
             sheet,
             from_row,
@@ -673,7 +676,7 @@ class FieldService:
         field = FieldService.update(field_id=field_id, name=name)
         settings = SettingAutocompleteService.get_by_field_id(field_id)
         if settings is None:
-            raise FieldNotExist()
+            raise SettingAutocompleteNotExist()
         SettingAutocompleteService.update(
             setting_autocomplete_id=settings.id,
             data_url=data_url,
@@ -682,10 +685,8 @@ class FieldService:
             to_row=to_row,
             field_id=field_id
         )
-        data = FieldService.field_to_json(field)
-        data['setting_autocomplete'] = FieldService.get_additional_options(field_id, field_type)
 
-        return data
+        return field
 
     @staticmethod
     @transaction_decorator
@@ -714,7 +715,6 @@ class FieldService:
             name=name,
             is_strict=is_strict
         )
-        data = FieldPutSchema().dump(field)
         field_range = FieldRangeService.get_by_field_id(field_id)
 
         if range_min is not None or range_max is not None:
@@ -728,15 +728,20 @@ class FieldService:
 
         if added_choice_options:
             for added_option in added_choice_options:
-                ChoiceOptionService.create(field_id=field_id, option_text=added_option)
+                option_update = ChoiceOptionService.create(field_id=field_id,
+                                                           option_text=added_option)
+                if option_update is None:
+                    raise ChoiceOptionNotCreated()
 
         if removed_choice_options:
             for removed_option in removed_choice_options:
                 option = ChoiceOptionService.get_by_field_and_text(field_id=field_id,
                                                                    option_text=removed_option)
-                ChoiceOptionService.delete(option_id=option.id)
+                option_update = ChoiceOptionService.delete(option_id=option.id)
+                if option_update is None:
+                    raise ChoiceOptionNotDeleted()
 
-        return data
+        return field
 
     @staticmethod
     def check_form_membership(field_id):

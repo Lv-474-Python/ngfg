@@ -228,7 +228,6 @@ class FieldAPI(Resource):
     @API.doc(
         responses={
             200: "OK",
-            204: "No Content",
             400: "Invalid syntax",
             401: "Unauthorized",
             403: "Forbidden update"
@@ -272,7 +271,8 @@ class FieldAPI(Resource):
                 field_id=field_id,
                 name=data.get('updated_name'),
                 range_min=range_min,
-                range_max=range_max
+                range_max=range_max,
+                is_strict=field.is_strict
             )
 
         elif field_type == FieldType.TextArea.value:
@@ -298,7 +298,6 @@ class FieldAPI(Resource):
             response = FieldService.update_autocomplete_field(
                 field_id=field_id,
                 name=data.get('updated_name'),
-                field_type=field_type,
                 data_url=settings_autocomplete.get('data_url'),
                 sheet=settings_autocomplete.get('sheet'),
                 from_row=settings_autocomplete.get('from_row'),
@@ -321,4 +320,4 @@ class FieldAPI(Resource):
         if response is None:
             raise BadRequest("Couldn't update")
 
-        return Response(status=204)
+        return Response(status=200)
