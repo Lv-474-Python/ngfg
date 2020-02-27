@@ -11,6 +11,7 @@ from .field import (
     FieldRadioSchema,
     FieldSettingAutocompleteSchema,
     FieldCheckboxSchema,
+    FieldPutSchema,
     BasicField
 )
 from .choice_option import ChoiceOption
