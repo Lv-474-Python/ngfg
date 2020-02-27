@@ -193,6 +193,7 @@ class FieldAPI(Resource):
             'field_id': 'Field id'
         }
     )
+    @login_required
     # pylint: disable=no-self-use
     def get(self, field_id):
         """
