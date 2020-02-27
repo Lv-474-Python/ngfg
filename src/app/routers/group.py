@@ -35,5 +35,5 @@ class GroupsAPI(Resource):
         """
         groups = GroupService.filter(owner_id=current_user.id)
 
-        groups_json = GroupService.to_json(groups, many=True)
+        groups_json = GroupService.to_json_all(groups)
         return jsonify(groups_json)

@@ -2,7 +2,7 @@
 Group service
 """
 
-from app.models import Group, GroupScheme
+from app.models import Group, BaseGroupSchema
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import GroupNotExist
@@ -121,14 +121,20 @@ class GroupService:
 
         return users
 
+    # @staticmethod
+    # def to_json(data, many=False):
+
     @staticmethod
     def to_json(data, many=False):
         """
         Get data in json format
         """
-        schema = GroupScheme(many=many)
+        schema = BaseGroupSchema(many=many)
+        return schema.dump(data)
 
-        result = schema.dump(data)
+    @staticmethod
+    def to_json_all(data):
+        result = GroupService.to_json(data, many=True)
 
         if not isinstance(result, list):
             result = [result]
@@ -143,6 +149,6 @@ class GroupService:
         """
         Validate data by GroupScheme
         """
-        schema = GroupScheme()
+        schema = BaseGroupSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
