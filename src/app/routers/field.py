@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.models.field import FieldPutSchema
+from app.models import FieldPutSchema
 
 from app import API
 from app.helper.enums import FieldType
@@ -35,11 +35,11 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 })
 
 FIELD_PUT_MODEL = API.model('FieldPut', {
-    "name": fields.String,
+    "updated_name": fields.String,
     "range": fields.Nested(RANGE_MODEL),
     "added_choice_options": fields.List(fields.String),
     "removed_choice_options": fields.List(fields.String),
-    "settings_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
+    "updated_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
@@ -152,7 +152,7 @@ class FieldsAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized',
+            401: 'Unauthorized'
         }
     )
     @login_required
@@ -259,13 +259,18 @@ class FieldAPI(Resource):
             raise Forbidden("Can't updated field that's already in use")
 
         data = request.get_json()
+
+        is_correct, errors = FieldService.validate_update_field(data)
+        if not is_correct:
+            raise BadRequest(errors)
+
         field_type = field.field_type
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
             range_min, range_max = FieldService.check_for_range(data)
             response = FieldService.update_text_or_number_field(
                 field_id=field_id,
-                name=data.get('name'),
+                name=data.get('updated_name'),
                 range_min=range_min,
                 range_max=range_max
             )
@@ -273,7 +278,7 @@ class FieldAPI(Resource):
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
                 field_id=field_id,
-                name=data.get("name"),
+                name=data.get("updated_name"),
                 is_strict=False
             )
             response = FieldPutSchema().dump(response)
@@ -283,16 +288,16 @@ class FieldAPI(Resource):
             removed_choice_options = data.get("removed_choice_options")
             response = FieldService.update_radio_field(
                 field_id=field_id,
-                name=data.get("name"),
+                name=data.get("updated_name"),
                 added_choice_options=added_choice_options,
                 removed_choice_options=removed_choice_options
             )
 
         elif field_type == FieldType.Autocomplete.value:
-            settings_autocomplete = data.get('settings_autocomplete')
+            settings_autocomplete = data.get('updated_autocomplete')
             response = FieldService.update_autocomplete_field(
                 field_id=field_id,
-                name=data.get('name'),
+                name=data.get('updated_name'),
                 field_type=field_type,
                 data_url=settings_autocomplete.get('data_url'),
                 sheet=settings_autocomplete.get('sheet'),
@@ -306,7 +311,7 @@ class FieldAPI(Resource):
             removed_choice_options = data.get("removed_choice_options")
             response = FieldService.update_checkbox_field(
                 field_id=field_id,
-                name=data.get("name"),
+                name=data.get("updated_name"),
                 range_max=range_max,
                 range_min=range_min,
                 added_choice_options=added_choice_options,

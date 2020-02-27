@@ -11,14 +11,14 @@ from app.helper.errors import (
     FieldAlreadyExist
 )
 from app.models import (
+    BasicField,
     Field,
     FieldSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
     FieldCheckboxSchema,
-    FieldPutSchema,
-    BasicField
+    FieldPutSchema
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
@@ -224,6 +224,16 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = BasicField().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_update_field(data):
+        """
+
+        :param data:
+        :return: errors if validation failed
+        """
+        errors = FieldPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
