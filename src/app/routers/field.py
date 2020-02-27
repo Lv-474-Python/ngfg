@@ -35,11 +35,11 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 })
 
 FIELD_PUT_MODEL = API.model('FieldPut', {
-    "name": fields.String,
+    "updated_name": fields.String,
     "range": fields.Nested(RANGE_MODEL),
     "added_choice_options": fields.List(fields.String),
     "removed_choice_options": fields.List(fields.String),
-    "settings_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
+    "updated_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
@@ -247,8 +247,15 @@ class FieldAPI(Resource):
         """
         field = FieldService.get_by_id(field_id)
 
+        if field is None:
+            raise BadRequest()
+
         if field.owner_id != current_user.id:
             raise Forbidden("Can't update field you don't own")
+
+        form_membership = FieldService.check_for_form_membership(field_id)
+        if form_membership:
+            raise Forbidden("Can't updated field that's already in use")
 
         data = request.get_json()
 
@@ -262,20 +269,15 @@ class FieldAPI(Resource):
             range_min, range_max = FieldService.check_for_range(data)
             response = FieldService.update_text_or_number_field(
                 field_id=field_id,
-                name=data.get('name'),
-                owner_id=field.owner_id,
-                field_type=field_type,
+                name=data.get('updated_name'),
                 range_min=range_min,
                 range_max=range_max
             )
-            return response
 
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
                 field_id=field_id,
-                name=data.get("name"),
-                owner_id=field.owner_id,
-                field_type=field_type,
+                name=data.get("updated_name"),
                 is_strict=False
             )
             response = FieldPutSchema().dump(response)
@@ -285,10 +287,37 @@ class FieldAPI(Resource):
             removed_choice_options = data.get("removed_choice_options")
             response = FieldService.update_radio_field(
                 field_id=field_id,
-                name=data.get("name"),
-                owner_id=field.owner_id,
-                field_type=field_type,
+                name=data.get("updated_name"),
                 added_choice_options=added_choice_options,
                 removed_choice_options=removed_choice_options
             )
-            return response
+
+        elif field_type == FieldType.Autocomplete.value:
+            settings_autocomplete = data.get('updated_autocomplete')
+            response = FieldService.update_autocomplete_field(
+                field_id=field_id,
+                name=data.get('updated_name'),
+                field_type=field_type,
+                data_url=settings_autocomplete.get('data_url'),
+                sheet=settings_autocomplete.get('sheet'),
+                from_row=settings_autocomplete.get('from_row'),
+                to_row=settings_autocomplete.get('to_row')
+            )
+
+        elif field_type == FieldType.Checkbox.value:
+            range_min, range_max = FieldService.check_for_range(data)
+            added_choice_options = data.get("added_choice_options")
+            removed_choice_options = data.get("removed_choice_options")
+            response = FieldService.update_checkbox_field(
+                field_id=field_id,
+                name=data.get("updated_name"),
+                range_max=range_max,
+                range_min=range_min,
+                added_choice_options=added_choice_options,
+                removed_choice_options=removed_choice_options
+            )
+
+        if response is None:
+            raise BadRequest("Couldn't update")
+
+        return Response(status=201)

@@ -151,14 +151,10 @@ class FieldPutSchema(BasicField):
         """
         Field put schema meta
         """
-        fields = ("name",
-                  "is_strict",
-                  "range",
-                  "settings_autocomplete",
-                  "added_choice_options",
-                  "removed_choice_options")
+        fields = ("updated_name", "range", "added_choice_options", "removed_choice_options", "updated_autocomplete")
 
+    updated_name = fields.Str(required=False)
     range = fields.Nested(RangeSchema, required=False)
     added_choice_options = fields.List(fields.Str(), required=False)
     removed_choice_options = fields.List(fields.Str(), required=False)
-    settings_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)
+    updated_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)
