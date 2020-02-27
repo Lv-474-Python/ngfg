@@ -2,10 +2,11 @@
 Group service
 """
 
-from app.models import Group
+from app.models import Group, GroupSchema, GroupPutSchema
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import GroupNotExist
+from app.services import UserService
 
 
 class GroupService:
@@ -100,3 +101,59 @@ class GroupService:
 
         result = Group.query.filter_by(**filter_data).all()
         return result
+
+    @staticmethod
+    def get_users_by_group(group_id):
+        """
+
+        :param group_id:
+        :return:
+        """
+        group = GroupService.get_by_id(group_id)
+        if group is None:
+            raise GroupNotExist
+
+        users = []
+
+        for group_user in group.groups_users:
+            users.append(UserService.to_json(group_user.user))
+
+        return users
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+
+        :param data:
+        :param many:
+        :return:
+        """
+        schema = GroupSchema(many=many)
+
+        result = schema.dump(data)
+
+        if not isinstance(result, list):
+            result = [result]
+
+        for group in result:
+            group['users'] = GroupService.get_users_by_group(group['id'])
+
+        return result
+
+    @staticmethod
+    def validate_data(data):
+        """
+        Validate data by GroupScheme
+        """
+        schema = GroupSchema()
+        errors = schema.validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_put_data(data):
+        """
+        Validate data by GroupScheme
+        """
+        schema = GroupPutSchema()
+        errors = schema.validate(data)
+        return (not bool(errors), errors)
