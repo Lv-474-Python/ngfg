@@ -253,6 +253,10 @@ class FieldAPI(Resource):
         if field.owner_id != current_user.id:
             raise Forbidden("Can't update field you don't own")
 
+        form_membership = FieldService.check_for_form_membership(field_id)
+        if form_membership:
+            raise Forbidden("Can't updated field that's already in use")
+
         data = request.get_json()
         field_type = field.field_type
 
@@ -261,19 +265,14 @@ class FieldAPI(Resource):
             response = FieldService.update_text_or_number_field(
                 field_id=field_id,
                 name=data.get('name'),
-                owner_id=field.owner_id,
-                field_type=field_type,
                 range_min=range_min,
                 range_max=range_max
             )
-            return response
 
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
                 field_id=field_id,
                 name=data.get("name"),
-                owner_id=field.owner_id,
-                field_type=field_type,
                 is_strict=False
             )
             response = FieldPutSchema().dump(response)
@@ -284,12 +283,9 @@ class FieldAPI(Resource):
             response = FieldService.update_radio_field(
                 field_id=field_id,
                 name=data.get("name"),
-                owner_id=field.owner_id,
-                field_type=field_type,
                 added_choice_options=added_choice_options,
                 removed_choice_options=removed_choice_options
             )
-            return response
 
         elif field_type == FieldType.Autocomplete.value:
             settings_autocomplete = data.get('settings_autocomplete')
@@ -302,4 +298,21 @@ class FieldAPI(Resource):
                 from_row=settings_autocomplete.get('from_row'),
                 to_row=settings_autocomplete.get('to_row')
             )
-            return response
+
+        elif field_type == FieldType.Checkbox.value:
+            range_min, range_max = FieldService.check_for_range(data)
+            added_choice_options = data.get("added_choice_options")
+            removed_choice_options = data.get("removed_choice_options")
+            response = FieldService.update_checkbox_field(
+                field_id=field_id,
+                name=data.get("name"),
+                range_max=range_max,
+                range_min=range_min,
+                added_choice_options=added_choice_options,
+                removed_choice_options=removed_choice_options
+            )
+
+        if response is None:
+            raise BadRequest("Couldn't update")
+
+        return Response(status=201)
