@@ -112,7 +112,7 @@ class GroupService:
         """
         group = GroupService.get_by_id(group_id)
         if group is None:
-            raise GroupNotExist
+            raise GroupNotExist()
 
         users = []
 
