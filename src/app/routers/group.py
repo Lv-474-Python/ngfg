@@ -72,7 +72,7 @@ class GroupsAPI(Resource):
         Create new group
         """
         data = request.get_json()
-        is_correct, errors = GroupService.validate_data(data)
+        is_correct, errors = GroupService.validate_post_data(data)
         if not is_correct:
             raise BadRequest(errors)
 

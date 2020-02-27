@@ -3,7 +3,7 @@ Group service
 """
 
 from app import DB
-from app.models import Group, BaseGroupSchema
+from app.models import Group, BaseGroupSchema, GroupPostSchema
 from app.services.group_user import GroupUserService
 from app.services.user import UserService
 from app.helper.decorators import transaction_decorator
@@ -13,7 +13,6 @@ from app.helper.errors import (
     UserNotCreated,
     GroupUserNotCreated
 )
-
 
 
 class GroupService:
@@ -152,11 +151,11 @@ class GroupService:
         return result
 
     @staticmethod
-    def validate_data(data):
+    def validate_post_data(data):
         """
-        Validate data by GroupSchema
+        Validate data by GroupPostSchema
         """
-        schema = BaseGroupSchema()
+        schema = GroupPostSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
 
@@ -174,7 +173,8 @@ class GroupService:
 
         :param group_name: group name
         :param group_owner_id: group owner id
-        :param emails: lis of emails
+        :param emails: list of emails
+        :return: created group
         """
         # create group
         group = GroupService.create(group_name, group_owner_id)
