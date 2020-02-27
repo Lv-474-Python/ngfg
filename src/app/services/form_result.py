@@ -3,7 +3,7 @@ FormResult service
 """
 
 from app.helper.answer_validation import is_numeric
-from app.helper.constants import MAX_TEXT_LENGTH
+from app.helper.constants import MAX_TEXT_LENGTH, MIN_POSTGRES_INT, MAX_POSTGRES_INT
 from app.helper.enums import FieldType
 from app.models import FormResult, FormResultSchema, Range
 from app import DB
@@ -122,6 +122,8 @@ class FormResultService:
                         for form_field in form_fields
                         if form_field.position == answer["position"]][0]
             field = FieldService.get_by_id(field_id)
+            f_range = None
+
             if field.field_type in (
                     FieldType.Number.value,
                     FieldType.Text.value,
@@ -143,7 +145,6 @@ class FormResultService:
                 pass
             elif field.field_type == FieldType.Autocomplete.value:
                 pass
-            f_range = None
 
         return [not bool(errors), errors]
 
@@ -160,9 +161,11 @@ class FormResultService:
         if not isinstance(radio_answer, list):
             errors[answer["position"]] = "Must be list."
             return False
+
         if len(radio_answer) != 1:
             errors[answer["position"]] = "Must be exactly one choice."
             return False
+
         radio_answer = str(radio_answer[0])
         choice_options = [co.option_text for co in field.choice_options]
         if radio_answer not in choice_options:
@@ -184,12 +187,20 @@ class FormResultService:
         if not isinstance(answers, list):
             errors[answer["position"]] = "Answers must be list type."
             return False
+        answers = list(set(answers))  # Remove all repeating answers
         choice_options = [co.option_text for co in field.choice_options]
+
         if f_range is None:
             f_range = Range(min=0, max=len(choice_options))
+        if f_range.min is None and f_range.max is not None:
+            f_range = Range(min=0, max=f_range.max)
+        if f_range.max is None and f_range.min is not None:
+            f_range = Range(min=f_range.min, max=len(choice_options))
+
         if not f_range.min <= len(answers) <= f_range.max:
             errors[answer["position"]] = "Answers amount out of range."
             return False
+
         for ans in answers:
             if ans not in choice_options:
                 errors[answer["position"]] = "No such choice in this field."
@@ -209,14 +220,22 @@ class FormResultService:
         if not is_numeric(answer["answer"]):
             errors[answer["position"]] = "Value is not numeric"
             return False
-        if f_range is not None:
-            if field.is_strict:
-                if int(answer["answer"]) != answer["answer"]:
-                    errors[answer["position"]] = "Value is not strict number"
-                    return False
-            if not f_range.min <= answer["answer"] <= f_range.max:
-                errors[answer["position"]] = "Value is out of range!"
+
+        if f_range is None:
+            f_range = Range(min=MIN_POSTGRES_INT, max=MAX_POSTGRES_INT)
+        if f_range.min is None and f_range.max is not None:
+            f_range = Range(min=MIN_POSTGRES_INT, max=f_range.max)
+        if f_range.max is None and f_range.min is not None:
+            f_range = Range(min=f_range.min, max=MAX_POSTGRES_INT)
+
+        if field.is_strict:
+            if int(answer["answer"]) != answer["answer"]:
+                errors[answer["position"]] = "Value is not strict number"
                 return False
+
+        if not f_range.min <= answer["answer"] <= f_range.max:
+            errors[answer["position"]] = "Value is out of range!"
+            return False
         return True
 
     @staticmethod
@@ -233,14 +252,18 @@ class FormResultService:
             if not str(answer["answer"]).isalpha():
                 errors[answer["position"]] = "Value is not strict text"
                 return False
-        if f_range is not None:
-            if not f_range.min <= len(answer["answer"]) <= f_range.max:
-                errors[answer["position"]] = "Value length is out of range!"
-                return False
-        else:
-            if len(answer["answer"]) > MAX_TEXT_LENGTH:
-                errors[answer["position"]] = "Value length is out of range!"
-                return False
+
+        if f_range is None:
+            f_range = Range(min=0, max=MAX_TEXT_LENGTH)
+        if f_range.min is None and f_range.max is not None:
+            f_range = Range(min=0, max=f_range.max)
+        if f_range.max is None and f_range.min is not None:
+            f_range = Range(min=f_range.min, max=MAX_TEXT_LENGTH)
+
+        if not f_range.min <= len(str(answer["answer"])) <= f_range.max:
+            errors[answer["position"]] = "Value length is out of range!"
+            return False
+
         return True
 
     @staticmethod
