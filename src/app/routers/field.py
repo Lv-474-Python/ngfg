@@ -201,6 +201,7 @@ class FieldAPI(Resource):
             'field_id': 'Field id'
         }
     )
+    @login_required
     # pylint: disable=no-self-use
     def get(self, field_id):
         """
@@ -319,5 +320,39 @@ class FieldAPI(Resource):
 
         if response is None:
             raise BadRequest("Couldn't update")
+
+        return Response(status=200)
+
+    @API.doc(
+        responses={
+            200: 'OK',
+            400: 'Bad Request',
+            401: 'Unauthorized',
+            403: 'User is not the field owner'
+        }, params={
+            'field_id': 'Field id'
+        }
+    )
+    @login_required
+    # pylint: disable=no-self-use
+    def delete(self, field_id):
+        """
+        Delete field
+
+        :param field_id:
+        :return:
+        """
+        field = FieldService.get_by_id(field_id=field_id)
+        if field is None:
+            raise BadRequest('Field does not exist')
+        if current_user.id != field.owner_id:
+            raise Forbidden('Forbidden. User is not the field owner')
+        form_membership = FieldService.check_form_membership(field_id)
+        if form_membership:
+            raise Forbidden("Can't updated field that's already in use")
+        delete = FieldService.delete(field_id=field_id)
+        is_deleted = bool(delete)
+        if not is_deleted:
+            raise BadRequest("Could not delete field")
 
         return Response(status=200)
