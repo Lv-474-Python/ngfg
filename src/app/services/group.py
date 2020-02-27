@@ -260,7 +260,7 @@ class GroupService:
         group_users = GroupService.assign_users_to_group(group_id, users)
         if group_users is None:
             raise GroupUserNotCreated()
-        deleted = GroupService.delete_users_by_email(
+        deleted = GroupService.unsign_users_by_email(
             group_id,
             emails_delete
         )
@@ -271,7 +271,7 @@ class GroupService:
 
     @staticmethod
     @transaction_decorator
-    def delete_users_by_email(group_id, users_emails):
+    def unsign_users_by_email(group_id, users_emails):
         """
         Delete from group by emails
 
