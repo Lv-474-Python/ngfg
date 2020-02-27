@@ -4,7 +4,7 @@ Field router.
 from flask import request, jsonify
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, Forbidden
 from app.models.field import FieldSchema
 from app import API
 from app.helper.enums import FieldType
@@ -36,7 +36,7 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 
 
 @FIELDS_NS.route("/")
-class FieldAPI(Resource):
+class FieldsAPI(Resource):
     """
     Field API
     """
@@ -53,7 +53,7 @@ class FieldAPI(Resource):
     # pylint: disable=no-self-use
     def post(self):
         """
-        Field POST method
+        Create new field
 
         :return: json
         """
@@ -170,3 +170,43 @@ class FieldAPI(Resource):
             response.append(field)
 
         return jsonify(response)
+
+@FIELDS_NS.route("/<int:field_id>")
+class FieldAPI(Resource):
+    """
+        Field/{id} API
+        url: '/fields/{id}'
+        methods: GET, PUT, DELETE
+    """
+
+    @API.doc(
+        responses={
+            200: 'OK',
+            400: 'Invalid syntax',
+            401: 'Unauthorized',
+            403: 'Forbidden to delete',
+            404: 'Field not found'
+        }, params={
+            'field_id': 'Specify the Id associated with the field'
+        }
+    )
+    @login_required
+        # pylint: disable=no-self-use
+    def delete(self, field_id):
+        """
+        Delete field
+
+        :param field_id:
+        :return:
+        """
+        field = FieldService.get_by_id(field_id=field_id)
+        if field is None:
+            raise BadRequest('Field does not exist')
+        if current_user.id != field.owner_id:
+            raise Forbidden('Forbidden. User is not the field owner')
+        delete = FieldService.delete(field_id=field_id)
+        is_deleted = bool(delete)
+        if not is_deleted:
+            raise BadRequest("Could not delete field")
+
+        return {'deleted': is_deleted}

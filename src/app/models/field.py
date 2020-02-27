@@ -33,10 +33,10 @@ class Field(AbstractModel):
     field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
     is_strict = DB.Column(DB.Boolean, default=False)
 
-    choice_options = DB.relationship('ChoiceOption', backref='field')
+    choice_options = DB.relationship('ChoiceOption', cascade="all,delete", backref='field')
     shared_fields = DB.relationship('SharedField', backref='field')
-    settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
-    fields_range = DB.relationship('FieldRange', backref='field')
+    settings_autocomplete = DB.relationship('SettingAutocomplete', cascade="all,delete", backref='field')
+    fields_range = DB.relationship('FieldRange', cascade="all,delete", backref='field')
 
     def __repr__(self):
         return (f'<Field {self.id}, name - {self.name}, '
@@ -126,7 +126,7 @@ class FieldNumberTextSchema(MA.Schema):
         """
         Field with type number or text schema meta
         """
-        fields = ("owner_id", "name", "field_type", "range")
+        fields = ("id", "owner_id", "name", "field_type", "range")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
