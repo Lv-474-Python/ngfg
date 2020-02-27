@@ -41,7 +41,7 @@ class GroupsAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid syntax',
+            400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to create group'
         }
