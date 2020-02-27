@@ -210,6 +210,9 @@ class FieldAPI(Resource):
         """
         field = FieldService.get_by_id(field_id)
 
+        if field is None:
+            raise BadRequest()
+
         if field.owner_id != current_user.id:
             raise Forbidden("Can't update field you don't own")
 
@@ -241,3 +244,16 @@ class FieldAPI(Resource):
         elif field_type == FieldType.Radio.value:
             added_choice_options = data["added_choice_options"]
             removed_choice_options = data["removed_choice_options"]
+
+        elif field_type == FieldType.Autocomplete.value:
+            settings_autocomplete = data.get('settings_autocomplete')
+            response = FieldService.update_autocomplete_field(
+                field_id=field_id,
+                name=data.get('name'),
+                field_type=field_type,
+                data_url=settings_autocomplete.get('data_url'),
+                sheet=settings_autocomplete.get('sheet'),
+                from_row=settings_autocomplete.get('from_row'),
+                to_row=settings_autocomplete.get('to_row')
+            )
+            return response
