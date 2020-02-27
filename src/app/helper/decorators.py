@@ -9,7 +9,7 @@ from sqlalchemy.exc import (
     SQLAlchemyError
 )
 
-from app import DB
+from app import DB, LOGGER
 from .errors import CustomException
 
 
@@ -33,14 +33,14 @@ def transaction_decorator(func):
             result = func(*args, **kwargs)
             DB.session.commit()
             return result
-        except IntegrityError:
-            pass
-        except ProgrammingError:
-            pass
-        except CustomException:
-            pass
-        except SQLAlchemyError:
-            pass
+        except IntegrityError as ex:
+            LOGGER.error('IntegrityError, message: %s', ex.args)
+        except ProgrammingError as ex:
+            LOGGER.error('ProgrammingError, message: %s', ex.args)
+        except CustomException as ex:
+            LOGGER.error('CustomException, message: %s', ex.args)
+        except SQLAlchemyError as ex:
+            LOGGER.error('SQLAlchemyError, message: %s', ex.args)
         DB.session.rollback()
         return None
     return wrapper
