@@ -2,10 +2,17 @@
 Group service
 """
 
-from app.models import Group
 from app import DB
+from app.models import Group, BaseGroupSchema, GroupPostSchema
+from app.services.group_user import GroupUserService
+from app.services.user import UserService
 from app.helper.decorators import transaction_decorator
-from app.helper.errors import GroupNotExist
+from app.helper.errors import (
+    GroupNotExist,
+    GroupNotCreated,
+    UserNotCreated,
+    GroupUserNotCreated
+)
 
 
 class GroupService:
@@ -100,3 +107,106 @@ class GroupService:
 
         result = Group.query.filter_by(**filter_data).all()
         return result
+
+    @staticmethod
+    def get_users_by_group(group_id):
+        """
+        Get all users in group by group_id
+
+        :param group_id:
+        :return: list of Users objects or empty list
+        """
+        group = GroupService.get_by_id(group_id)
+        if group is None:
+            raise GroupNotExist()
+
+        users = []
+
+        for group_user in group.groups_users:
+            users.append(UserService.to_json(group_user.user))
+
+        return users
+
+    @staticmethod
+    def to_json(data, many=False):
+        """
+        Get data in json format
+        """
+        schema = BaseGroupSchema(many=many)
+        return schema.dump(data)
+
+    @staticmethod
+    def to_json_all(data):
+        """
+        Get all group objects
+        """
+        result = GroupService.to_json(data, many=True)
+
+        if not isinstance(result, list):
+            result = [result]
+
+        for group in result:
+            group['users'] = GroupService.get_users_by_group(group['id'])
+
+        return result
+
+    @staticmethod
+    def validate_post_data(data):
+        """
+        Validate data by GroupPostSchema
+        """
+        schema = GroupPostSchema()
+        errors = schema.validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    @transaction_decorator
+    def create_group_with_users(
+            group_name,
+            group_owner_id,
+            emails):
+        """
+        Create group
+        - create group
+        - create users by email
+        - assign group users
+
+        :param group_name: group name
+        :param group_owner_id: group owner id
+        :param emails: list of emails
+        :return: created group
+        """
+        # create group
+        group = GroupService.create(group_name, group_owner_id)
+        if group is None:
+            raise GroupNotCreated()
+
+        # create users by email
+        users = UserService.create_users_by_emails(emails)
+        if users is None:
+            raise UserNotCreated()
+
+        # assign groups_users
+        group_users = GroupService.assign_users_to_group(group.id, users)
+        if group_users is None:
+            raise GroupUserNotCreated()
+
+        return group
+
+    @staticmethod
+    @transaction_decorator
+    def assign_users_to_group(group_id, users):
+        """
+        Having group id and list of users create Groups_Users
+
+        :param group_id: group id
+        :param users: list of users in group
+        :return: list of group users
+        """
+        group_users = []
+        for user in users:
+            group_user = GroupUserService.create(group_id, user.id)
+            if group_user is None:
+                raise GroupUserNotCreated()
+            group_users.append(group_user)
+        return group_users
