@@ -141,3 +141,21 @@ class UserService:
         """
         schema = UserSchema()
         return schema.dump(data)
+
+    @staticmethod
+    @transaction_decorator
+    def create_user_by_email(email):
+        """
+        Create new user in database by email
+
+        :param email: user email
+        :return: user or None
+        """
+        users = UserService.filter(email=email)
+
+        if users:
+            return users[0]
+
+        user = User(email=email)
+        DB.session.add(user)
+        return user

@@ -2,7 +2,9 @@
 Group model
 """
 
-from app import DB
+from marshmallow import fields
+
+from app import DB, MA
 from .abstract_model import AbstractModel
 
 
@@ -23,3 +25,21 @@ class Group(AbstractModel):
     owner_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete="SET NULL"), nullable=False)
 
     groups_users = DB.relationship('GroupUser', backref='group')
+
+class GroupSchema(MA.Schema):
+    """
+    Group schema
+
+    :param name - str
+    :param owner_id - id
+    :param users_emails - list of emails
+    """
+    class Meta:
+        """
+        Group schema meta
+        """
+        fields = ("id", "owner_id", "name", "users_emails")
+
+    name = fields.Str(required=True)
+    owner_id = fields.Int(required=True)
+    users_emails = fields.List(cls_or_instance=fields.Email, required=True)
