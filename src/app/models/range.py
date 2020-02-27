@@ -1,9 +1,10 @@
 """Range model"""
 
 from marshmallow import fields, validates_schema, ValidationError
+
 from app import DB, MA
-from .abstract_model import AbstractModel
 from app.helper.constants import MIN_POSTGRES_INT, MAX_POSTGRES_INT
+from .abstract_model import AbstractModel
 
 
 class Range(AbstractModel):
@@ -44,7 +45,15 @@ class RangeSchema(MA.Schema):
     max = fields.Integer(required=False)
 
     @validates_schema
+    # pylint:disable=no-self-use
     def validate_range(self, data, **kwargs):
+        """
+        Validates range
+
+        :param data:
+        :param kwargs:
+        :return:
+        """
         min_value, max_value = data.get('min'), data.get('max')
         if min_value and not MIN_POSTGRES_INT < min_value < MAX_POSTGRES_INT:
             raise ValidationError(f'min must be between {MIN_POSTGRES_INT} and {MAX_POSTGRES_INT}')
