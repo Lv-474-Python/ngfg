@@ -5,7 +5,6 @@ FormField resource API
 from flask import request, jsonify
 from flask_login import current_user, login_required
 from flask_restx import Resource, fields
-
 from werkzeug.exceptions import BadRequest, Forbidden
 
 from app import API
@@ -60,7 +59,7 @@ class FormFieldsAPI(Resource):
             raise Forbidden("Can't view fields of the form that doesn't belong to you")
 
         form_fields = FormFieldService.filter(form_id=form.id)
-        return jsonify({"form_fields": FormFieldService.to_json(form_fields, True)})
+        return jsonify({"form_fields": FormFieldService.to_json(form_fields, many=True)})
 
     @API.doc(
         responses={
@@ -105,7 +104,7 @@ class FormFieldsAPI(Resource):
         form_field = FormFieldService.create(form_id=form_id, **data)
         if form_field is None:
             raise BadRequest("Couldn't create field")
-        return jsonify(FormFieldService.to_json(form_field, False))
+        return jsonify(FormFieldService.to_json(form_field))
 
 
 @FORM_FIELD_NS.route('/<int:form_field_id>')
@@ -145,7 +144,7 @@ class FormFieldAPI(Resource):
             raise BadRequest("There's no field with this ID")
         if form_field.form_id != form.id:
             raise BadRequest("This field does not belong to the form you specified")
-        return jsonify(FormFieldService.to_json(form_field, False))
+        return jsonify(FormFieldService.to_json(form_field))
 
     @API.doc(
         responses={
@@ -181,7 +180,7 @@ class FormFieldAPI(Resource):
         if form_field.form_id != form.id:
             raise BadRequest("The field with such id doesn't belong in this form")
 
-        form_field_json = FormFieldService.to_json(form_field, False)
+        form_field_json = FormFieldService.to_json(form_field)
         data = request.get_json()
         form_field_json.update(**data)
         is_correct, errors = FormFieldService.validate_data(form_field_json)
@@ -192,7 +191,7 @@ class FormFieldAPI(Resource):
         if updated_form_field is None:
             raise BadRequest("Couldn't update field")
 
-        return jsonify(FormFieldService.to_json(updated_form_field, False))
+        return jsonify(FormFieldService.to_json(updated_form_field))
 
     @API.doc(
         responses={

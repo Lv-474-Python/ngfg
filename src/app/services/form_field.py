@@ -110,7 +110,7 @@ class FormFieldService:
         return True
 
     @staticmethod
-    def to_json(data, many):
+    def to_json(data, many=False):
         """
         A method to get object data in json format
         """
