@@ -33,10 +33,14 @@ class Field(AbstractModel):
     field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
     is_strict = DB.Column(DB.Boolean, default=False)
 
-    choice_options = DB.relationship('ChoiceOption', backref='field')
+    choice_options = DB.relationship('ChoiceOption', cascade="all,delete", backref='field')
     shared_fields = DB.relationship('SharedField', backref='field')
-    settings_autocomplete = DB.relationship('SettingAutocomplete', backref='field')
-    fields_range = DB.relationship('FieldRange', backref='field')
+    settings_autocomplete = DB.relationship(
+        'SettingAutocomplete',
+        cascade="all,delete",
+        backref='field'
+    )
+    fields_range = DB.relationship('FieldRange', cascade="all,delete", backref='field')
 
     def __repr__(self):
         return (f'<Field {self.id}, name - {self.name}, '
@@ -141,3 +145,26 @@ class FieldSettingAutocompleteSchema(BasicField):
     setting_autocomplete = fields.Nested(
         SettingAutocompleteSchema,
         required=True)
+
+
+class FieldPutSchema(BasicField):
+    """
+    Field put schema
+    """
+    class Meta:
+        """
+        Field put schema meta
+        """
+        fields = (
+            "updated_name",
+            "range",
+            "added_choice_options",
+            "removed_choice_options",
+            "updated_autocomplete"
+        )
+
+    updated_name = fields.Str(required=False)
+    range = fields.Nested(RangeSchema, required=False)
+    added_choice_options = fields.List(fields.Str(), required=False)
+    removed_choice_options = fields.List(fields.Str(), required=False)
+    updated_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)

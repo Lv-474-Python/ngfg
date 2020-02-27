@@ -23,6 +23,9 @@ class ChoiceOptionService:
         :return: created choice option instance
         """
         instance = ChoiceOption(field_id=field_id, option_text=option_text)
+        options = ChoiceOptionService.filter(option_text=option_text)
+        if options:
+            return options[0]
         DB.session.add(instance)
         return instance
 
@@ -94,3 +97,16 @@ class ChoiceOptionService:
             raise ChoiceOptionNotExist()
         DB.session.delete(instance)
         return True
+
+    @staticmethod
+    def get_by_field_and_text(field_id, option_text):
+        """
+        Get ChoiceOption instance by field_id and text
+
+        :param field_id: Field ID
+        :param option_text: text of the option
+        :return: ChoiceOption instance
+        """
+
+        instance = ChoiceOption.query.filter_by(field_id=field_id, option_text=option_text).first()
+        return instance

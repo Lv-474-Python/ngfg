@@ -5,6 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
+from app.models import FieldPutSchema
 
 from app import API
 from app.helper.enums import FieldType
@@ -27,11 +28,18 @@ RANGE_MODEL = API.model('Range', {
     'min': fields.Integer,
     'max': fields.Integer
 })
-
 EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
     "range": fields.Nested(RANGE_MODEL),
     "choice_options": fields.List(fields.String),
     "setting_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
+})
+
+FIELD_PUT_MODEL = API.model('FieldPut', {
+    "updated_name": fields.String,
+    "range": fields.Nested(RANGE_MODEL),
+    "added_choice_options": fields.List(fields.String),
+    "removed_choice_options": fields.List(fields.String),
+    "updated_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
 })
 
 
@@ -174,13 +182,14 @@ class FieldsAPI(Resource):
 
         return jsonify(response)
 
-@FIELDS_NS.route("/<int:field_id>")
+
+@FIELDS_NS.route("/<int:field_id>/")
 class FieldAPI(Resource):
     """
-        Field/{id} API
+    Fields API
 
-        url: '/fields/{id}'
-        methods: GET, PUT, DELETE
+    url: '/fields/{id}'
+    methods: get, put, delete
     """
 
     @API.doc(
@@ -192,6 +201,7 @@ class FieldAPI(Resource):
             'field_id': 'Field id'
         }
     )
+    @login_required
     # pylint: disable=no-self-use
     def get(self, field_id):
         """
@@ -215,3 +225,134 @@ class FieldAPI(Resource):
                 field_json[key] = value
 
         return jsonify(field_json)
+
+    @API.doc(
+        responses={
+            200: "OK",
+            400: "Invalid syntax",
+            401: "Unauthorized",
+            403: "Forbidden update"
+        },
+        params={
+            "field_id": "Specify ID of the field you want to update"
+        }
+    )
+    @API.expect(FIELD_PUT_MODEL, validate=False)
+    @login_required
+    #pylint: disable = no-self-use
+    def put(self, field_id):
+        """
+        Field PUT method
+
+        :param field_id: ID of the field
+        """
+        field = FieldService.get_by_id(field_id)
+
+        if field is None:
+            raise BadRequest()
+
+        if field.owner_id != current_user.id:
+            raise Forbidden("Can't update field you don't own")
+
+        form_membership = FieldService.check_form_membership(field_id)
+        if form_membership:
+            raise Forbidden("Can't updated field that's already in use")
+
+        data = request.get_json()
+
+        is_correct, errors = FieldService.validate_update_field(data)
+        if not is_correct:
+            raise BadRequest(errors)
+
+        field_type = field.field_type
+
+        if field_type in (FieldType.Number.value, FieldType.Text.value):
+            range_min, range_max = FieldService.check_for_range(data)
+            response = FieldService.update_text_or_number_field(
+                field_id=field_id,
+                name=data.get('updated_name'),
+                range_min=range_min,
+                range_max=range_max,
+                is_strict=field.is_strict
+            )
+
+        elif field_type == FieldType.TextArea.value:
+            response = FieldService.update(
+                field_id=field_id,
+                name=data.get("updated_name"),
+                is_strict=False
+            )
+            response = FieldPutSchema().dump(response)
+
+        elif field_type == FieldType.Radio.value:
+            added_choice_options = data.get("added_choice_options")
+            removed_choice_options = data.get("removed_choice_options")
+            response = FieldService.update_radio_field(
+                field_id=field_id,
+                name=data.get("updated_name"),
+                added_choice_options=added_choice_options,
+                removed_choice_options=removed_choice_options
+            )
+
+        elif field_type == FieldType.Autocomplete.value:
+            settings_autocomplete = data.get('updated_autocomplete')
+            response = FieldService.update_autocomplete_field(
+                field_id=field_id,
+                name=data.get('updated_name'),
+                data_url=settings_autocomplete.get('data_url'),
+                sheet=settings_autocomplete.get('sheet'),
+                from_row=settings_autocomplete.get('from_row'),
+                to_row=settings_autocomplete.get('to_row')
+            )
+
+        elif field_type == FieldType.Checkbox.value:
+            range_min, range_max = FieldService.check_for_range(data)
+            added_choice_options = data.get("added_choice_options")
+            removed_choice_options = data.get("removed_choice_options")
+            response = FieldService.update_checkbox_field(
+                field_id=field_id,
+                name=data.get("updated_name"),
+                range_max=range_max,
+                range_min=range_min,
+                added_choice_options=added_choice_options,
+                removed_choice_options=removed_choice_options
+            )
+
+        if response is None:
+            raise BadRequest("Couldn't update")
+
+        return Response(status=200)
+
+    @API.doc(
+        responses={
+            200: 'OK',
+            400: 'Bad Request',
+            401: 'Unauthorized',
+            403: 'User is not the field owner'
+        }, params={
+            'field_id': 'Field id'
+        }
+    )
+    @login_required
+    # pylint: disable=no-self-use
+    def delete(self, field_id):
+        """
+        Delete field
+
+        :param field_id:
+        :return:
+        """
+        field = FieldService.get_by_id(field_id=field_id)
+        if field is None:
+            raise BadRequest('Field does not exist')
+        if current_user.id != field.owner_id:
+            raise Forbidden('Forbidden. User is not the field owner')
+        form_membership = FieldService.check_form_membership(field_id)
+        if form_membership:
+            raise Forbidden("Can't updated field that's already in use")
+        delete = FieldService.delete(field_id=field_id)
+        is_deleted = bool(delete)
+        if not is_deleted:
+            raise BadRequest("Could not delete field")
+
+        return Response(status=200)

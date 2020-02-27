@@ -8,23 +8,28 @@ from app.helper.errors import (
     FieldNotExist,
     ChoiceNotSend,
     SettingAutocompleteNotExist,
-    FieldAlreadyExist
+    FieldAlreadyExist,
+    ChoiceOptionNotCreated,
+    ChoiceOptionNotDeleted
 )
 from app.models import (
+    BasicField,
     Field,
     FieldSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
     FieldCheckboxSchema,
-    BasicField
+    FieldPutSchema
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
 from app.services.setting_autocomplete import SettingAutocompleteService
+from app.services.form_field import FormFieldService
 
 
+#pylint: disable=too-many-public-methods
 class FieldService:
     """
     Field Service class
@@ -56,7 +61,7 @@ class FieldService:
         """
         Field model get by id method
 
-        :param id: field id
+        :param field_id: field id
         :return: Field instance or None
         """
         instance = Field.query.get(field_id)
@@ -221,6 +226,16 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = BasicField().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_update_field(data):
+        """
+
+        :param data:
+        :return: errors if validation failed
+        """
+        errors = FieldPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
@@ -555,3 +570,180 @@ class FieldService:
             range_min = range_instance.get('min')
             range_max = range_instance.get('max')
         return range_min, range_max
+
+    @staticmethod
+    @transaction_decorator
+    def update_text_or_number_field(  # pylint: disable=too-many-arguments
+            field_id,
+            name,
+            range_min,
+            range_max,
+            is_strict
+    ):
+        """
+        Method to update field with number or text type.
+
+        :param field_id: ID of the field that's being updated
+        :param name: new name for the field
+        :param is_strict: whether the field is restricted or not
+        :param range_min: new minimum value for range object associated with the field
+        :param range_max: new maximum value for range object associated with the field
+        :return: json object with updated field
+        """
+
+        field = FieldService.update(
+            field_id=field_id,
+            name=name,
+            is_strict=is_strict
+        )
+        field_range = FieldRangeService.get_by_field_id(field_id)
+
+        if range_min is not None or range_max is not None:
+            range_instance = RangeService.create(range_min=range_min, range_max=range_max)
+            if field_range is not None:
+                FieldRangeService.update(field_id=field_id, range_id=range_instance.id)
+            else:
+                FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
+        if field_range is not None:
+            FieldRangeService.delete(field_id=field_id)
+
+        return field
+
+    @staticmethod
+    @transaction_decorator
+    def update_radio_field(
+            field_id,
+            name,
+            added_choice_options=None,
+            removed_choice_options=None,
+    ):
+        """
+        Updates field with radio type
+
+        :param field_id: id of the field object that's being updated
+        :param name: updated name
+        :param added_choice_options: choice options to add to the field
+        :param removed_choice_options: choice options to remove from the field
+        """
+        field = FieldService.update(
+            field_id=field_id,
+            name=name
+        )
+
+        if added_choice_options:
+            for added_option in added_choice_options:
+                option_update = ChoiceOptionService.create(field_id=field_id,
+                                                           option_text=added_option)
+                if option_update is None:
+                    raise ChoiceOptionNotCreated()
+
+        if removed_choice_options:
+            for removed_option in removed_choice_options:
+                option = ChoiceOptionService.get_by_field_and_text(field_id=field_id,
+                                                                   option_text=removed_option)
+                option_update = ChoiceOptionService.delete(option_id=option.id)
+                if option_update is None:
+                    raise ChoiceOptionNotDeleted()
+
+        return field
+
+    @staticmethod
+    @transaction_decorator
+    def update_autocomplete_field(  # pylint: disable=too-many-arguments
+            field_id,
+            name,
+            data_url,
+            sheet,
+            from_row,
+            to_row
+    ):
+        """
+        Update autocomplete field
+
+        :param field_id:
+        :param name:
+        :param field_type: type of field
+        :param data_url:
+        :param sheet:
+        :param from_row:
+        :param to_row:
+        :return:
+        """
+
+        field = FieldService.update(field_id=field_id, name=name)
+        settings = SettingAutocompleteService.get_by_field_id(field_id)
+        if settings is None:
+            raise SettingAutocompleteNotExist()
+        SettingAutocompleteService.update(
+            setting_autocomplete_id=settings.id,
+            data_url=data_url,
+            sheet=sheet,
+            from_row=from_row,
+            to_row=to_row,
+            field_id=field_id
+        )
+
+        return field
+
+    @staticmethod
+    @transaction_decorator
+    def update_checkbox_field( # pylint: disable=too-many-arguments
+            field_id,
+            name,
+            range_max,
+            range_min,
+            added_choice_options=None,
+            removed_choice_options=None,
+    ):
+        """
+        Method to update field with checkbox type
+
+        :param field_id: id of the field object that's being updated
+        :param name: updated name of the field
+        :param range_max: maximum value of options that can be chosen
+        :param range_min: minimum value of options that can be chosen
+        :param added_choice_options: options to be added to the field
+        :param removed_choice_options: options to be removed from the field
+        """
+        field = FieldService.update(
+            field_id=field_id,
+            name=name
+        )
+        field_range = FieldRangeService.get_by_field_id(field_id)
+
+        if range_min is not None or range_max is not None:
+            range_instance = RangeService.create(range_min=range_min, range_max=range_max)
+            if field_range is not None:
+                FieldRangeService.update(field_id=field_id, range_id=range_instance.id)
+            else:
+                FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
+        if field_range is not None:
+            FieldRangeService.delete(field_id=field_id)
+
+        if added_choice_options:
+            for added_option in added_choice_options:
+                option_update = ChoiceOptionService.create(field_id=field_id,
+                                                           option_text=added_option)
+                if option_update is None:
+                    raise ChoiceOptionNotCreated()
+
+        if removed_choice_options:
+            for removed_option in removed_choice_options:
+                option = ChoiceOptionService.get_by_field_and_text(field_id=field_id,
+                                                                   option_text=removed_option)
+                option_update = ChoiceOptionService.delete(option_id=option.id)
+                if option_update is None:
+                    raise ChoiceOptionNotDeleted()
+
+        return field
+
+    @staticmethod
+    def check_form_membership(field_id):
+        """
+        Check if field is already contained in any form
+
+        :param field_id: id of the field object
+        :return: boolean value depending on whether the field is contained in form
+        """
+        field_in_form = FormFieldService.filter(field_id=field_id)
+        return bool(field_in_form)
