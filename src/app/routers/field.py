@@ -186,6 +186,7 @@ class FieldAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
+            400: 'Bad Request',
             403: 'User is not the field owner',
             404: 'Field not found',
         }, params={
