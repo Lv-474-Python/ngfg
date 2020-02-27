@@ -33,14 +33,14 @@ def transaction_decorator(func):
             result = func(*args, **kwargs)
             DB.session.commit()
             return result
-        except IntegrityError:
-            LOGGER.error('IntegrityError')
-        except ProgrammingError:
-            LOGGER.error('ProgrammingError')
-        except CustomException:
-            LOGGER.error('CustomException')
-        except SQLAlchemyError:
-            LOGGER.error('SQLAlchemyError')
+        except IntegrityError as ex:
+            LOGGER.error('IntegrityError, message: %s', ex.args)
+        except ProgrammingError as ex:
+            LOGGER.error('ProgrammingError, message: %s', ex.args)
+        except CustomException as ex:
+            LOGGER.error('CustomException, message: %s', ex.args)
+        except SQLAlchemyError as ex:
+            LOGGER.error('SQLAlchemyError, message: %s', ex.args)
         DB.session.rollback()
         return None
     return wrapper
