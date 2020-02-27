@@ -164,3 +164,8 @@ class GroupService:
         schema = GroupPutSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    @transaction_decorator
+    def update_group_name_and_users(group_id, emails_add, emails_delete, name=None):
+        pass
