@@ -326,8 +326,8 @@ class FieldAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized',
             400: 'Bad Request',
+            401: 'Unauthorized',
             403: 'User is not the field owner'
         }, params={
             'field_id': 'Field id'
@@ -347,6 +347,9 @@ class FieldAPI(Resource):
             raise BadRequest('Field does not exist')
         if current_user.id != field.owner_id:
             raise Forbidden('Forbidden. User is not the field owner')
+        form_membership = FieldService.check_form_membership(field_id)
+        if form_membership:
+            raise Forbidden("Can't updated field that's already in use")
         delete = FieldService.delete(field_id=field_id)
         is_deleted = bool(delete)
         if not is_deleted:
