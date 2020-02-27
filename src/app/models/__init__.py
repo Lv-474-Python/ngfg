@@ -13,7 +13,7 @@ from .field import (
     FieldCheckboxSchema
 )
 from .choice_option import ChoiceOption
-from .form_field import FormField
+from .form_field import FormField, FormFieldSchema
 from .setting_autocomplete import SettingAutocomplete, SettingAutocompleteSchema
 from .shared_field import SharedField
 from .range import Range, RangeSchema
