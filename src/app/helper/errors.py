@@ -121,3 +121,27 @@ class FieldAlreadyExist(AlreadyExist):
     """
     Field exist exception
     """
+
+
+class NotCreated(CustomException):
+    """
+    Base not created exception
+    """
+
+
+class GroupNotCreated(NotCreated):
+    """
+    Group not created exception
+    """
+
+
+class UserNotCreated(NotCreated):
+    """
+    User not created exception
+    """
+
+
+class GroupUserNotCreated(NotCreated):
+    """
+    Group user not created exception
+    """

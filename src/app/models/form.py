@@ -30,7 +30,7 @@ class Form(AbstractModel):
     result_url = DB.Column(DB.Text)
     is_published = DB.Column(DB.Boolean, nullable=False)
 
-    fields = DB.relationship('FormField', backref='form')
+    fields = DB.relationship('FormField', backref='form', cascade='all,delete')
     form_results = DB.relationship('FormResult', backref='form')
 
 

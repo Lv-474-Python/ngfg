@@ -4,7 +4,7 @@ app to auth user by google services
 import os
 import requests
 
-from flask import redirect, url_for
+from flask import url_for, Response
 from flask_login import (
     current_user,
     login_required,
@@ -32,7 +32,9 @@ class LoginAPI(Resource):
 
     @API.doc(
         responses={
-            302: 'Redirect to main page'
+            302: 'Redirect to main page',
+            400: 'Email not verified',
+            403: 'Forbidden'
         }
     )
     # pylint: disable=no-self-use
@@ -44,7 +46,7 @@ class LoginAPI(Resource):
             return GOOGLE_CLIENT.authorize(
                 callback=url_for('callback', _external=True)
             )
-        return redirect(url_for('index'), code=302)
+        return Response(status=302)
 
 
 @AUTH_NS.route('/logout/')
@@ -59,7 +61,7 @@ class LogoutAPI(Resource):
     @API.doc(
         responses={
             302: 'Redirect to main page',
-            401: 'Unauthorized'   # pylint: disable=duplicate-code
+            401: 'Unauthorized'
         }
     )
     @login_required
@@ -69,7 +71,7 @@ class LogoutAPI(Resource):
         Logout user
         """
         logout_user()
-        return redirect(url_for('index'), code=302)
+        return Response(status=302)
 
 
 @APP.route('/home_page/')
@@ -97,7 +99,7 @@ def callback(response):
     :return:
     """
     if response is None:
-        return 'Access denied', 403
+        return Response(status=403)
 
     userinfo = requests.get(
         GOOGLE_PROVIDER_CONFIG['userinfo_endpoint'],
@@ -111,11 +113,11 @@ def callback(response):
         username = userinfo['given_name']
         google_token = userinfo['sub']
     else:
-        return "User email not available or not verified by Google", 400
+        return Response(status=400)
 
     user = UserService.create(username=username, email=email, google_token=google_token)
     if user is not None:
         UserService.activate_user(user.id)
         login_user(user)
 
-    return redirect(url_for('index'))
+    return Response(status=302)
