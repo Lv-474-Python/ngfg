@@ -130,9 +130,6 @@ class GroupService:
 
         return users
 
-    # @staticmethod
-    # def to_json(data, many=False):
-
     @staticmethod
     def to_json(data, many=False):
         """
