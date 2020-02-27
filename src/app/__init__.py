@@ -28,7 +28,6 @@ MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 LOGGER = create_logger(APP.config['LOG_DIR'])
 MA = Marshmallow(APP)
-
 BLUEPRINT = Blueprint('api', __name__, url_prefix='/api/v1')
 API = Api(
     app=BLUEPRINT,

@@ -2,7 +2,7 @@
 Form answers API
 """
 
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_restx import Resource, fields
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
@@ -73,8 +73,8 @@ class AnswersAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
-            400: 'Invalid syntax',
+            201: 'Created',
+            400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to create'}
     )
@@ -106,7 +106,7 @@ class AnswersAPI(Resource):
         result = FormResultService.create(**result)
         if result is None:
             raise BadRequest("Cannot create result instance")
-        return jsonify(FormResultService.to_json(result))
+        return Response(status=201)
 
 
 @FORM_ANSWER_NS.route("/<int:result_id>")

@@ -21,4 +21,4 @@ from .range import Range, RangeSchema
 from .form_result import FormResult, FormResultSchema
 from .field_range import FieldRange
 from .group_user import GroupUser
-from .group import Group, BaseGroupSchema, GroupPostSchema
+from .group import Group, BaseGroupSchema, GroupPutSchema, GroupPostSchema
