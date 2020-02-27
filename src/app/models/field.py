@@ -126,7 +126,7 @@ class FieldNumberTextSchema(MA.Schema):
         """
         Field with type number or text schema meta
         """
-        fields = ("owner_id", "name", "field_type", "range")
+        fields = ("id", "owner_id", "name", "field_type", "range")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(required=True)
