@@ -40,7 +40,7 @@ class GroupsAPI(Resource):
 
     @API.doc(
         responses={
-            201: 'OK Created',
+            201: 'Created',
             400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to create group'
