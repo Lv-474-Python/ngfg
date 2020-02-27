@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.models.field import FieldSchema, FieldPutSchema
+from app.models.field import FieldPutSchema
 
 from app import API
 from app.helper.enums import FieldType
@@ -152,7 +152,7 @@ class FieldsAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized'
+            401: 'Unauthorized',
         }
     )
     @login_required
@@ -228,6 +228,7 @@ class FieldAPI(Resource):
     @API.doc(
         responses={
             200: "OK",
+            204: "No Content",
             400: "Invalid syntax",
             401: "Unauthorized",
             403: "Forbidden update"
@@ -253,7 +254,7 @@ class FieldAPI(Resource):
         if field.owner_id != current_user.id:
             raise Forbidden("Can't update field you don't own")
 
-        form_membership = FieldService.check_for_form_membership(field_id)
+        form_membership = FieldService.check_form_membership(field_id)
         if form_membership:
             raise Forbidden("Can't updated field that's already in use")
 
@@ -315,4 +316,4 @@ class FieldAPI(Resource):
         if response is None:
             raise BadRequest("Couldn't update")
 
-        return Response(status=201)
+        return Response(status=204)

@@ -144,8 +144,18 @@ class FieldSettingAutocompleteSchema(BasicField):
 
 
 class FieldPutSchema(MA.Schema):
+    """
+    Field schema to be used on update
+    """
     class Meta:
-        fields = ("updated_name", "range", "added_choice_options", "removed_choice_options", "updated_autocomplete")
+        """Fields to be used in FieldPut schema"""
+        fields = (
+            "updated_name",
+            "range",
+            "added_choice_options",
+            "removed_choice_options",
+            "updated_autocomplete"
+        )
 
     updated_name = fields.Str(required=False)
     range = fields.Nested(RangeSchema, required=False)

@@ -33,8 +33,7 @@ def transaction_decorator(func):
             result = func(*args, **kwargs)
             DB.session.commit()
             return result
-        except IntegrityError as ex:
-            print(ex)
+        except IntegrityError:
             pass
         except ProgrammingError:
             pass
