@@ -4,7 +4,7 @@ app to auth user by google services
 import os
 import requests
 
-from flask import url_for, redirect, Response
+from flask import url_for, redirect
 from flask_login import (
     current_user,
     login_required,
@@ -12,6 +12,8 @@ from flask_login import (
     logout_user
 )
 from flask_restx import Resource
+from werkzeug.exceptions import Forbidden, BadRequest
+
 from app import APP, GOOGLE_CLIENT, API
 from app.config import GOOGLE_PROVIDER_CONFIG
 from app.services import UserService
@@ -101,7 +103,7 @@ def callback(response):
     :return:
     """
     if response is None:
-        return Response(status=403)
+        raise Forbidden("Not access to Google Service")
 
     userinfo = requests.get(
         GOOGLE_PROVIDER_CONFIG['userinfo_endpoint'],
@@ -115,12 +117,14 @@ def callback(response):
         username = userinfo['given_name']
         google_token = userinfo['sub']
     else:
-        return Response(status=400)
+        raise BadRequest("Email not verified")
 
     user = UserService.create(username=username, email=email, google_token=google_token)
     if user is not None:
-        UserService.activate_user(user.id, username=username, google_token=google_token)
+        if not user.is_active:
+            UserService.activate_user(user.id, username=username, google_token=google_token)
         login_user(user)
-
+    else:
+        raise BadRequest("Couldn't create user")
     # return Response(status=302)
     return redirect(url_for('index'), code=302)
