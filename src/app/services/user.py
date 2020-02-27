@@ -5,7 +5,7 @@ User CRUD operations.
 from app import DB, LOGIN_MANAGER
 from app.models import User, UserSchema
 from app.helper.decorators import transaction_decorator
-from app.helper.errors import UserNotExist
+from app.helper.errors import UserNotExist, UserNotCreated
 
 
 class UserService:
@@ -141,3 +141,38 @@ class UserService:
         """
         schema = UserSchema()
         return schema.dump(data)
+
+    @staticmethod
+    @transaction_decorator
+    def create_user_by_email(email):
+        """
+        Create new user in database by email
+
+        :param email: user email
+        :return: user or None
+        """
+        users = UserService.filter(email=email)
+
+        if users:
+            return users[0]
+
+        user = User(email=email)
+        DB.session.add(user)
+        return user
+
+    @staticmethod
+    @transaction_decorator
+    def create_users_by_emails(emails):
+        """
+        Having list of emails create users
+
+        :param emails: list of emails
+        :return: list of users
+        """
+        users = []
+        for email in emails:
+            user = UserService.create_user_by_email(email)
+            if user is None:
+                raise UserNotCreated()
+            users.append(user)
+        return users

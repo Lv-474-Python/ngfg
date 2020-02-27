@@ -1,11 +1,12 @@
 """
 Field router.
 """
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.models.field import FieldSchema
+from app.models.field import FieldSchema, FieldPutSchema
+
 from app import API
 from app.helper.enums import FieldType
 from app.services import FieldService
@@ -46,21 +47,23 @@ FIELD_PUT_MODEL = API.model('FieldPut', {
 class FieldsAPI(Resource):
     """
     Field API
+
+    url: '/fields'
+    methods: GET, POST
     """
 
     @API.doc(
         responses={
-            200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            201: 'Created',
+            401: 'Unauthorized'
         }
     )
-    @API.expect(EXTENDED_FIELD_MODEL)
+    @API.expect(EXTENDED_FIELD_MODEL)  # pylint: disable=too-many-branches
     @login_required
     # pylint: disable=no-self-use
     def post(self):
         """
-        Field POST method
+        Create new field
 
         :return: json
         """
@@ -70,7 +73,7 @@ class FieldsAPI(Resource):
             raise BadRequest(errors)
 
         if current_user.id != int(data["owner_id"]):
-            raise BadRequest("Unexpected User")
+            raise Forbidden("Unexpected User")
 
         field_type = data['field_type']
 
@@ -89,12 +92,15 @@ class FieldsAPI(Resource):
                 range_max=range_max)
 
         elif field_type == FieldType.TextArea.value:
-            response = FieldService.create(
+            is_correct, errors = FieldService.validate_textarea(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
+            response = FieldService.create_text_area(
                 name=data['name'],
                 owner_id=data['owner_id'],
                 field_type=data['field_type'],
             )
-            response = FieldSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
             is_correct, errors = FieldService.validate_radio(data)
@@ -141,21 +147,19 @@ class FieldsAPI(Resource):
         if response is None:
             raise BadRequest("Could not create")
 
-        return jsonify(response)
+        return Response(status=201)
 
     @API.doc(
         responses={
             200: 'OK',
-            401: 'Unauthorized',
-            404: 'Field not found'
+            401: 'Unauthorized'
         }
     )
-
     @login_required
     # pylint: disable=no-self-use
     def get(self):
         """
-        Field GET method
+        Get all user fields
 
         :return: json
         """
@@ -190,6 +194,39 @@ class FieldAPI(Resource):
 
     @API.doc(
         responses={
+            200: 'OK',
+            400: 'Bad Request',
+            403: 'User is not the field owner'
+        }, params={
+            'field_id': 'Field id'
+        }
+    )
+    # pylint: disable=no-self-use
+    def get(self, field_id):
+        """
+        Get field by id
+
+        :param field_id: field id
+        :return: json
+        """
+        field = FieldService.get_by_id(field_id)
+
+        if field is None:
+            raise BadRequest("Field does not exist")
+
+        if current_user.id != field.owner_id:
+            raise Forbidden("Forbidden. User is not the field owner")
+
+        field_json = FieldService.field_to_json(field)
+        extra_options = FieldService.get_additional_options(field.id, field.field_type)
+        if extra_options:
+            for key, value in extra_options.items():
+                field_json[key] = value
+
+        return jsonify(field_json)
+
+    @API.doc(
+        responses={
             200: "OK",
             400: "Invalid syntax",
             401: "Unauthorized",
@@ -221,29 +258,38 @@ class FieldAPI(Resource):
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
             range_min, range_max = FieldService.check_for_range(data)
-            updated_field = FieldService.update_text_or_number_field(
+            response = FieldService.update_text_or_number_field(
                 field_id=field_id,
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=field.owner_id,
                 field_type=field_type,
                 range_min=range_min,
                 range_max=range_max
             )
-            return updated_field
+            return response
 
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
                 field_id=field_id,
-                name=data["name"],
+                name=data.get("name"),
                 owner_id=field.owner_id,
                 field_type=field_type,
                 is_strict=False
             )
-            response = FieldSchema().dump(response)
+            response = FieldPutSchema().dump(response)
 
         elif field_type == FieldType.Radio.value:
-            added_choice_options = data["added_choice_options"]
-            removed_choice_options = data["removed_choice_options"]
+            added_choice_options = data.get("added_choice_options")
+            removed_choice_options = data.get("removed_choice_options")
+            response = FieldService.update_radio_field(
+                field_id=field_id,
+                name=data.get("name"),
+                owner_id=field.owner_id,
+                field_type=field_type,
+                added_choice_options=added_choice_options,
+                removed_choice_options=removed_choice_options
+            )
+            return response
 
         elif field_type == FieldType.Autocomplete.value:
             settings_autocomplete = data.get('settings_autocomplete')
