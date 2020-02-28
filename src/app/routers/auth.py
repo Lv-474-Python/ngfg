@@ -120,11 +120,11 @@ def callback(response):
         raise BadRequest("Email not verified")
 
     user = UserService.create(username=username, email=email, google_token=google_token)
-    if user is not None:
-        if not user.is_active:
-            UserService.activate_user(user.id, username=username, google_token=google_token)
-        login_user(user)
-    else:
+    if user is None:
         raise BadRequest("Couldn't create user")
-    # return Response(status=302)
+
+    if not user.is_active:
+        UserService.activate_user(user.id, username=username, google_token=google_token)
+
+    login_user(user)
     return redirect(url_for('index'), code=302)
