@@ -50,8 +50,8 @@ class GroupPutSchema(BaseGroupSchema):
         """
         fields = ("id", "name", "owner_id", "emails_add", "emails_delete", "users")
 
-    emails_add = fields.List(fields.Email)
-    emails_delete = fields.List(fields.Email)
+    emails_add = fields.List(cls_or_instance=fields.Email, required=True)
+    emails_delete = fields.List(cls_or_instance=fields.Email, required=True)
 
 
 class GroupPostSchema(BaseGroupSchema):

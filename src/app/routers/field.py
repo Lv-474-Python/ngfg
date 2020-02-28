@@ -11,7 +11,7 @@ from app import API
 from app.helper.enums import FieldType
 from app.services import FieldService
 
-FIELDS_NS = API.namespace('fields', description='NgFg APIs')
+FIELDS_NS = API.namespace('fields', description='Field APIs')
 
 FIELD_MODEL = API.model('Field', {
     'name': fields.String(required=True),

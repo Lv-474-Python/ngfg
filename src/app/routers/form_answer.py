@@ -10,7 +10,7 @@ from werkzeug.exceptions import BadRequest
 from app import API
 from app.services import FormService, FormResultService, AnswerService
 
-FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='NgFg APIs')
+FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='FormAnswer APIs')
 
 ANSWER_MODEL = API.model('Answer', {
     'position': fields.Integer(

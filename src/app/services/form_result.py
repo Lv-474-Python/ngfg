@@ -220,6 +220,7 @@ class FormResultService:
         if not is_numeric(answer["answer"]):
             errors[answer["position"]] = "Value is not numeric"
             return False
+        answer["answer"] = float(answer["answer"])
 
         if f_range is None:
             f_range = Range(min=MIN_POSTGRES_INT, max=MAX_POSTGRES_INT)
