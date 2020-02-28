@@ -1,5 +1,6 @@
 """FormField model"""
 from marshmallow import fields
+from marshmallow.validate import Range
 
 from app import DB, MA
 from .abstract_model import AbstractModel
@@ -32,6 +33,6 @@ class FormFieldSchema(MA.Schema):
         """
         fields = ("id", "field_id", "question", "position")
 
-    field_id = fields.Int(required=True)
+    field_id = fields.Integer(required=True)
     question = fields.Str(required=True)
-    position = fields.Int(required=True)
+    position = fields.Integer(required=True, validate=Range(min=0))

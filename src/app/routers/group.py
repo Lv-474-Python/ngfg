@@ -102,7 +102,7 @@ class GroupsAPI(Resource):
         return Response(status=201)
 
 
-@GROUP_NS.route("<int:group_id>")
+@GROUP_NS.route("/<int:group_id>")
 class GroupAPI(Resource):
     """
     Group API
@@ -134,7 +134,7 @@ class GroupAPI(Resource):
 
     @API.doc(
         responses={
-            201: 'Created',
+            200: 'OK',
             400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to update group'
@@ -163,7 +163,7 @@ class GroupAPI(Resource):
 
         passed, errors = GroupService.validate_put_data(group_json)
         if not passed:
-            return BadRequest(errors)
+            raise BadRequest(errors)
 
         updated = GroupService.update_group_name_and_users(
             group_id,
