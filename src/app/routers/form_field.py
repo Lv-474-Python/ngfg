@@ -2,7 +2,7 @@
 FormField resource API
 """
 
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_login import current_user, login_required
 from flask_restx import Resource, fields
 from werkzeug.exceptions import BadRequest, Forbidden
@@ -63,7 +63,7 @@ class FormFieldsAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
+            201: 'Created',
             400: 'Invalid syntax',
             401: 'Unauthorized',
             403: 'Forbidden creation'
@@ -104,7 +104,7 @@ class FormFieldsAPI(Resource):
         form_field = FormFieldService.create(form_id=form_id, **data)
         if form_field is None:
             raise BadRequest("Couldn't create field")
-        return jsonify(FormFieldService.to_json(form_field))
+        return Response(status=201)
 
 
 @FORM_FIELD_NS.route('/<int:form_field_id>')
@@ -191,7 +191,7 @@ class FormFieldAPI(Resource):
         if updated_form_field is None:
             raise BadRequest("Couldn't update field")
 
-        return jsonify(FormFieldService.to_json(updated_form_field))
+        return Response(status=200)
 
     @API.doc(
         responses={
@@ -228,4 +228,4 @@ class FormFieldAPI(Resource):
         is_deleted = bool(FormFieldService.delete(form_field_id))
         if not is_deleted:
             raise BadRequest("Failed to delete field")
-        return jsonify({"deleted": is_deleted})
+        return Response(status=200)

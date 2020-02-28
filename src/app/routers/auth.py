@@ -4,7 +4,7 @@ app to auth user by google services
 import os
 import requests
 
-from flask import redirect, url_for
+from flask import url_for, redirect
 from flask_login import (
     current_user,
     login_required,
@@ -12,6 +12,8 @@ from flask_login import (
     logout_user
 )
 from flask_restx import Resource
+from werkzeug.exceptions import Forbidden, BadRequest
+
 from app import APP, GOOGLE_CLIENT, API
 from app.config import GOOGLE_PROVIDER_CONFIG
 from app.services import UserService
@@ -32,7 +34,9 @@ class LoginAPI(Resource):
 
     @API.doc(
         responses={
-            302: 'Redirect to main page'
+            302: 'Redirect to main page',
+            400: 'Email not verified',
+            403: 'Forbidden'
         }
     )
     # pylint: disable=no-self-use
@@ -44,6 +48,7 @@ class LoginAPI(Resource):
             return GOOGLE_CLIENT.authorize(
                 callback=url_for('callback', _external=True)
             )
+        # return Response(status=302)
         return redirect(url_for('index'), code=302)
 
 
@@ -59,7 +64,7 @@ class LogoutAPI(Resource):
     @API.doc(
         responses={
             302: 'Redirect to main page',
-            401: 'Unauthorized'   # pylint: disable=duplicate-code
+            401: 'Unauthorized'
         }
     )
     @login_required
@@ -69,6 +74,7 @@ class LogoutAPI(Resource):
         Logout user
         """
         logout_user()
+        # return Response(status=302)
         return redirect(url_for('index'), code=302)
 
 
@@ -97,7 +103,7 @@ def callback(response):
     :return:
     """
     if response is None:
-        return 'Access denied', 403
+        raise Forbidden("Not access to Google Service")
 
     userinfo = requests.get(
         GOOGLE_PROVIDER_CONFIG['userinfo_endpoint'],
@@ -111,11 +117,14 @@ def callback(response):
         username = userinfo['given_name']
         google_token = userinfo['sub']
     else:
-        return "User email not available or not verified by Google", 400
+        raise BadRequest("Email not verified")
 
     user = UserService.create(username=username, email=email, google_token=google_token)
-    if user is not None:
-        UserService.activate_user(user.id)
-        login_user(user)
+    if user is None:
+        raise BadRequest("Couldn't create user")
 
-    return redirect(url_for('index'))
+    if not user.is_active:
+        UserService.activate_user(user.id, username=username, google_token=google_token)
+
+    login_user(user)
+    return redirect(url_for('index'), code=302)

@@ -24,7 +24,7 @@ class UserService:
         :param google_token:
         :return: user or None
         """
-        user = UserService.filter(email=email, google_token=google_token)
+        user = UserService.filter(email=email)
 
         if user:
             return user[0]
@@ -121,17 +121,24 @@ class UserService:
 
     @staticmethod
     @transaction_decorator
-    def activate_user(user_id):
+    def activate_user(user_id, username, google_token):
         """
         Activates user
         :param user_id:
+        :param username:
+        :param google_token:
         :return: user or None
         """
         user = UserService.get_by_id(user_id)
         if user is None:
             raise UserNotExist()
-        user.is_active = True
-        DB.session.merge(user)
+        user = UserService.update(
+            user.id,
+            username=username,
+            google_token=google_token,
+            is_active=True
+        )
+        # DB.session.merge(user)
         return user
 
     @staticmethod
