@@ -47,6 +47,7 @@ class AnswersAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
+            400: 'Bad request',
             401: 'Unauthorized'
         },
         params={'form_id': 'Specify the form_id'}
@@ -62,6 +63,8 @@ class AnswersAPI(Resource):
         """
         form = FormService.get_by_id(form_id)
         answers = []
+        if form is None:
+            raise BadRequest("No such form")
         if form.owner_id == current_user.id:
             answers = FormResultService.to_json(form.form_results, many=True)
         else:
