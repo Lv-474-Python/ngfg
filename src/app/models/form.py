@@ -50,7 +50,6 @@ class FormSchema(MA.Schema):
         """
         fields = ("id", "owner_id", "name", "title", "result_url", "is_published")
 
-    owner_id = fields.Int(required=True)
     name = fields.Str(required=True)
     title = fields.Str(required=True)
     result_url = fields.Url(required=True)
