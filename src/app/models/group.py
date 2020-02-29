@@ -37,7 +37,6 @@ class BaseGroupSchema(MA.Schema):
         fields = ("id", "owner_id", "name")
 
     name = fields.Str(required=True)
-    owner_id = fields.Int(required=True)
 
 
 class GroupPutSchema(BaseGroupSchema):
