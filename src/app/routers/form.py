@@ -9,6 +9,7 @@ from flask_login import current_user, login_required
 
 from app import API
 from app.services import FormService
+from app.models import FormSchema
 
 
 FORM_NS = API.namespace('forms', description='Form APIs')
@@ -21,10 +22,10 @@ MODEL = API.model('Form', {
         required=True,
         description="Form title",
         help="Title cannot be blank"),
-    'result_url': fields.Url(
+    'resultUrl': fields.Url(
         required=True,
         description="Url where results are stored"),
-    'is_published': fields.Boolean(
+    'isPublished': fields.Boolean(
         required=True,
         description="If form is published")})
 
@@ -74,8 +75,13 @@ class FormsAPI(Resource):
         if not is_correct:
             raise BadRequest(errors)
 
-        data['owner_id'] = current_user.id
-        form = FormService.create(**data)
+        form = FormService.create(
+            owner_id=current_user.id,
+            name=data['name'],
+            title=data['title'],
+            result_url=data['resultUrl'],
+            is_published=data['isPublished']
+        )
         if form is None:
             raise BadRequest("Cannot create form instance")
 
@@ -143,6 +149,8 @@ class FormAPI(Resource):
 
         # validate request body
         form_json = FormService.to_json(form)
+        if form_json.get('ownerId') is not None:
+            del form_json['ownerId']
         data = request.get_json()
         form_json.update(data)
         is_correct, errors = FormService.validate_data(form_json)
@@ -150,7 +158,13 @@ class FormAPI(Resource):
             raise BadRequest(errors)
 
         # update form
-        updated_form = FormService.update(form_id, **data)
+        updated_form = FormService.update(
+            form_id=form_id,
+            name=data.get('name'),
+            title=data.get('title'),
+            result_url=data.get('resultUrl'),
+            is_published=data.get('isPublished')
+        )
         if updated_form is None:
             raise BadRequest("Couldn't update form")
 
