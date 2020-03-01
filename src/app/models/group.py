@@ -36,6 +36,7 @@ class BaseGroupSchema(MA.Schema):
         """
         fields = ("id", "owner_id", "name")
 
+    owner_id = fields.Int(dump_only=True, data_key='ownerId')
     name = fields.Str(required=True)
 
 
@@ -65,4 +66,4 @@ class GroupPostSchema(BaseGroupSchema):
         """
         fields = ("id", "owner_id", "name", "users_emails")
 
-    users_emails = fields.List(cls_or_instance=fields.Email, required=True)
+    users_emails = fields.List(cls_or_instance=fields.Email, required=True, data_key='usersEmails')

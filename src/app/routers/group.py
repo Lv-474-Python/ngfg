@@ -18,7 +18,7 @@ GROUP_MODEL = API.model('Group', {
         description="Group name"),
 })
 GROUP_POST_MODEL = API.inherit('GroupPost', GROUP_MODEL, {
-    'users_emails': fields.List(
+    'usersEmails': fields.List(
         cls_or_instance=fields.String,
         required=False,
         description='Group users',
@@ -87,13 +87,13 @@ class GroupsAPI(Resource):
         group = GroupService.create_group_with_users(
             group_name=data['name'],
             group_owner_id=current_user.id,
-            emails=data['users_emails']
+            emails=data['usersEmails']
         )
         if group is None:
             raise BadRequest("Cannot create group")
 
         group_json = GroupService.to_json(group, many=False)
-        group_json["user_emails"] = data["users_emails"]
+        group_json["usersEmails"] = data["usersEmails"]
         response = jsonify(group_json)
         response.status_code = 201
         return response
