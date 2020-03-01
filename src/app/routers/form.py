@@ -9,7 +9,6 @@ from flask_login import current_user, login_required
 
 from app import API
 from app.services import FormService
-from app.models import FormSchema
 
 
 FORM_NS = API.namespace('forms', description='Form APIs')
