@@ -3,6 +3,7 @@ User model
 """
 
 from flask_login import UserMixin
+from marshmallow import fields
 
 from app import DB, MA
 from .abstract_model import AbstractModel
@@ -38,3 +39,5 @@ class UserSchema(MA.Schema):
         User schema meta
         """
         fields = ("id", "username", "email", "is_active")
+
+    is_active = fields.Bool(dump_only=True, data_key='isActive')
