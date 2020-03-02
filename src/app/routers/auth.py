@@ -4,7 +4,7 @@ app to auth user by google services
 import os
 import requests
 
-from flask import url_for, redirect
+from flask import url_for, Response
 from flask_login import (
     current_user,
     login_required,
@@ -48,8 +48,7 @@ class LoginAPI(Resource):
             return GOOGLE_CLIENT.authorize(
                 callback=url_for('callback', _external=True)
             )
-        # return Response(status=302)
-        return redirect(url_for('index'), code=302)
+        return Response(status=302)
 
 
 @AUTH_NS.route('/logout/')
@@ -74,8 +73,7 @@ class LogoutAPI(Resource):
         Logout user
         """
         logout_user()
-        # return Response(status=302)
-        return redirect(url_for('index'), code=302)
+        return Response(status=302)
 
 
 @APP.route('/home_page/')
@@ -127,4 +125,4 @@ def callback(response):
         UserService.activate_user(user.id, username=username, google_token=google_token)
 
     login_user(user)
-    return redirect(url_for('index'), code=302)
+    return Response(status=302)
