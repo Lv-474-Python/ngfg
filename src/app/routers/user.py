@@ -25,7 +25,7 @@ class UserAPI(Resource):
     @API.doc(
         responses={
             200: 'OK',
-            400: 'Invalid syntax'
+            400: 'Invalid data'
         }, params={
             'user_id': 'Specify the Id associated with the user'
         }
