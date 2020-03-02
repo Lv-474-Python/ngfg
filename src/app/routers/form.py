@@ -13,10 +13,6 @@ from app.services import FormService
 
 FORM_NS = API.namespace('forms', description='Form APIs')
 MODEL = API.model('Form', {
-    'owner_id': fields.Integer(
-        required=True,
-        description="Owner id",
-        help="Owner id cannot be blank"),
     'name': fields.String(
         required=True,
         description="Form name",
@@ -25,10 +21,10 @@ MODEL = API.model('Form', {
         required=True,
         description="Form title",
         help="Title cannot be blank"),
-    'result_url': fields.Url(
+    'resultUrl': fields.Url(
         required=True,
         description="Url where results are stored"),
-    'is_published': fields.Boolean(
+    'isPublished': fields.Boolean(
         required=True,
         description="If form is published")})
 
@@ -57,15 +53,13 @@ class FormsAPI(Resource):
         forms = FormService.filter(owner_id=current_user.id)
 
         forms_json = FormService.to_json(forms, many=True)
-        response = {"forms": forms_json}
-        return jsonify(response)
+        return jsonify(forms_json)
 
     @API.doc(
         responses={
             201: 'Created',
             400: 'Invalid data',
             401: 'Unauthorized',
-            403: 'Forbidden to create'
         }
     )
     @API.expect(MODEL)
@@ -79,14 +73,21 @@ class FormsAPI(Resource):
         is_correct, errors = FormService.validate_data(data)
         if not is_correct:
             raise BadRequest(errors)
-        if int(data['owner_id']) != current_user.id:
-            raise Forbidden("You cannot create form not for yourself")
 
-        form = FormService.create(**data)
+        form = FormService.create(
+            owner_id=current_user.id,
+            name=data['name'],
+            title=data['title'],
+            result_url=data['resultUrl'],
+            is_published=data['isPublished']
+        )
         if form is None:
             raise BadRequest("Cannot create form instance")
 
-        return Response(status=201)
+        form_json = FormService.to_json(form, many=False)
+        response = jsonify(form_json)
+        response.status_code = 201
+        return response
 
 
 @FORM_NS.route("/<int:form_id>")
@@ -147,6 +148,8 @@ class FormAPI(Resource):
 
         # validate request body
         form_json = FormService.to_json(form)
+        if form_json.get('ownerId') is not None:
+            del form_json['ownerId']
         data = request.get_json()
         form_json.update(data)
         is_correct, errors = FormService.validate_data(form_json)
@@ -154,15 +157,22 @@ class FormAPI(Resource):
             raise BadRequest(errors)
 
         # update form
-        updated_form = FormService.update(form_id, **data)
+        updated_form = FormService.update(
+            form_id=form_id,
+            name=data.get('name'),
+            title=data.get('title'),
+            result_url=data.get('resultUrl'),
+            is_published=data.get('isPublished')
+        )
         if updated_form is None:
             raise BadRequest("Couldn't update form")
 
-        return Response(status=200)
+        form_json = FormService.to_json(updated_form, many=False)
+        return jsonify(form_json)
 
     @API.doc(
         responses={
-            200: 'OK',
+            204: 'No content',
             400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to delete'
@@ -188,4 +198,4 @@ class FormAPI(Resource):
         if is_deleted is None:
             raise BadRequest("Couldn't delete form")
 
-        return Response(status=200)
+        return Response(status=204)
