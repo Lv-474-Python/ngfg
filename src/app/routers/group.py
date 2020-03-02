@@ -18,10 +18,7 @@ GROUP_MODEL = API.model('Group', {
         description="Group name"),
 })
 GROUP_POST_MODEL = API.inherit('GroupPost', GROUP_MODEL, {
-    'owner_id': fields.Integer(
-        required=True,
-        description="Owner id"),
-    'users_emails': fields.List(
+    'usersEmails': fields.List(
         cls_or_instance=fields.String,
         required=False,
         description='Group users',
@@ -73,7 +70,6 @@ class GroupsAPI(Resource):
             201: 'Created',
             400: 'Invalid data',
             401: 'Unauthorized',
-            403: 'Forbidden to create group'
         }
     )
     @API.expect(GROUP_POST_MODEL)
@@ -88,18 +84,19 @@ class GroupsAPI(Resource):
         if not is_correct:
             raise BadRequest(errors)
 
-        if int(data['owner_id']) != current_user.id:
-            raise Forbidden("You cannot create group not for yourself")
-
         group = GroupService.create_group_with_users(
             group_name=data['name'],
-            group_owner_id=data['owner_id'],
-            emails=data['users_emails']
+            group_owner_id=current_user.id,
+            emails=data['usersEmails']
         )
         if group is None:
             raise BadRequest("Cannot create group")
 
-        return Response(status=201)
+        group_json = GroupService.to_json(group, many=False)
+        group_json["usersEmails"] = data["usersEmails"]
+        response = jsonify(group_json)
+        response.status_code = 201
+        return response
 
 
 @GROUP_NS.route("/<int:group_id>")
