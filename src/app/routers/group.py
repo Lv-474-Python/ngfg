@@ -25,12 +25,12 @@ GROUP_POST_MODEL = API.inherit('GroupPost', GROUP_MODEL, {
         help="List can be empty")
 })
 GROUP_PUT_MODEL = API.inherit('GroupPut', GROUP_MODEL, {
-    "emails_add": fields.List(
+    "emailsAdd": fields.List(
         cls_or_instance=fields.String,
         required=False,
         description='Group users to add',
         help="List can be empty"),
-    "emails_delete": fields.List(
+    "emailsDelete": fields.List(
         cls_or_instance=fields.String,
         required=False,
         description='Group users to delete',
@@ -164,13 +164,18 @@ class GroupAPI(Resource):
 
         updated = GroupService.update_group_name_and_users(
             group_id,
-            group_json["emails_add"],
-            group_json["emails_delete"],
+            group_json["emailsAdd"],
+            group_json["emailsDelete"],
             group_json["name"])
 
         if not updated:
             raise BadRequest("Cannot update group")
-        return Response(status=200)
+
+        group = GroupService.get_by_id(group_id=group_id)
+        group_json = GroupService.to_json_single(group)
+        response = jsonify(group_json)
+        response.status_code = 200
+        return response
 
     @API.doc(
         responses={
