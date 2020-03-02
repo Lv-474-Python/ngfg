@@ -177,7 +177,7 @@ class GroupAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
+            204: 'Deleted',
             400: 'Invalid data',
             401: 'Unauthorized',
             403: 'Forbidden to delete'
@@ -204,4 +204,4 @@ class GroupAPI(Resource):
         if not is_deleted:
             raise BadRequest("Couldn't delete group")
 
-        return Response(status=200)
+        return Response(status=204)
