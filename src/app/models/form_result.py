@@ -52,7 +52,7 @@ class Keys(fields.Field):
         return value
 
 
-class FormResultSchema(MA.Schema):  # pylint: disable=too-many-ancestors
+class FormResultPostSchema(MA.Schema):
     """
     FormResult marshmallow schema
     """
@@ -62,7 +62,19 @@ class FormResultSchema(MA.Schema):  # pylint: disable=too-many-ancestors
         """
         fields = ("id", "user_id", "form_id", "created", "answers")
 
-    user_id = fields.Int(required=True)
-    form_id = fields.Int(required=True)
-    result_url = fields.Url(required=True)
     answers = fields.List(fields.Dict(keys=Keys, values=fields.Raw()))
+
+
+class FormResultGetSchema(MA.Schema):
+    """
+    FormResult marshmallow schema
+    """
+    class Meta:
+        """
+        Schema meta
+        """
+        fields = ("id", "user_id", "form_id", "created", "answers")
+
+    answers = fields.Dict(required=True, keys=fields.String(), values=fields.Raw())
+    user_id = fields.String(data_key="userId")
+    form_id = fields.String(data_key="formId")
