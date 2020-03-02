@@ -2,7 +2,7 @@
 Form answers API
 """
 
-from flask import request, jsonify, Response
+from flask import request, jsonify
 from flask_restx import Resource, fields
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
@@ -72,11 +72,9 @@ class AnswersAPI(Resource):
         responses={
             201: 'Created',
             400: 'Invalid data',
-            401: 'Unauthorized',
             403: 'Forbidden to create'}
     )
     @API.expect(MODEL)
-    @login_required
     # pylint: disable=no-self-use
     def post(self, form_id):
         """
@@ -93,7 +91,10 @@ class AnswersAPI(Resource):
         passed, errors = FormResultService.validate_data(form_result=result)
         if not passed:
             raise BadRequest(errors)
-        result['user_id'] = current_user.id
+        if not current_user.is_anonymous:
+            result['user_id'] = current_user.id
+        else:
+            result['user_id'] = None
         result['answers'] = FormResultService.create_answers_dict(form_id, result['answers'])
         result = FormResultService.create(**result)
         if result is None:
