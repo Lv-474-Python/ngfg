@@ -92,8 +92,7 @@ class GroupsAPI(Resource):
         if group is None:
             raise BadRequest("Cannot create group")
 
-        group_json = GroupService.to_json(group, many=False)
-        group_json["usersEmails"] = data["usersEmails"]
+        group_json = GroupService.to_json_single(group)
         response = jsonify(group_json)
         response.status_code = 201
         return response
