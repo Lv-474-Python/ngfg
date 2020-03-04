@@ -4,7 +4,8 @@ Form operations.
 
 from app import DB
 from app.helper.errors import FormNotExist
-from app.models import Form, FormSchema
+from app.models import Form
+from app.schemas import FormSchema
 from app.helper.decorators import transaction_decorator
 
 
