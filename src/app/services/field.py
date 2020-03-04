@@ -326,9 +326,9 @@ class FieldService:
         """
 
         if not choice_options:
-            LOGGER.error('Options not send %s', name)
+            LOGGER.error('Options not send to field with name: %s', name)
             raise ChoiceNotSend()
-        print(choice_options)
+
         field = FieldService.create(
             name=name,
             owner_id=owner_id,
