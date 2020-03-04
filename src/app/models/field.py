@@ -1,7 +1,7 @@
 """
 Field model
 """
-from marshmallow import fields, validates_schema, ValidationError
+from marshmallow import fields
 from marshmallow.validate import Range
 from app import DB, MA
 from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
