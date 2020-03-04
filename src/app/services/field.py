@@ -29,7 +29,7 @@ from app.services.setting_autocomplete import SettingAutocompleteService
 from app.services.form_field import FormFieldService
 
 
-#pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods
 class FieldService:
     """
     Field Service class
@@ -269,6 +269,9 @@ class FieldService:
             raise FieldAlreadyExist()
         data = FieldNumberTextSchema().dump(field)
 
+        if is_strict is True:
+            data['isStrict'] = is_strict
+
         if range_min is not None or range_max is not None:
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(
@@ -323,8 +326,9 @@ class FieldService:
         """
 
         if not choice_options:
+            LOGGER.error('Options not send %s', name)
             raise ChoiceNotSend()
-
+        print(choice_options)
         field = FieldService.create(
             name=name,
             owner_id=owner_id,
@@ -332,10 +336,13 @@ class FieldService:
             is_strict=is_strict
         )
 
-        data = FieldRadioSchema().dump(field)
+        if field is None:
+            raise FieldAlreadyExist()
 
+        data = FieldRadioSchema().dump(field)
+        data['choiceOptions'] = []
         for option in choice_options:
-            data['choice_options'].append(option)
+            data['choiceOptions'].append(option)
             ChoiceOptionService.create(field.id, option)
         return data
 
@@ -383,7 +390,7 @@ class FieldService:
             }
 
         for option in choice_options:
-            data['choice_options'].append(option)
+            data['choiceOptions'].append(option)
             ChoiceOptionService.create(field.id, option)
         return data
 
@@ -434,11 +441,11 @@ class FieldService:
         if settings is None:
             raise SettingAutocompleteNotExist()
 
-        data['setting_autocomplete'] = {
-            'data_url': settings.data_url,
+        data['settingAutocomplete'] = {
+            'dataUrl': settings.data_url,
             'sheet': settings.sheet,
-            'from_row': settings.from_row,
-            'to_row': settings.to_row
+            'fromRow': settings.from_row,
+            'toRow': settings.to_row
         }
 
         return data
@@ -456,7 +463,7 @@ class FieldService:
         field = FieldService.get_by_id(field_id)
 
         if field.is_strict:
-            data['is_strict'] = True
+            data['isStrict'] = True
 
         if range_field:
             field_range = RangeService.get_by_id(range_field.range_id)
@@ -484,10 +491,11 @@ class FieldService:
         range_field = FieldRangeService.get_by_field_id(field_id)
 
         if choice_options:
-            data['choice_options'] = []
+            data['choiceOptions'] = []
             for option in choice_options:
-                data['choice_options'].append(option.option_text)
+                data['choiceOptions'].append(option.option_text)
         else:
+            LOGGER.error('Could not find additional options in %s', field_id)
             raise FieldNotExist('Choice Options Error')
 
         if range_field:
@@ -517,11 +525,11 @@ class FieldService:
         if settings_autocomplete is None:
             raise SettingAutocompleteNotExist()
 
-        data['setting_autocomplete'] = {
-            'data_url': settings_autocomplete.data_url,
+        data['settingAutocomplete'] = {
+            'dataUrl': settings_autocomplete.data_url,
             'sheet': settings_autocomplete.sheet,
-            'from_row': settings_autocomplete.from_row,
-            'to_row': settings_autocomplete.to_row
+            'fromRow': settings_autocomplete.from_row,
+            'toRow': settings_autocomplete.to_row
         }
 
         return data
@@ -552,8 +560,8 @@ class FieldService:
             elif field_type == FieldType.Autocomplete.value:
                 data = FieldService._get_autocomplete_additional_options(field_id)
 
-        except FieldNotExist():
-            LOGGER.error('Couldn`t GET additional options')
+        except FieldNotExist:
+            LOGGER.error('Could not GET additional options')
 
         return data
 
@@ -687,7 +695,7 @@ class FieldService:
 
     @staticmethod
     @transaction_decorator
-    def update_checkbox_field( # pylint: disable=too-many-arguments
+    def update_checkbox_field(  # pylint: disable=too-many-arguments
             field_id,
             name,
             range_max,
