@@ -19,3 +19,6 @@ And export:
 - OAUTHLIB_INSECURE_TRANSPORT="1"
 
 for http access.
+
+###Google Sheets
+User must share the sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
