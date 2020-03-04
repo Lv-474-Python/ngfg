@@ -53,7 +53,7 @@ class FormsAPI(Resource):
         forms = FormService.filter(owner_id=current_user.id)
 
         forms_json = FormService.to_json(forms, many=True)
-        return jsonify(forms_json)
+        return jsonify({"forms": forms_json})
 
     @API.doc(
         responses={

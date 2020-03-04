@@ -48,10 +48,16 @@ class GroupPutSchema(BaseGroupSchema):
         """
         GroupPut schema meta
         """
-        fields = ("id", "name", "owner_id", "emails_add", "emails_delete", "users")
+        fields = ("id", "name", "ownerId", "emails_add", "emails_delete", "users")
 
-    emails_add = fields.List(cls_or_instance=fields.Email, required=True)
-    emails_delete = fields.List(cls_or_instance=fields.Email, required=True)
+    emails_add = fields.List(
+        cls_or_instance=fields.Email,
+        required=False,
+        data_key="emailsAdd")
+    emails_delete = fields.List(
+        cls_or_instance=fields.Email,
+        required=False,
+        data_key="emailsDelete")
 
 
 class GroupPostSchema(BaseGroupSchema):
