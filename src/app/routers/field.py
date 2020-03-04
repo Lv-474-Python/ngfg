@@ -181,7 +181,7 @@ class FieldsAPI(Resource):
                     field[key] = value
             response.append(field)
 
-        return jsonify(response)
+        return jsonify({"fields": response})
 
 
 @FIELDS_NS.route("/<int:field_id>/")

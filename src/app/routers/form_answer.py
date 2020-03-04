@@ -2,13 +2,13 @@
 Form answers API
 """
 
-from flask import request, jsonify, Response
+from flask import request, jsonify
 from flask_restx import Resource, fields
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
 
 from app import API
-from app.services import FormService, FormResultService, AnswerService
+from app.services import FormService, FormResultService
 
 FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='FormAnswer APIs')
 
@@ -22,12 +22,6 @@ ANSWER_MODEL = API.model('Answer', {
 })
 
 MODEL = API.model('FormResult', {
-    'user_id': fields.Integer(
-        required=True,
-        description="User id"),
-    'form_id': fields.Integer(
-        required=True,
-        description="Form id"),
     'answers': fields.List(
         cls_or_instance=fields.Nested(ANSWER_MODEL),
         required=True,
@@ -72,17 +66,15 @@ class AnswersAPI(Resource):
             if result:
                 answers = FormResultService.to_json(result[0], many=False)
 
-        return jsonify(answers)
+        return jsonify({"formAnswers": answers})
 
     @API.doc(
         responses={
             201: 'Created',
             400: 'Invalid data',
-            401: 'Unauthorized',
             403: 'Forbidden to create'}
     )
     @API.expect(MODEL)
-    @login_required
     # pylint: disable=no-self-use
     def post(self, form_id):
         """
@@ -92,24 +84,26 @@ class AnswersAPI(Resource):
         :return: created FormResult with answer id's instead of text answers of user
         """
         result = request.get_json()
+        result['form_id'] = form_id
         passed, errors = FormResultService.validate_schema(result)
         if not passed:
             raise BadRequest(errors)
-        if result["form_id"] != form_id or result["user_id"] != current_user.id:
-            raise BadRequest("Wrong form or/and user id's were passed ")
         passed, errors = FormResultService.validate_data(form_result=result)
         if not passed:
             raise BadRequest(errors)
-        for answer in result['answers']:
-            if isinstance(answer['answer'], list):
-                answer['answer_id'] = [a.id for a in AnswerService.create(answer['answer'])]
-            else:
-                answer['answer_id'] = AnswerService.create(answer['answer']).id
-            del answer['answer']
+        if not current_user.is_anonymous:
+            result['user_id'] = current_user.id
+        else:
+            result['user_id'] = None
+        result['answers'] = FormResultService.create_answers_dict(form_id, result['answers'])
         result = FormResultService.create(**result)
         if result is None:
             raise BadRequest("Cannot create result instance")
-        return Response(status=201)
+        result_json = FormResultService.to_json(result, many=False)
+
+        response = jsonify(result_json)
+        response.status_code = 201
+        return response
 
 
 @FORM_ANSWER_NS.route("/<int:result_id>")
