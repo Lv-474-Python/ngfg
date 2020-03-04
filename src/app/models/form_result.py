@@ -76,5 +76,5 @@ class FormResultGetSchema(MA.Schema):
         fields = ("id", "user_id", "form_id", "created", "answers")
 
     answers = fields.Dict(required=True, keys=fields.String(), values=fields.Raw())
-    user_id = fields.String(data_key="userId")
-    form_id = fields.String(data_key="formId")
+    user_id = fields.Integer(data_key="userId")
+    form_id = fields.Integer(data_key="formId")

@@ -100,6 +100,7 @@ class AnswersAPI(Resource):
         if result is None:
             raise BadRequest("Cannot create result instance")
         result_json = FormResultService.to_json(result, many=False)
+
         response = jsonify(result_json)
         response.status_code = 201
         return response

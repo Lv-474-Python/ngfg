@@ -295,6 +295,7 @@ class FormResultService:
             for answer in answers:
                 if answer['position'] == form_field.position:
                     result[form_field.question] = answer['answer']
+                    break
         return result
 
     @staticmethod
