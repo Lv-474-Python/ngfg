@@ -66,7 +66,7 @@ class AnswersAPI(Resource):
             if result:
                 answers = FormResultService.to_json(result[0], many=False)
 
-        return jsonify(answers)
+        return jsonify({"formAnswers": answers})
 
     @API.doc(
         responses={

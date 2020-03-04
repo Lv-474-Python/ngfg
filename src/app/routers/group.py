@@ -63,7 +63,7 @@ class GroupsAPI(Resource):
         groups = GroupService.filter(owner_id=current_user.id)
 
         groups_json = GroupService.to_json_all(groups)
-        return jsonify(groups_json)
+        return jsonify({"groups": groups_json})
 
     @API.doc(
         responses={
@@ -161,11 +161,17 @@ class GroupAPI(Resource):
         if not passed:
             raise BadRequest(errors)
 
+        if group_json.get("emailsAdd") is None:
+            group_json["emailsAdd"] = []
+        if group_json.get("emailsDelete") is None:
+            group_json["emailsDelete"] = []
+
         updated = GroupService.update_group_name_and_users(
-            group_id,
-            group_json["emailsAdd"],
-            group_json["emailsDelete"],
-            group_json["name"])
+            group_id=group_id,
+            name=group_json["name"],
+            emails_add=group_json["emailsAdd"],
+            emails_delete=group_json["emailsDelete"]
+            )
 
         if not updated:
             raise BadRequest("Cannot update group")

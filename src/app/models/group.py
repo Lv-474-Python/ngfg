@@ -52,11 +52,11 @@ class GroupPutSchema(BaseGroupSchema):
 
     emails_add = fields.List(
         cls_or_instance=fields.Email,
-        required=True,
+        required=False,
         data_key="emailsAdd")
     emails_delete = fields.List(
         cls_or_instance=fields.Email,
-        required=True,
+        required=False,
         data_key="emailsDelete")
 
 
