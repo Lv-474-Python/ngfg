@@ -304,6 +304,5 @@ class FormResultService:
         Validate data for FormResultSchema
         """
         schema = FormResultPostSchema()
-        print(data)
         errors = schema.validate(data)
         return (not bool(errors), errors)
