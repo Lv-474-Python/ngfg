@@ -23,6 +23,8 @@ GOOGLE_DISCOVERY_URL = (
 )
 GOOGLE_PROVIDER_CONFIG = requests.get(GOOGLE_DISCOVERY_URL).json()
 
+REDIS_EXPIRE_TIME = 60 * 60  # 1 hour
+
 
 class Config:
     """

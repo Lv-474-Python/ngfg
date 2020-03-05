@@ -10,6 +10,9 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
+
+from redis import Redis
+
 from .logging_config import create_logger
 from .config import (
     Config,
@@ -20,6 +23,7 @@ from .config import (
 
 APP = Flask(__name__)
 APP.config.from_object(Config)
+REDIS = Redis()
 LOGIN_MANAGER = LoginManager()
 LOGIN_MANAGER.init_app(APP)
 DB = SQLAlchemy(APP, session_options={'autocommit': True})
