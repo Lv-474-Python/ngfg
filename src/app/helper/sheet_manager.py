@@ -18,7 +18,7 @@ class SheetManager():
     Or give editing access url
 
     """
-    credentials_file = 'app/helper/ngfg-сredentials.json'
+    credentials_file = 'app/ngfg-сredentials.json'
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         credentials_file,
         [
