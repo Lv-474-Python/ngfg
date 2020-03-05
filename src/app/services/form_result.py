@@ -41,6 +41,12 @@ class FormResultService:
         )
 
         DB.session.add(form_result)
+
+        key = f'form_results:form_id:{form_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
         return form_result
 
     @staticmethod
@@ -84,12 +90,12 @@ class FormResultService:
         if created is not None:
             filter_data['created'] = created
 
-        hash_string = RedisManager.generate_hash_string_by_dict('form_results:', filter_data)
-        result = RedisManager.get(hash_string, 'data')
+        key = RedisManager.generate_key('form_results:', filter_data)
+        result = RedisManager.get(key, 'data')
 
         if result is None:
             result = FormResult.query.filter_by(**filter_data).all()
-            RedisManager.set(hash_string, result)
+            RedisManager.set(key, result)
 
         return result
 

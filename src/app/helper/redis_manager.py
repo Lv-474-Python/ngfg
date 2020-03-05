@@ -17,7 +17,11 @@ class RedisManager:
         REDIS.expire(name, REDIS_EXPIRE_TIME)
 
     @staticmethod
-    def generate_hash_string_by_dict(basic_name, hash_dict):
+    def delete(name):
+        REDIS.delete(name)
+
+    @staticmethod
+    def generate_key(basic_name, hash_dict):
         hash_string = basic_name
 
         for key, value in hash_dict.items():
