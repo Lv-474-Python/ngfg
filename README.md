@@ -21,6 +21,10 @@ To add Google auth you need to export the following environmental variable:
 And for http access export:
 - OAUTHLIB_INSECURE_TRANSPORT="1"
 
+### Google Sheets
+User must share the sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
+or give link with editing permission
+
 ### Install and configure rabbitmq-server on your machine:
 * Install rabbitmq-server
 ```
