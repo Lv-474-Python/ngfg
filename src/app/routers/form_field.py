@@ -241,7 +241,7 @@ class FormFieldAPI(Resource):
 
     @API.doc(
         responses={
-            200: 'OK',
+            204: 'No content',
             400: 'Invalid syntax',
             401: 'Unauthorized',
             403: 'Forbidden deletion',
