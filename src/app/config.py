@@ -44,3 +44,12 @@ class Config:
     LOG_DIR = os.path.join(BASEDIR, 'logs')
 
     ERROR_404_HELP = False
+
+    # flask-mail
+    MAIL_DEFAULT_SENDER = 'dziga2000@gmail.com'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = 'dziga2000@gmail.com'
+    MAIL_PASSWORD = 'Gampadamagam'

@@ -1,7 +1,7 @@
 """
     Initialise of app.
 """
-
+from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
@@ -54,6 +54,8 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_key=GOOGLE_CLIENT_ID,
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
+
+MAIL = Mail(APP)
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,
