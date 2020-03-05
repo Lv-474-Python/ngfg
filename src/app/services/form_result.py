@@ -5,9 +5,10 @@ FormResult service
 from app.helper.answer_validation import is_numeric
 from app.helper.constants import MAX_TEXT_LENGTH, MIN_POSTGRES_INT, MAX_POSTGRES_INT
 from app.helper.enums import FieldType
-from app.models import FormResult, Range, FormResultGetSchema, FormResultPostSchema
+from app.models import FormResult, Range
 from app import DB
 from app.helper.decorators import transaction_decorator
+from app.schemas import FormResultPostSchema, FormResultGetSchema
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
 from app.services.field import FieldService

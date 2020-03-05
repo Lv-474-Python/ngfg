@@ -3,7 +3,8 @@ Group service
 """
 
 from app import DB
-from app.models import Group, BaseGroupSchema, GroupPostSchema, GroupPutSchema
+from app.models import Group
+from app.schemas import BaseGroupSchema, GroupPostSchema, GroupPutSchema
 from app.services.group_user import GroupUserService
 from app.services.user import UserService
 from app.helper.decorators import transaction_decorator
