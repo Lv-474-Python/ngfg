@@ -19,8 +19,8 @@ class SettingAutocomplete(AbstractModel):
 
     data_url = DB.Column(DB.Text, nullable=False)
     sheet = DB.Column(DB.Text, nullable=False)
-    from_row = DB.Column(DB.String, nullable=True)
-    to_row = DB.Column(DB.String, nullable=True)
+    from_row = DB.Column(DB.String, nullable=False)
+    to_row = DB.Column(DB.String, nullable=False)
     field_id = DB.Column(
         DB.Integer,
         DB.ForeignKey('fields.id', ondelete='CASCADE'),

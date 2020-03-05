@@ -22,3 +22,4 @@ for http access.
 
 ###Google Sheets
 User must share the sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
+or give link with editing permission

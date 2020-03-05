@@ -3,6 +3,7 @@ Google Sheet manager
 """
 import os # TODO remove
 import httplib2
+# import gspread
 import apiclient.discovery
 from oauth2client.service_account import ServiceAccountCredentials
 from pprint import pprint
@@ -23,6 +24,7 @@ class SheetManager():
     User must share google sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
 
     """
+    # credentials_file = 'app/helper/ngfg-сredentials.json'
     credentials_file = 'ngfg-сredentials.json'
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         credentials_file,
@@ -35,13 +37,15 @@ class SheetManager():
     SHEETID = '1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM'
 
     @staticmethod
-    def get_data(spreadsheet_id, from_row, to_row):
+    def get_data_with_range(spreadsheet_id, from_row, to_row):
         """
         # TODO handle spreadsheet_id error
         Get data from google sheet by sheet id with range
 
         :param spreadsheet_id: str | google shit id, can be gotten from url
             E.G: https://docs.google.com/spreadsheets/d/1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM/edit#gid=0
+                 https://docs.google.com/spreadsheets/d/1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM/edit?usp=sharing
+                 https://docs.google.com/spreadsheets/d/1-mUpVrw6TScp5G8HoFJ7JFe9QPpLkUtqWtKIupDtFV4/edit?usp=sharing
             spreadsheet_id = '1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM'
         :param from_row: str | cell to begin with. E.G.: 'a', 'A1', 'b3'
         :param to_row: str | cell where search stop. E.G.: 'c', 'C5', 'c3'
@@ -58,6 +62,29 @@ class SheetManager():
         return data
 
     @staticmethod
+    def get_all_data(spreadsheet_id):
+        """
+        # TODO handle spreadsheet_id error
+        Get data from google sheet by sheet id with range
+
+        :param spreadsheet_id: str | google shit id, can be gotten from url
+            E.G: https://docs.google.com/spreadsheets/d/1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM/edit#gid=0
+            spreadsheet_id = '1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM'
+        :return: list of lists or None
+        """
+        # try:
+        values = SheetManager.service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='A:Z',
+            majorDimension='ROWS'
+        ).execute()
+
+        data = values.get('values')
+        return data
+        # except:
+
+
+    @staticmethod
     def append_data(spreadsheet_id, values):
         """
         # TODO handle spreadsheet_id error
@@ -71,8 +98,6 @@ class SheetManager():
         :return: TODO what to return
         """
 
-
-        # TODO handle this
 
         data = [[element] for element in values]
 
@@ -89,12 +114,8 @@ class SheetManager():
             valueInputOption="USER_ENTERED"
         ).execute()
 
-    @staticmethod
-    def pretty_print(data):
-        pprint(data)
-
-
 # Create new spreadsheet
+# https://docs.google.com/spreadsheets/d/1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM/edit?usp=sharing
 
 # driveService = apiclient.discovery.build('drive', 'v3', http = httpAuth)
 # shareRes = driveService.permissions().create(
@@ -103,22 +124,9 @@ class SheetManager():
 #     fields = 'id'
 # ).execute()
 
-
-# results = service.spreadsheets().values().batchUpdate(spreadsheetId =SPREADSHEETID, body = {
-#     "valueInputOption": "USER_ENTERED",
-#     "data": [
-#         {"range": "A:B",
-#          "majorDimension": "ROWS",     # сначала заполнять ряды, затем столбцы (т.е. самые внутренние списки в values - это ряды)
-#          "values": [["This is A", "This is B"], ["This is B3", "This is C3"]]},
-#
-#         # {"range": "Сие есть название листа!D5:E6",
-#         #  "majorDimension": "COLUMNS",  # сначала заполнять столбцы, затем ряды (т.е. самые внутренние списки в values - это столбцы)
-#         #  "values": [["This is D5", "This is D6"], ["This is E5", "=5+5"]]}
-#     ]
-# }).execute()
-
-
-data = SheetManager.get_data('1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM', 'a', 'd')
+data = SheetManager.get_all_data('1-mUpVrw6TScp5G8HoFJ7JFe9QPpLkUtqWtKIupDtFV4')
 pprint(data)
 print(type(data))
-SheetManager.append_data('1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM', {"one1":1, "two2":2, "three3":3})
+# data = SheetManager.get_data_with_range('1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM', 'a1', 'f6')
+
+# SheetManager.append_data('1-mUpVrw6TScp5G8HoFJ7JFe9QPpLkUtqWtKIupDtFV4', {"I":1, "Love":2, "You <3":3})
