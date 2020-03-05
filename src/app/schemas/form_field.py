@@ -16,9 +16,9 @@ class FormFieldSchema(MA.Schema):
         """
         FormField fields to expose
         """
-        fields = ("id", "field_id", "question", "position")
+        fields = ("id", "fieldId", "question", "position")
 
-    field_id = fields.Integer(required=True)
+    field_id = fields.Integer(required=True, data_key="fieldId")
     question = fields.Str(required=True)
     position = fields.Integer(required=True, validate=Range(min=0))
 
