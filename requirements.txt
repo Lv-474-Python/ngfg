@@ -5,8 +5,8 @@ astroid==2.3.3
 attrs==19.3.0
 Babel==2.8.0
 billiard==3.6.3.0
-celery==4.4.1
 cachetools==4.0.0
+celery==4.4.1
 certifi==2019.11.28
 cffi==1.14.0
 chardet==3.0.4
@@ -43,9 +43,12 @@ oauthlib==2.1.0
 packaging==20.1
 pluggy==0.13.1
 psycopg2-binary==2.8.4
+py==1.8.1
 pyasn1==0.4.8
+pyasn1-modules==0.2.8
 pycparser==2.19
 pylint==2.4.4
+pylint-flask-sqlalchemy==0.2.0
 pyparsing==2.4.6
 pyrsistent==0.15.7
 pytest==5.3.5
