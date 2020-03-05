@@ -3,7 +3,8 @@ User CRUD operations.
 """
 
 from app import DB, LOGIN_MANAGER
-from app.models import User, UserSchema
+from app.models import User
+from app.schemas import UserSchema
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import UserNotExist, UserNotCreated
 

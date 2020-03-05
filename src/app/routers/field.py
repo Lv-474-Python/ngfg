@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.models import FieldPutSchema
+from app.schemas import FieldPutSchema
 
 from app import API
 from app.helper.enums import FieldType
@@ -180,7 +180,7 @@ class FieldsAPI(Resource):
                     field[key] = value
             response.append(field)
 
-        return jsonify(response)
+        return jsonify({"fields": response})
 
 
 @FIELDS_NS.route("/<int:field_id>/")
