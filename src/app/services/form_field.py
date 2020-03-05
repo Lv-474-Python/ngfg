@@ -2,9 +2,10 @@
 FormField Service
 """
 from app import DB
-from app.models import FormField, FormFieldSchema
+from app.models import FormField
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FormFieldNotExist
+from app.schemas import FormFieldSchema
 
 
 class FormFieldService:

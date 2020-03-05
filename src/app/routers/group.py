@@ -25,12 +25,12 @@ GROUP_POST_MODEL = API.inherit('GroupPost', GROUP_MODEL, {
         help="List can be empty")
 })
 GROUP_PUT_MODEL = API.inherit('GroupPut', GROUP_MODEL, {
-    "emails_add": fields.List(
+    "emailsAdd": fields.List(
         cls_or_instance=fields.String,
         required=False,
         description='Group users to add',
         help="List can be empty"),
-    "emails_delete": fields.List(
+    "emailsDelete": fields.List(
         cls_or_instance=fields.String,
         required=False,
         description='Group users to delete',
@@ -63,7 +63,7 @@ class GroupsAPI(Resource):
         groups = GroupService.filter(owner_id=current_user.id)
 
         groups_json = GroupService.to_json_all(groups)
-        return jsonify(groups_json)
+        return jsonify({"groups": groups_json})
 
     @API.doc(
         responses={
@@ -161,15 +161,26 @@ class GroupAPI(Resource):
         if not passed:
             raise BadRequest(errors)
 
+        if group_json.get("emailsAdd") is None:
+            group_json["emailsAdd"] = []
+        if group_json.get("emailsDelete") is None:
+            group_json["emailsDelete"] = []
+
         updated = GroupService.update_group_name_and_users(
-            group_id,
-            group_json["emails_add"],
-            group_json["emails_delete"],
-            group_json["name"])
+            group_id=group_id,
+            name=group_json["name"],
+            emails_add=group_json["emailsAdd"],
+            emails_delete=group_json["emailsDelete"]
+            )
 
         if not updated:
             raise BadRequest("Cannot update group")
-        return Response(status=200)
+
+        group = GroupService.get_by_id(group_id=group_id)
+        group_json = GroupService.to_json_single(group)
+        response = jsonify(group_json)
+        response.status_code = 200
+        return response
 
     @API.doc(
         responses={

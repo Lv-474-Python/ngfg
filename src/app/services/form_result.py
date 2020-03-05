@@ -5,9 +5,10 @@ FormResult service
 from app.helper.answer_validation import is_numeric
 from app.helper.constants import MAX_TEXT_LENGTH, MIN_POSTGRES_INT, MAX_POSTGRES_INT
 from app.helper.enums import FieldType
-from app.models import FormResult, FormResultSchema, Range
+from app.models import FormResult, Range
 from app import DB
 from app.helper.decorators import transaction_decorator
+from app.schemas import FormResultPostSchema, FormResultGetSchema
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
 from app.services.field import FieldService
@@ -85,7 +86,7 @@ class FormResultService:
         """
         Get data in json format
         """
-        schema = FormResultSchema(many=many)
+        schema = FormResultGetSchema(many=many)
         result = schema.dump(data)
         return result
 
@@ -281,10 +282,28 @@ class FormResultService:
         return answers_passed, errors
 
     @staticmethod
+    def create_answers_dict(form_id, answers):
+        """
+        Create answers to specific form
+
+        :param form_id:
+        :param answers:
+        :return: answers dictionary
+        """
+        form_fields = FormFieldService.filter(form_id=form_id)
+        result = {}
+        for form_field in form_fields:
+            for answer in answers:
+                if answer['position'] == form_field.position:
+                    result[form_field.question] = answer['answer']
+                    break
+        return result
+
+    @staticmethod
     def validate_schema(data):
         """
         Validate data for FormResultSchema
         """
-        schema = FormResultSchema()
+        schema = FormResultPostSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
