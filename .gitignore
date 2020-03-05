@@ -133,5 +133,5 @@ dmypy.json
 .idea/
 logs/
 
-# Google Cr
-app/helper/ngfg-сredentials.json
+# Google Credentials
+ngfg/src/app/helper/ngfg-сredentials.json
