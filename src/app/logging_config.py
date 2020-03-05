@@ -6,7 +6,7 @@ import os
 from logging.handlers import RotatingFileHandler
 
 
-def create_logger(log_dir):
+def create_logger(log_dir, filename):
     """
     Creates logger that saves logs to .logs file and outputs logs to console
     """
@@ -15,7 +15,7 @@ def create_logger(log_dir):
 
     # Creates folder if don't exist
     os.makedirs(log_dir, exist_ok=True)
-    save_filename = os.path.join(log_dir, 'warning.log')
+    save_filename = os.path.join(log_dir, filename)
 
     # Saves to file
     file_logger = RotatingFileHandler(filename=save_filename, maxBytes=1000000, backupCount=2)

@@ -132,3 +132,6 @@ dmypy.json
 .vscode/
 .idea/
 logs/
+
+# Google credentials
+/src/app/ngfg-сredentials.json
