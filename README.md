@@ -8,7 +8,7 @@ before you make your first migration, export the following environmental variabl
 - PORT
 - DB_NAME
 
-###Google auth
+ ###Google auth
 
 To add Google auth you need to export the following environmental variable:
  - GOOGLE_CLIENT_ID
@@ -20,6 +20,6 @@ And export:
 
 for http access.
 
-###Google Sheets
+ ###Google Sheets
 User must share the sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
 or give link with editing permission
