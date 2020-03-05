@@ -12,9 +12,9 @@ from app.helper.errors import (
     ChoiceOptionNotCreated,
     ChoiceOptionNotDeleted
 )
-from app.models import (
+from app.models import Field
+from app.schemas import (
     BasicField,
-    Field,
     FieldSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
