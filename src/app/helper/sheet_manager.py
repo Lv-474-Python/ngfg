@@ -91,6 +91,7 @@ class SheetManager():
         """
         try:
             if not isinstance(values, list):
+                SHEET_LOGGER.warning('Someone tried to transfer values not in list')
                 return None
 
             data = [[element] for element in values]
@@ -98,10 +99,9 @@ class SheetManager():
                 "majorDimension": "COLUMNS",
                 "values": data
             }
-            ranges = "A:A"
             SheetManager.service.spreadsheets().values().append(  # pylint: disable=no-member
                 spreadsheetId=spreadsheet_id,
-                range=ranges,
+                range='A:A',
                 body=resource,
                 valueInputOption="USER_ENTERED"
             ).execute()
