@@ -32,13 +32,13 @@ sudo apt-get install rabbitmq-server
 ```
 * Add user, vhost, set user tags and permissions
 ```
-sudo rabbitmqctl add_user user password
+sudo rabbitmqctl add_user username password
 sudo rabbitmqctl add_vhost vhost
-sudo rabbitmqctl set_user_tags user administrator
-sudo rabbitmqctl set_permissions -p vhost user ".*" ".*" ".*"
+sudo rabbitmqctl set_user_tags usernamer administrator
+sudo rabbitmqctl set_permissions -p vhost username ".*" ".*" ".*"
 ```
 * Export the following environmental variables:
-    + CELERY_BROKER_URL = "amqp://`your name`:`your password`@localhost/`your vhost`"
+    + CELERY_BROKER_URL = "amqp://`your username`:`your password`@localhost/`your vhost`"
     + CELERY_RESULT_BACKEND = "rpc://"
     + CELERY_DEFAULT_QUEUE = "ngfg_queue"
 
