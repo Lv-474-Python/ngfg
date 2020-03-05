@@ -104,7 +104,16 @@ class FormFieldsAPI(Resource):
         form_field = FormFieldService.create(form_id=form_id, **data)
         if form_field is None:
             raise BadRequest("Couldn't create field")
-        return Response(status=201)
+        field_json = FieldService.field_to_json(field, many=False)
+        field_json.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        form_field_json = FormFieldService.response_to_json(form_field, many=False)
+        form_field_json["field"] = field_json
+        response = jsonify(form_field_json)
+        response.status_code = 201
+        return response
 
 
 @FORM_FIELD_NS.route('/<int:form_field_id>')
@@ -144,7 +153,16 @@ class FormFieldAPI(Resource):
             raise BadRequest("There's no field with this ID")
         if form_field.form_id != form.id:
             raise BadRequest("This field does not belong to the form you specified")
-        return jsonify(FormFieldService.to_json(form_field))
+        field = FieldService.get_by_id(field_id=form_field.field_id)
+        field_json = FieldService.field_to_json(field, many=False)
+        field_json.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        form_field_json = FormFieldService.response_to_json(form_field, many=False)
+        form_field_json["field"] = field_json
+        response = jsonify(form_field_json)
+        return response
 
     @API.doc(
         responses={
@@ -182,6 +200,7 @@ class FormFieldAPI(Resource):
 
         form_field_json = FormFieldService.to_json(form_field)
         data = request.get_json()
+        field = FieldService.get_by_id(int(data["field_id"]))
         form_field_json.update(**data)
         is_correct, errors = FormFieldService.validate_data(form_field_json)
         if not is_correct:
@@ -190,8 +209,16 @@ class FormFieldAPI(Resource):
         updated_form_field = FormFieldService.update(form_field_id=form_field_id, **data)
         if updated_form_field is None:
             raise BadRequest("Couldn't update field")
-
-        return Response(status=200)
+        field_json = FieldService.field_to_json(field, many=False)
+        field_json.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        form_field_json = FormFieldService.response_to_json(form_field, many=False)
+        form_field_json["field"] = field_json
+        response = jsonify(form_field_json)
+        response.status_code = 200
+        return response
 
     @API.doc(
         responses={
@@ -228,4 +255,4 @@ class FormFieldAPI(Resource):
         is_deleted = bool(FormFieldService.delete(form_field_id))
         if not is_deleted:
             raise BadRequest("Failed to delete field")
-        return Response(status=200)
+        return Response(status=204)
