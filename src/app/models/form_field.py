@@ -4,6 +4,7 @@ from marshmallow.validate import Range
 
 from app import DB, MA
 from .abstract_model import AbstractModel
+from app.models import FieldSchema
 
 
 class FormField(AbstractModel):
@@ -36,3 +37,19 @@ class FormFieldSchema(MA.Schema):
     field_id = fields.Integer(required=True)
     question = fields.Str(required=True)
     position = fields.Integer(required=True, validate=Range(min=0))
+
+
+class FormFieldResponseSchema(MA.Schema):
+    """
+    FormField put schema
+    """
+    class Meta:
+        """
+        Fields of the put schema
+        """
+        fields = ("id", "field", "question", "position")
+
+    field = fields.Nested(FieldSchema, required=True)
+    question = fields.Str(required=True)
+    position = fields.Integer(required=True, validate=Range(min=0))
+

@@ -11,7 +11,7 @@ from app import API
 from app.services import (FormFieldService, FormService, SharedFieldService, FieldService)
 
 FORM_FIELD_NS = API.namespace('forms/<int:form_id>/fields', description='FormField APIs')
-MODEL = API.model('FormField', {
+FORM_FIELD_MODEL = API.model('FormField', {
     'field_id': fields.Integer(
         required=True,
         description="Field id",
@@ -59,7 +59,7 @@ class FormFieldsAPI(Resource):
             raise Forbidden("Can't view fields of the form that doesn't belong to you")
 
         form_fields = FormFieldService.filter(form_id=form.id)
-        return jsonify({"form_fields": FormFieldService.to_json(form_fields, many=True)})
+        return jsonify(FormFieldService.to_json(form_fields, many=True))
 
     @API.doc(
         responses={
@@ -72,7 +72,7 @@ class FormFieldsAPI(Resource):
             'form_id': 'Specify ID of the form you want to insert fields into',
         }
     )
-    @API.expect(MODEL)
+    @API.expect(FORM_FIELD_MODEL)
     @login_required
     # pylint: disable=no-self-use
     def post(self, form_id):
@@ -104,7 +104,16 @@ class FormFieldsAPI(Resource):
         form_field = FormFieldService.create(form_id=form_id, **data)
         if form_field is None:
             raise BadRequest("Couldn't create field")
-        return Response(status=201)
+        field_json = FieldService.field_to_json(field, many=False)
+        field_json.update(FieldService.get_additional_options(
+                                                            field_id=field.id,
+                                                            field_type=field.field_type)
+                                                                )
+        form_field_json = FormFieldService.response_to_json(form_field, many=False)
+        form_field_json["field"] = field_json
+        response = jsonify(form_field_json)
+        response.status_code = 201
+        return response
 
 
 @FORM_FIELD_NS.route('/<int:form_field_id>')
@@ -158,7 +167,7 @@ class FormFieldAPI(Resource):
             'form_field_id': 'ID of the field you want to update'
         }
     )
-    @API.expect(MODEL, validate=False)
+    @API.expect(FORM_FIELD_MODEL, validate=False)
     @login_required
     # pylint: disable=no-self-use
     def put(self, form_id, form_field_id):
