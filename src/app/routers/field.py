@@ -145,7 +145,6 @@ class FieldsAPI(Resource):
             raise BadRequest("Could not create")
 
         field_json = FieldService.to_json(field)
-        print(f'field_json: {field_json}')
         response = jsonify(field_json)
         response.status_code = 201
         return response

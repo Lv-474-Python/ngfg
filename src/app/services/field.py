@@ -269,7 +269,7 @@ class FieldService:
             raise FieldAlreadyExist()
         data = FieldNumberTextSchema().dump(field)
 
-        if is_strict is True:
+        if is_strict:
             data['isStrict'] = is_strict
 
         if range_min is not None or range_max is not None:
