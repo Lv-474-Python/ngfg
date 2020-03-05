@@ -23,7 +23,7 @@ class ChoiceOptionService:
         :return: created choice option instance
         """
         instance = ChoiceOption(field_id=field_id, option_text=option_text)
-        options = ChoiceOptionService.filter(option_text=option_text)
+        options = ChoiceOptionService.filter(field_id=field_id, option_text=option_text)
         if options:
             return options[0]
         DB.session.add(instance)
