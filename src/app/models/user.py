@@ -3,9 +3,8 @@ User model
 """
 
 from flask_login import UserMixin
-from marshmallow import fields
 
-from app import DB, MA
+from app import DB
 from .abstract_model import AbstractModel
 
 
@@ -27,17 +26,3 @@ class User(AbstractModel, UserMixin):
     form_results = DB.relationship('FormResult', backref='user')
     groups = DB.relationship('Group', backref='user')
     groups_users = DB.relationship('GroupUser', backref='user')
-
-
-class UserSchema(MA.Schema):
-    """
-    User schema
-
-    """
-    class Meta:
-        """
-        User schema meta
-        """
-        fields = ("id", "username", "email", "is_active")
-
-    is_active = fields.Bool(dump_only=True, data_key='isActive')
