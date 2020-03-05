@@ -22,7 +22,7 @@ class BasicField(MA.Schema):
         fields = ("owner_id", "name", "field_type")
 
     name = fields.Str(required=True)
-    owner_id = fields.Integer(required=True, data_key="ownerId")
+    owner_id = fields.Integer(data_key="ownerId")
     field_type = fields.Integer(
         required=True,
         validate=Range(

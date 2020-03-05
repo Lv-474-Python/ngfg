@@ -71,7 +71,7 @@ class FieldsAPI(Resource):
         is_correct, errors = FieldService.validate(data)
         if not is_correct:
             raise BadRequest(errors)
-        field_type = data['fieldType']
+        field_type = data.get('fieldType')
 
         if field_type in (FieldType.Text.value, FieldType.Number.value):
             is_correct, errors = FieldService.validate_text_or_number(data)
@@ -81,7 +81,7 @@ class FieldsAPI(Resource):
             range_min, range_max = FieldService.check_for_range(data)
 
             field = FieldService.create_text_or_number_field(
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=current_user.id,
                 field_type=field_type,
                 is_strict=data.get('isStrict', False),
@@ -94,7 +94,7 @@ class FieldsAPI(Resource):
                 raise BadRequest(errors)
 
             field = FieldService.create_text_area(
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=current_user.id,
                 field_type=field_type,
             )
@@ -105,10 +105,10 @@ class FieldsAPI(Resource):
                 raise BadRequest(errors)
 
             field = FieldService.create_radio_field(
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=current_user.id,
                 field_type=field_type,
-                choice_options=data['choiceOptions']
+                choice_options=data.get('choiceOptions')
             )
 
         elif field_type == FieldType.Checkbox.value:
@@ -118,10 +118,10 @@ class FieldsAPI(Resource):
             range_min, range_max = FieldService.check_for_range(data)
 
             field = FieldService.create_checkbox_field(
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=current_user.id,
                 field_type=field_type,
-                choice_options=data['choiceOptions'],
+                choice_options=data.get('choiceOptions'),
                 range_min=range_min,
                 range_max=range_max
             )
@@ -130,15 +130,15 @@ class FieldsAPI(Resource):
             is_correct, errors = FieldService.validate_setting_autocomplete(data)
             if not is_correct:
                 raise BadRequest(errors)
-
+            setting_autocomplete = data.get('settingAutocomplete')
             field = FieldService.create_autocomplete_field(
-                name=data['name'],
+                name=data.get('name'),
                 owner_id=current_user.id,
                 field_type=field_type,
-                data_url=data['settingAutocomplete']['dataUrl'],
-                sheet=data['settingAutocomplete']['sheet'],
-                from_row=data['settingAutocomplete']['fromRow'],
-                to_row=data['settingAutocomplete']['toRow']
+                data_url=setting_autocomplete.get('dataUrl'),
+                sheet=setting_autocomplete.get('sheet'),
+                from_row=setting_autocomplete.get('fromRow'),
+                to_row=setting_autocomplete.get('toRow')
             )
 
         if field is None:
