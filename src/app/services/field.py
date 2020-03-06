@@ -168,7 +168,6 @@ class FieldService:
         errors = FieldPostSchema().validate(data)
         is_exist = FieldService.filter(owner_id=user, name=data.get('name'))
         if is_exist:
-            print(is_exist)
             errors['is_exist'] = 'Field with such name already exist'
         return (not bool(errors), errors)
 

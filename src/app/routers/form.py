@@ -70,7 +70,7 @@ class FormsAPI(Resource):
         Create new form
         """
         data = request.get_json()
-        is_correct, errors = FormService.validate_data(data)
+        is_correct, errors = FormService.validate_post_data(data=data, user=current_user.id)
         if not is_correct:
             raise BadRequest(errors)
 
@@ -152,7 +152,10 @@ class FormAPI(Resource):
             del form_json['ownerId']
         data = request.get_json()
         form_json.update(data)
-        is_correct, errors = FormService.validate_data(form_json)
+        is_correct, errors = FormService.validate_put_data(# TODO add valida
+            data=form_json,
+            user=current_user.id
+        )
         if not is_correct:
             raise BadRequest(errors)
 

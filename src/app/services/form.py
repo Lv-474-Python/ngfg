@@ -146,10 +146,25 @@ class FormService:
         return schema.dump(data)
 
     @staticmethod
-    def validate_data(data):
+    def validate_post_data(data, user):
         """
         Validate data by FormSchema
         """
         schema = FormSchema()
         errors = schema.validate(data)
+        do_exist = FormService.filter(owner_id=user, name=data.get('name'))
+        if do_exist:
+            errors['is_exist'] = 'Form with such name already exist'
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_put_data(data, user):
+        """
+        Validate data by FormSchema
+        """
+        schema = FormSchema()
+        errors = schema.validate(data)
+        do_exist = FormService.filter(owner_id=user, name=data.get('name'))
+        if do_exist:
+            errors['is_exist'] = 'Form with such name already exist'
         return (not bool(errors), errors)
