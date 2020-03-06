@@ -10,6 +10,8 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
+
+from .celery_config import make_celery
 from .logging_config import create_logger
 from .config import (
     Config,
@@ -37,6 +39,8 @@ API = Api(
     description="New generation Form generator API",
 )
 APP.register_blueprint(BLUEPRINT)
+
+CELERY = make_celery(APP)
 
 GOOGLE_CLIENT = OAuth(APP).remote_app(
     'ngfg',
@@ -66,3 +70,4 @@ from .routers import (  # pylint: disable=wrong-import-position
     form_answer,
 )
 from .models import *  # pylint: disable=wrong-import-position
+from .celery_tasks import * # pylint: disable=wrong-import-position
