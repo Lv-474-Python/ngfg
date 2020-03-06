@@ -1,8 +1,12 @@
 """
 Base router view.
 """
-from app import APP, SERIALIZER
-from app.helper.email_sender import EmailSender
+import jwt
+
+from app import APP
+from app.celery_tasks.share_field import call_share_field_task
+from app.helper.email_generator import SECRET_KEY
+from app.services import FieldService
 
 
 @APP.route('/')
@@ -12,7 +16,8 @@ def hello_world():
 
     :return: str
     """
-    EmailSender.share_field(1, ['dz000iga2000@gmail.com'])
+    call_share_field_task(["dziga2000@gmail.com"],
+                          FieldService.to_json(FieldService.get_by_id(1), many=False))
     return 'Hello, World!'
 
 
@@ -23,5 +28,5 @@ def receive_field(token):
 
     :return: str
     """
-    field = SERIALIZER.loads(token, salt='share_field')
-    return f'Field id that you\'ve ({field["recipient"]}) received: {field["field_id"]}'
+    field = jwt.decode(token, SECRET_KEY, algorithms='HS256', verify=False)
+    return f'Field that you\'ve ({field["recipient"]}) received: {field["field"]}'

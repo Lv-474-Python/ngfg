@@ -52,6 +52,7 @@ class Config:
 
     # flask-mail
     MAIL_SERVER = 'smtp.gmail.com'
+    SERVER_NAME = 'ngfg.com:8000'
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
