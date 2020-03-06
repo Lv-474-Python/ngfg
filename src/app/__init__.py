@@ -13,6 +13,8 @@ from flask_oauthlib.client import OAuth
 
 from redis import Redis
 
+
+from .celery_config import make_celery
 from .logging_config import create_logger
 from .config import (
     Config,
@@ -30,7 +32,8 @@ DB = SQLAlchemy(APP, session_options={'autocommit': True})
 MIGRATE = Migrate(APP, DB, directory=APP.config['MIGRATION_DIR'])
 MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
-LOGGER = create_logger(APP.config['LOG_DIR'])
+LOGGER = create_logger(APP.config['LOG_DIR'], filename='warning.log')
+SHEET_LOGGER = create_logger(APP.config['LOG_DIR'], filename='sheet.log')
 MA = Marshmallow(APP)
 BLUEPRINT = Blueprint('api', __name__, url_prefix='/api/v1')
 API = Api(
@@ -40,6 +43,8 @@ API = Api(
     description="New generation Form generator API",
 )
 APP.register_blueprint(BLUEPRINT)
+
+CELERY = make_celery(APP)
 
 GOOGLE_CLIENT = OAuth(APP).remote_app(
     'ngfg',
@@ -69,3 +74,4 @@ from .routers import (  # pylint: disable=wrong-import-position
     form_answer,
 )
 from .models import *  # pylint: disable=wrong-import-position
+from .celery_tasks import * # pylint: disable=wrong-import-position
