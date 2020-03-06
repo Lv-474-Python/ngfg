@@ -72,14 +72,12 @@ class FieldsAPI(Resource):
         if not is_correct:
             raise BadRequest(errors)
         field_type = data.get('fieldType')
-
         if field_type in (FieldType.Text.value, FieldType.Number.value):
             is_correct, errors = FieldService.validate_text_or_number(data)
             if not is_correct:
                 raise BadRequest(errors)
 
             range_min, range_max = FieldService.check_for_range(data)
-
             field = FieldService.create_text_or_number_field(
                 name=data.get('name'),
                 owner_id=current_user.id,
@@ -144,8 +142,7 @@ class FieldsAPI(Resource):
         if field is None:
             raise BadRequest("Could not create")
 
-        field_json = FieldService.to_json(field)
-        response = jsonify(field_json)
+        response = jsonify(field)
         response.status_code = 201
         return response
 

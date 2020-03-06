@@ -15,7 +15,7 @@ from app.helper.errors import (
 from app.models import Field
 from app.schemas import (
     BasicField,
-    FieldSchema,
+    FieldPostSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
@@ -148,20 +148,12 @@ class FieldService:
         return True
 
     @staticmethod
-    def to_json(data, many=False):
-        """
-        Get data in json format
-        """
-        schema = FieldSchema(many=many)
-        return schema.dump(data)
-
-    @staticmethod
     def field_to_json(data, many=False):
         """
         Get data in json format
 
         """
-        schema = FieldNumberTextSchema(many=many)
+        schema = BasicField(many=many)
         return schema.dump(data)
 
     @staticmethod
@@ -170,9 +162,14 @@ class FieldService:
         Global post validation
 
         :param data:
+        :param user
         :return: errors if validation failed else empty dict
         """
-        errors = FieldSchema().validate(data)
+        errors = FieldPostSchema().validate(data)
+        is_exist = FieldService.filter(owner_id=data.get('ownerId'), name=data.get('name'))
+        if is_exist:
+            print(is_exist)
+            errors['is_exist'] = 'Field with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod
@@ -271,7 +268,7 @@ class FieldService:
 
         if is_strict:
             data['isStrict'] = is_strict
-
+        print('ss_in_service', is_strict)
         if range_min is not None or range_max is not None:
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(
@@ -282,7 +279,7 @@ class FieldService:
                 'min': range_min,
                 'max': range_max
             }
-
+        print('before send data', data)
         return data
 
     @staticmethod

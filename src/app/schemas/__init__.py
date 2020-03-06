@@ -4,7 +4,7 @@ Init schemas
 from .user import UserSchema
 from .form import FormSchema
 from .field import (
-    FieldSchema,
+    FieldPostSchema,
     FieldNumberTextSchema,
     FieldRadioSchema,
     FieldSettingAutocompleteSchema,
