@@ -10,6 +10,8 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
+from itsdangerous import URLSafeTimedSerializer
+
 from .logging_config import create_logger
 from .config import (
     Config,
@@ -56,6 +58,7 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
 )
 
 MAIL = Mail(APP)
+SERIALIZER = URLSafeTimedSerializer(GOOGLE_CLIENT_SECRET)
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,

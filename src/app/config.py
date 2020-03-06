@@ -46,10 +46,10 @@ class Config:
     ERROR_404_HELP = False
 
     # flask-mail
-    MAIL_DEFAULT_SENDER = 'dziga2000@gmail.com'
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
-    MAIL_USERNAME = 'dziga2000@gmail.com'
-    MAIL_PASSWORD = 'Gampadamagam'
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = MAIL_USERNAME
