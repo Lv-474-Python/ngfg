@@ -45,6 +45,11 @@ class Config:
 
     ERROR_404_HELP = False
 
+    # celery
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+    CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE')
+
     # flask-mail
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
