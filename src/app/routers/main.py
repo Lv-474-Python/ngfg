@@ -16,7 +16,7 @@ def hello_world():
 
     :return: str
     """
-    call_share_field_task(["dziga2000@gmail.com"],
+    call_share_field_task(["just_mail@gmail.com"],
                           FieldService.to_json(FieldService.get_by_id(1), many=False))
     return 'Hello, World!'
 
