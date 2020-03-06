@@ -157,7 +157,7 @@ class FieldService:
         return schema.dump(data)
 
     @staticmethod
-    def validate(data):
+    def validate(data, user):
         """
         Global post validation
 
@@ -166,7 +166,7 @@ class FieldService:
         :return: errors if validation failed else empty dict
         """
         errors = FieldPostSchema().validate(data)
-        is_exist = FieldService.filter(owner_id=data.get('ownerId'), name=data.get('name'))
+        is_exist = FieldService.filter(owner_id=user, name=data.get('name'))
         if is_exist:
             print(is_exist)
             errors['is_exist'] = 'Field with such name already exist'
@@ -226,13 +226,23 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_update_field(data):
+    def validate_update_field(data, user, field_id):
         """
 
         :param data:
+        :param user:
+        :param field_id:
         :return: errors if validation failed
         """
         errors = FieldPutSchema().validate(data)
+
+        updated_name = data.get('updated_name')
+        if updated_name:
+            is_changed = not bool(FieldService.filter(name=updated_name, field_id=field_id))
+            if is_changed:
+                is_exist = FieldService.filter(owner_id=user, name=updated_name)
+                if is_exist:
+                    errors['is_exist'] = 'Field with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod

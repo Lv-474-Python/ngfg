@@ -25,11 +25,6 @@ class BasicField(MA.Schema):
     owner_id = fields.Integer(data_key="ownerId")
     field_type = fields.Integer(required=True, data_key="fieldType")
 
-    @validates_schema
-    def validate_field_type(self, data, **kwargs):
-        if not (MIN_FIELD_TYPE <= data.get('field_type') <= MAX_FIELD_TYPE):
-            raise ValidationError('Must be greater than or equal to 1 and less than or equal to 6.')
-
 
 class FieldPostSchema(BasicField):
     """
@@ -47,6 +42,11 @@ class FieldPostSchema(BasicField):
     range = fields.Nested(RangeSchema)
     setting_autocomplete = fields.Nested(SettingAutocompleteSchema, data_key="settingAutocomplete")
     choice_options = fields.List(fields.Str(required=False), data_key="choiceOptions")
+
+    @validates_schema
+    def validate_field_type(self, data, **kwargs):
+        if not (MIN_FIELD_TYPE <= data.get('field_type') <= MAX_FIELD_TYPE):
+            raise ValidationError('Must be greater than or equal to 1 and less than or equal to 6.')
 
 
 class FieldCheckboxSchema(BasicField):

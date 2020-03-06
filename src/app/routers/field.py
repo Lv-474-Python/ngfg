@@ -68,7 +68,8 @@ class FieldsAPI(Resource):
         :return: json
         """
         data = request.json
-        is_correct, errors = FieldService.validate(data)
+        print(data)
+        is_correct, errors = FieldService.validate(data=data, user=current_user.id)
         if not is_correct:
             raise BadRequest(errors)
         field_type = data.get('fieldType')
@@ -257,7 +258,11 @@ class FieldAPI(Resource):
 
         data = request.get_json()
 
-        is_correct, errors = FieldService.validate_update_field(data)
+        is_correct, errors = FieldService.validate_update_field(
+            data=data,
+            user=current_user.id,
+            field_id=field_id
+        )
         if not is_correct:
             raise BadRequest(errors)
 
