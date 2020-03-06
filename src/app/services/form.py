@@ -49,7 +49,7 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def update(form_id, # pylint: disable=too-many-arguments
+    def update(form_id,  # pylint: disable=too-many-arguments
                owner_id=None,
                name=None,
                title=None,
@@ -153,3 +153,18 @@ class FormService:
         schema = FormSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    def get_form_result_url(form_id):
+        """
+        Get form`s result url
+
+        :param form_id:
+        :return: url or None
+        """
+        form = FormService.get_by_id(form_id)
+
+        if form is None:
+            return None
+
+        return form.result_url

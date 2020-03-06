@@ -1,10 +1,13 @@
 """
 Google Sheet manager
 """
+from urllib.parse import urlparse
+
+import apiclient.discovery  # pylint: disable=import-error
 import googleapiclient
 import httplib2
-import apiclient.discovery  # pylint: disable=import-error
 from oauth2client.service_account import ServiceAccountCredentials
+
 from app import SHEET_LOGGER
 
 
@@ -111,3 +114,20 @@ class SheetManager():
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
             return None
+
+    @staticmethod
+    def get_id_from_url(url: str):
+        """
+        Get google sheet id from sheet url
+
+        :param url: str | sheet url
+        :return: None or str | sheet_id
+        """
+
+        link = urlparse(url)
+        netlock = link[1]
+        if netlock != 'docs.google.com':
+            return None
+        link = link[2]
+        sheet_id = link.split('/')[3]
+        return sheet_id
