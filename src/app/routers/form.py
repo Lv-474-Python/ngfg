@@ -154,7 +154,8 @@ class FormAPI(Resource):
         form_json.update(data)
         is_correct, errors = FormService.validate_put_data(# TODO add valida
             data=form_json,
-            user=current_user.id
+            user=current_user.id,
+            form_id=form_id
         )
         if not is_correct:
             raise BadRequest(errors)

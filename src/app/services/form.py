@@ -49,7 +49,7 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def update(form_id, # pylint: disable=too-many-arguments
+    def update(form_id,  # pylint: disable=too-many-arguments
                owner_id=None,
                name=None,
                title=None,
@@ -104,7 +104,8 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def filter(owner_id=None,
+    def filter(form_id=None,
+               owner_id=None,
                name=None,
                title=None,
                result_url=None,
@@ -121,7 +122,8 @@ class FormService:
         """
 
         data = {}
-
+        if form_id is not None:
+            data['id'] = form_id
         if owner_id is not None:
             data['owner_id'] = owner_id
         if name is not None:
@@ -158,13 +160,17 @@ class FormService:
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_put_data(data, user):
+    def validate_put_data(data, user, form_id):
         """
         Validate data by FormSchema
         """
         schema = FormSchema()
         errors = schema.validate(data)
-        do_exist = FormService.filter(owner_id=user, name=data.get('name'))
-        if do_exist:
-            errors['is_exist'] = 'Form with such name already exist'
+        updated_name = data.get('name')
+        if updated_name:
+            is_changed = not bool(FormService.filter(name=updated_name, form_id=form_id))
+            if is_changed:
+                is_exist = FormService.filter(owner_id=user, name=updated_name)
+                if is_exist:
+                    errors['is_exist'] = 'Form with such name already exist'
         return (not bool(errors), errors)
