@@ -2,7 +2,6 @@
 Field schemas
 """
 from marshmallow import fields, validates_schema, ValidationError
-from marshmallow.validate import Range
 
 from app import MA
 from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
@@ -44,8 +43,15 @@ class FieldPostSchema(BasicField):
     choice_options = fields.List(fields.Str(required=False), data_key="choiceOptions")
 
     @validates_schema
+    # pylint: disable=no-self-use
     def validate_field_type(self, data, **kwargs):
-        if not (MIN_FIELD_TYPE <= data.get('field_type') <= MAX_FIELD_TYPE):
+        """
+        Validates incoming field type, and raises error if type is greater then 6 or lower than 1
+        :param data:
+        :param kwargs:
+        :return: None or raise error
+        """
+        if data.get('field_type') > MAX_FIELD_TYPE or data.get('field_type') < MIN_FIELD_TYPE:
             raise ValidationError('Must be greater than or equal to 1 and less than or equal to 6.')
 
 

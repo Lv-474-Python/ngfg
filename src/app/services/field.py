@@ -277,7 +277,6 @@ class FieldService:
 
         if is_strict:
             data['isStrict'] = is_strict
-        print('ss_in_service', is_strict)
         if range_min is not None or range_max is not None:
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(
@@ -288,7 +287,6 @@ class FieldService:
                 'min': range_min,
                 'max': range_max
             }
-        print('before send data', data)
         return data
 
     @staticmethod

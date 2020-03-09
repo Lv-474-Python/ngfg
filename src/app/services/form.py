@@ -104,7 +104,7 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def filter(form_id=None,
+    def filter(form_id=None, # pylint: disable=too-many-arguments
                owner_id=None,
                name=None,
                title=None,
@@ -113,6 +113,7 @@ class FormService:
         """
         Filter form from database by arguments
 
+        :param form_id: Form id
         :param owner_id: User who created the form
         :param name: Name, which is visible only for the owner, for searching
         :param title: Form title visible for all users

@@ -152,7 +152,7 @@ class FormAPI(Resource):
             del form_json['ownerId']
         data = request.get_json()
         form_json.update(data)
-        is_correct, errors = FormService.validate_put_data(# TODO add valida
+        is_correct, errors = FormService.validate_put_data(
             data=form_json,
             user=current_user.id,
             form_id=form_id

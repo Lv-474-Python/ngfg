@@ -157,7 +157,11 @@ class GroupAPI(Resource):
         data = request.get_json()
         group_json.update(**data)
 
-        passed, errors = GroupService.validate_put_data(data=group_json, user=current_user.id, group_id=group_id)
+        passed, errors = GroupService.validate_put_data(
+            data=group_json,
+            user=current_user.id,
+            group_id=group_id
+        )
         if not passed:
             raise BadRequest(errors)
 

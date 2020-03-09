@@ -68,7 +68,6 @@ class FieldsAPI(Resource):
         :return: json
         """
         data = request.json
-        print(data)
         is_correct, errors = FieldService.validate_post_field(data=data, user=current_user.id)
         if not is_correct:
             raise BadRequest(errors)
