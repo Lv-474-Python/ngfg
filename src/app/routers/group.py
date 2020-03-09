@@ -10,7 +10,6 @@ from werkzeug.exceptions import BadRequest, Forbidden
 from app import API
 from app.services import GroupService
 
-
 GROUP_NS = API.namespace('groups', description='Group APIs')
 GROUP_MODEL = API.model('Group', {
     'name': fields.String(
@@ -80,7 +79,7 @@ class GroupsAPI(Resource):
         Create new group
         """
         data = request.get_json()
-        is_correct, errors = GroupService.validate_post_data(data)
+        is_correct, errors = GroupService.validate_post_data(data=data, user=current_user.id)
         if not is_correct:
             raise BadRequest(errors)
 
@@ -106,6 +105,7 @@ class GroupAPI(Resource):
     url: '/groups/'
     methods: get, put, delete
     """
+
     @API.doc(
         responses={
             200: 'OK',
@@ -157,7 +157,7 @@ class GroupAPI(Resource):
         data = request.get_json()
         group_json.update(**data)
 
-        passed, errors = GroupService.validate_put_data(group_json)
+        passed, errors = GroupService.validate_put_data(data=group_json, user=current_user.id, group_id=group_id)
         if not passed:
             raise BadRequest(errors)
 
@@ -171,7 +171,7 @@ class GroupAPI(Resource):
             name=group_json["name"],
             emails_add=group_json["emailsAdd"],
             emails_delete=group_json["emailsDelete"]
-            )
+        )
 
         if not updated:
             raise BadRequest("Cannot update group")

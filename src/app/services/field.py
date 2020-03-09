@@ -157,7 +157,7 @@ class FieldService:
         return schema.dump(data)
 
     @staticmethod
-    def validate(data, user):
+    def validate_post_field(data, user):
         """
         Global post validation
 
