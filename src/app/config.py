@@ -44,3 +44,8 @@ class Config:
     LOG_DIR = os.path.join(BASEDIR, 'logs')
 
     ERROR_404_HELP = False
+
+    # celery
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+    CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE')

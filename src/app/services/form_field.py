@@ -5,7 +5,7 @@ from app import DB
 from app.models import FormField
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FormFieldNotExist
-from app.schemas import FormFieldSchema
+from app.schemas import FormFieldSchema, FormFieldResponseSchema
 
 
 class FormFieldService:
@@ -126,3 +126,11 @@ class FormFieldService:
         schema = FormFieldSchema()
         errors = schema.validate(data)
         return not bool(errors), errors
+
+    @staticmethod
+    def response_to_json(data, many=False):
+        """
+        A method to get response data in json format
+        """
+        form_field_response_schema = FormFieldResponseSchema(many=many)
+        return form_field_response_schema.dump(data)
