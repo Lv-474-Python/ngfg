@@ -5,7 +5,8 @@ import jwt
 
 from app import APP
 from app.celery_tasks.share_field import call_share_field_task
-from app.helper.email_generator import SECRET_KEY
+from app.config import SECRET_KEY
+from app.helper.constants import JWT_ALGORITHM
 from app.services import FieldService
 
 
@@ -16,8 +17,7 @@ def hello_world():
 
     :return: str
     """
-    call_share_field_task(["just_mail@gmail.com"],
-                          FieldService.to_json(FieldService.get_by_id(1), many=False))
+
     return 'Hello, World!'
 
 
@@ -28,5 +28,17 @@ def receive_field(token):
 
     :return: str
     """
-    field = jwt.decode(token, SECRET_KEY, algorithms='HS256', verify=False)
+    field = jwt.decode(token, SECRET_KEY, algorithms=JWT_ALGORITHM, verify=False)
     return f'Field that you\'ve ({field["recipient"]}) received: {field["field"]}'
+
+
+@APP.route('/share_message')
+def share_message():
+    """
+    example
+
+    :return: str
+    """
+    call_share_field_task(["dziga2000@gmail.com"],
+                          FieldService.to_json(FieldService.get_by_id(1), many=False))
+    return 'Message sent!'

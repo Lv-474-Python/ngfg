@@ -5,8 +5,8 @@ import jwt
 from flask import url_for
 from flask_mail import Message
 
-
-SECRET_KEY = 'ngfg-secret-key'
+from app.config import SECRET_KEY
+from app.helper.constants import JWT_ALGORITHM
 
 
 def generate_share_field_message(recipient, field):
@@ -23,7 +23,7 @@ def generate_share_field_message(recipient, field):
             'field': field['name'],
         },
         SECRET_KEY,
-        algorithm='HS256')
+        algorithm=JWT_ALGORITHM)
     link = url_for('receive_field', token=token, _external=True)
     msg = Message('Shared Field', recipients=[recipient])
     msg.html = f'<h3>Hello, {recipient}!\n' +  \

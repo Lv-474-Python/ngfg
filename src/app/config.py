@@ -24,6 +24,10 @@ GOOGLE_DISCOVERY_URL = (
 GOOGLE_PROVIDER_CONFIG = requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
+# jwt secret key
+SECRET_KEY = os.environ.get("APP_SECRET_KEY")
+
+
 class Config:
     """
         A class to configurate APP from object.

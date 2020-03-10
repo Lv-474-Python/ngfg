@@ -13,11 +13,9 @@ def call_share_field_task(recipients, field):
     :param field:
     :return:
     """
-    shared = share_field.apply_async(args=[recipients, field],
-                                     queue="share_field_queue")
-    print(f'{shared=}')
+    share_field.apply_async(args=[recipients, field], queue="share_field_queue")
 
-    return 'Message sent!'
+    return 0
 
 
 @CELERY.task(bind=True, name='ngfg.app.celery_tasks.share_field.share_field')
