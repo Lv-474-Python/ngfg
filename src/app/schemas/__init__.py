@@ -12,7 +12,7 @@ from .field import (
     FieldPutSchema,
     BasicField
 )
-from .form_field import FormFieldSchema
+from .form_field import FormFieldSchema, FormFieldResponseSchema
 from .setting_autocomplete import SettingAutocompleteSchema
 from .range import RangeSchema
 from .form_result import FormResultGetSchema, FormResultPostSchema
