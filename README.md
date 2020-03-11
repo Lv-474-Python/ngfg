@@ -67,4 +67,4 @@ sudo apt install redis-server
 sudo systemctl restart redis.service
 ```
 * Export the following environmental variables:
-    + REDIS_PASSWORD=<your_password
+    + REDIS_PASSWORD=`<your_password>`
