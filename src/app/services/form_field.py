@@ -26,10 +26,12 @@ class FormFieldService:
         :param position:
         :return: created FormField instance
         """
-        instance = FormField(form_id=form_id,
-                             field_id=field_id,
-                             question=question,
-                             position=position)
+        instance = FormField(
+            form_id=form_id,
+            field_id=field_id,
+            question=question,
+            position=position
+        )
         DB.session.add(instance)
 
         key = f'form_fields:form_id:{form_id}'
@@ -52,7 +54,8 @@ class FormFieldService:
 
         if result is None:
             result = FormField.query.get(form_field_id)
-            RedisManager.set(f'form_field:{form_field_id}', result)
+            if result is not None:
+                RedisManager.set(f'form_field:{form_field_id}', result)
 
         return result
 
@@ -139,6 +142,12 @@ class FormFieldService:
         if instance is None:
             raise FormFieldNotExist()
         DB.session.delete(instance)
+
+        key = f'form_fields:form_id:{form_field_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
         return True
 
     @staticmethod

@@ -11,6 +11,7 @@ class RedisManager:
     """
     Class to interact with Redis
     """
+
     @staticmethod
     def get(name, key):
         """

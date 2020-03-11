@@ -60,7 +60,8 @@ class FormResultService:
 
         if result is None:
             result = FormResult.query.get(form_result_id)
-            RedisManager.set(f'form_result:{form_result_id}', result)
+            if result is not None:
+                RedisManager.set(f'form_result:{form_result_id}', result)
 
         return result
 
