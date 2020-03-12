@@ -28,7 +28,7 @@ def receive_field(token):
 
     :return: str
     """
-    field = jwt.decode(token, SECRET_KEY, algorithms=JWT_ALGORITHM, verify=False)
+    field = jwt.decode(token, SECRET_KEY, algorithms=JWT_ALGORITHM)
     return f'Field that you\'ve ({field["recipient"]}) received: {field["field"]}'
 
 
@@ -39,6 +39,6 @@ def share_message():
 
     :return: str
     """
-    call_share_field_task(["dziga2000@gmail.com"],
+    call_share_field_task(["just_mail@gmail.com"],
                           FieldService.to_json(FieldService.get_by_id(1), many=False))
     return 'Message sent!'
