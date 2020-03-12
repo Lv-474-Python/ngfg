@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import apiclient.discovery  # pylint: disable=import-error
 import googleapiclient
 import httplib2
+
 from oauth2client.service_account import ServiceAccountCredentials
 
 from app import SHEET_LOGGER
@@ -45,9 +46,6 @@ class SheetManager():
         :return: list of lists or None
         """
         try:
-            if from_row[0] != to_row[0]:
-                raise WrongRange()
-
             ranges = f'{from_row}:{to_row}'
             values = SheetManager.service.spreadsheets().values().get(  # pylint: disable=no-member
                 spreadsheetId=spreadsheet_id,
@@ -128,15 +126,24 @@ class SheetManager():
     def get_sheet_id_from_url(url: str):
         """
         Get google sheet id from sheet url
+
+        urlparse = ParseResult(
+        scheme='https',
+        netloc='docs.google.com',
+        path='/spreadsheets/d/1p0Q49GW9HUXBkd5LmKB9k7TRngc4fUEaQgCjzuQmHaM/edit',
+        params='',
+        query='',
+        fragment='gid=0')
+
         :param url: str | sheet url
         :return: None or str | sheet_id
         """
+        sheet_id_number = 3
+
         link = urlparse(url)
-        netlock = link[1]
-        if netlock != 'docs.google.com':
-            return None
-        link = link[2]
-        sheet_id = link.split('/')[3]
+        # split path and get sheet_id from it
+        sheet_id = link.path.split('/')[sheet_id_number]
+
         return sheet_id
 
     @staticmethod
