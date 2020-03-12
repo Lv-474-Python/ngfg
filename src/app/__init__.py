@@ -5,6 +5,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
+from flask_cors import CORS
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
@@ -24,6 +25,7 @@ from .config import (
 )
 
 APP = Flask(__name__)
+NGFG_CORS = CORS(APP, supports_credentials=True)
 APP.config.from_object(Config)
 REDIS = Redis(password=REDIS_PASSWORD)
 LOGIN_MANAGER = LoginManager()
