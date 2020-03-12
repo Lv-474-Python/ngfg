@@ -108,7 +108,7 @@ class AnswersAPI(Resource):
         if form_url is None:
             raise BadRequest('Could not found form result url')
 
-        sheet_id = SheetManager.get_id_from_url(form_url)
+        sheet_id = SheetManager.get_sheet_id_from_url(form_url)
 
         if sheet_id is None:
             raise BadRequest("Could not found sheet id")
