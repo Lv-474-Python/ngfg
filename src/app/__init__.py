@@ -10,18 +10,22 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
+from flask_mail import Mail
 
+from redis import Redis
 from .celery_config import make_celery
 from .logging_config import create_logger
 from .config import (
     Config,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_PROVIDER_CONFIG
+    GOOGLE_PROVIDER_CONFIG,
+    REDIS_PASSWORD
 )
 
 APP = Flask(__name__)
 APP.config.from_object(Config)
+REDIS = Redis(password=REDIS_PASSWORD)
 LOGIN_MANAGER = LoginManager()
 LOGIN_MANAGER.init_app(APP)
 DB = SQLAlchemy(APP, session_options={'autocommit': True})
@@ -59,6 +63,8 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
 
+MAIL = Mail(APP)
+
 from .routers import (  # pylint: disable=wrong-import-position
     main,
     auth,
@@ -70,4 +76,4 @@ from .routers import (  # pylint: disable=wrong-import-position
     form_answer,
 )
 from .models import *  # pylint: disable=wrong-import-position
-from .celery_tasks import * # pylint: disable=wrong-import-position
+from .celery_tasks import *  # pylint: disable=wrong-import-position

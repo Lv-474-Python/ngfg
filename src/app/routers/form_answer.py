@@ -62,7 +62,8 @@ class AnswersAPI(Resource):
         if form is None:
             raise BadRequest("No such form")
         if form.owner_id == current_user.id:
-            answers = FormResultService.to_json(form.form_results, many=True)
+            result = FormResultService.filter(form_id=form.id)
+            answers = FormResultService.to_json(result, many=True)
         else:
             result = FormResultService.filter(user_id=current_user.id, form_id=form.id)
             if result:
