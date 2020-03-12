@@ -23,6 +23,9 @@ GOOGLE_DISCOVERY_URL = (
 )
 GOOGLE_PROVIDER_CONFIG = requests.get(GOOGLE_DISCOVERY_URL).json()
 
+REDIS_EXPIRE_TIME = 3600  # 1 hour
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD")
+
 
 # jwt secret key
 SECRET_KEY = os.environ.get("APP_SECRET_KEY")
