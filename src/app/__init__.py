@@ -22,7 +22,7 @@ from .config import (
 )
 
 APP = Flask(__name__)
-cors = CORS(APP, supports_credentials=True)
+NGFG_CORS = CORS(APP, supports_credentials=True)
 APP.config.from_object(Config)
 LOGIN_MANAGER = LoginManager()
 LOGIN_MANAGER.init_app(APP)
