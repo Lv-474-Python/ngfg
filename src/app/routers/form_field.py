@@ -63,6 +63,10 @@ class FormFieldsAPI(Resource):
         for form_field in form_fields:
             field = FieldService.get_by_id(field_id=form_field.field_id)
             field_json = FieldService.field_to_json(field, many=False)
+            field_extra_options = FieldService.get_additional_options(field.id, field.field_type)
+            if field_extra_options:
+                for key, value in field_extra_options.items():
+                    field_json[key] = value
             form_field_json = FormFieldService.response_to_json(form_field, many=False)
             form_field_json["field"] = field_json
             form_fields_json.append(form_field_json)

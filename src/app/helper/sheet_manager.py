@@ -1,11 +1,15 @@
 """
 Google Sheet manager
 """
+from urllib.parse import urlparse
+
+import apiclient.discovery  # pylint: disable=import-error
 import googleapiclient
 import httplib2
-import apiclient.discovery  # pylint: disable=import-error
 from oauth2client.service_account import ServiceAccountCredentials
+
 from app import SHEET_LOGGER
+from app.helper.errors import WrongRange
 
 
 class SheetManager():
@@ -41,6 +45,9 @@ class SheetManager():
         :return: list of lists or None
         """
         try:
+            if from_row[0] != to_row[0]:
+                raise WrongRange()
+
             ranges = f'{from_row}:{to_row}'
             values = SheetManager.service.spreadsheets().values().get(  # pylint: disable=no-member
                 spreadsheetId=spreadsheet_id,
@@ -49,10 +56,14 @@ class SheetManager():
             ).execute()
 
             data = values.get('values')
+            data = SheetManager.lists_to_list(data)
             return data
 
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
+            return None
+        except WrongRange as error:
+            SHEET_LOGGER.warning('Range Error, message: %s', error)
             return None
 
     @staticmethod
@@ -68,11 +79,12 @@ class SheetManager():
         try:
             values = SheetManager.service.spreadsheets().values().get(  # pylint: disable=no-member
                 spreadsheetId=spreadsheet_id,
-                range='A:Z',
+                range='A:ZZZ',
                 majorDimension='ROWS'
             ).execute()
 
             data = values.get('values')
+            data = SheetManager.lists_to_list(data)
             return data
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
@@ -111,3 +123,37 @@ class SheetManager():
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
             return None
+
+    @staticmethod
+    def get_sheet_id_from_url(url: str):
+        """
+        Get google sheet id from sheet url
+        :param url: str | sheet url
+        :return: None or str | sheet_id
+        """
+        link = urlparse(url)
+        netlock = link[1]
+        if netlock != 'docs.google.com':
+            return None
+        link = link[2]
+        sheet_id = link.split('/')[3]
+        return sheet_id
+
+    @staticmethod
+    def lists_to_list(data, values=None):
+        """
+        Gather data from many lists into one list
+
+        :param data: user data
+        :param values: list to return
+        :return: list
+        """
+        if values is None:
+            values = []
+        for item in data:
+            if isinstance(item, list):
+                SheetManager.lists_to_list(item, values)
+            else:
+                values.append(item)
+
+        return values
