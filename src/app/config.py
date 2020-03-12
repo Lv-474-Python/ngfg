@@ -27,6 +27,10 @@ REDIS_EXPIRE_TIME = 3600  # 1 hour
 REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD")
 
 
+# jwt secret key
+SECRET_KEY = os.environ.get("APP_SECRET_KEY")
+
+
 class Config:
     """
         A class to configurate APP from object.
@@ -52,3 +56,13 @@ class Config:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
     CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE')
+
+    # flask-mail
+    MAIL_SERVER = 'smtp.gmail.com'
+    SERVER_NAME = 'ngfg.com:8000'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = MAIL_USERNAME

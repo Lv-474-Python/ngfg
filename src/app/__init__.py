@@ -10,6 +10,7 @@ from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
+from flask_mail import Mail
 
 from redis import Redis
 from .celery_config import make_celery
@@ -62,6 +63,8 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
 
+MAIL = Mail(APP)
+
 from .routers import (  # pylint: disable=wrong-import-position
     main,
     auth,
@@ -73,4 +76,4 @@ from .routers import (  # pylint: disable=wrong-import-position
     form_answer,
 )
 from .models import *  # pylint: disable=wrong-import-position
-from .celery_tasks import * # pylint: disable=wrong-import-position
+from .celery_tasks import *  # pylint: disable=wrong-import-position
