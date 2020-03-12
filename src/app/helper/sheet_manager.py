@@ -116,7 +116,7 @@ class SheetManager():
             return None
 
     @staticmethod
-    def get_id_from_url(url: str):
+    def get_sheet_id_from_url(url: str):
         """
         Get google sheet id from sheet url
 
