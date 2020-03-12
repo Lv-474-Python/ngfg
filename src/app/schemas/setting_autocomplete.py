@@ -15,7 +15,7 @@ class SettingAutocompleteSchema(MA.Schema):
         """
         Setting autocomplete schema meta
         """
-        fields = ("dataUrl", "sheet", "fromRow", "toRow")
+        fields = ("data_url", "sheet", "from_row", "to_row")
 
     data_url = fields.Url(required=True, data_key="dataUrl")
     sheet = fields.Str(required=True)

@@ -16,7 +16,7 @@ from app.helper.sheet_manager import SheetManager
 from app.models import Field
 from app.schemas import (
     BasicField,
-    FieldSchema,
+    FieldPostSchema,
     FieldNumberTextSchema,
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
@@ -149,31 +149,27 @@ class FieldService:
         return True
 
     @staticmethod
-    def to_json(data, many=False):
-        """
-        Get data in json format
-        """
-        schema = FieldSchema(many=many)
-        return schema.dump(data)
-
-    @staticmethod
     def field_to_json(data, many=False):
         """
         Get data in json format
 
         """
-        schema = FieldNumberTextSchema(many=many)
+        schema = BasicField(many=many)
         return schema.dump(data)
 
     @staticmethod
-    def validate(data):
+    def validate_post_field(data, user):
         """
         Global post validation
 
         :param data:
+        :param user
         :return: errors if validation failed else empty dict
         """
-        errors = FieldSchema().validate(data)
+        errors = FieldPostSchema().validate(data)
+        is_exist = FieldService.filter(owner_id=user, name=data.get('name'))
+        if is_exist:
+            errors['is_exist'] = 'Field with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod
@@ -230,13 +226,23 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_update_field(data):
+    def validate_update_field(data, user, field_id):
         """
 
         :param data:
+        :param user:
+        :param field_id:
         :return: errors if validation failed
         """
         errors = FieldPutSchema().validate(data)
+
+        updated_name = data.get('updated_name')
+        if updated_name:
+            is_changed = not bool(FieldService.filter(name=updated_name, field_id=field_id))
+            if is_changed:
+                is_exist = FieldService.filter(owner_id=user, name=updated_name)
+                if is_exist:
+                    errors['is_exist'] = 'Field with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod
@@ -272,7 +278,6 @@ class FieldService:
 
         if is_strict:
             data['isStrict'] = is_strict
-
         if range_min is not None or range_max is not None:
             range_instance = RangeService.create(range_min, range_max)
             FieldRangeService.create(
@@ -283,7 +288,6 @@ class FieldService:
                 'min': range_min,
                 'max': range_max
             }
-
         return data
 
     @staticmethod
