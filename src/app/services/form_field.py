@@ -6,6 +6,7 @@ from app.models import FormField
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import FormFieldNotExist
 from app.schemas import FormFieldSchema, FormFieldResponseSchema
+from app.helper.redis_manager import RedisManager
 
 
 class FormFieldService:
@@ -25,11 +26,19 @@ class FormFieldService:
         :param position:
         :return: created FormField instance
         """
-        instance = FormField(form_id=form_id,
-                             field_id=field_id,
-                             question=question,
-                             position=position)
+        instance = FormField(
+            form_id=form_id,
+            field_id=field_id,
+            question=question,
+            position=position
+        )
         DB.session.add(instance)
+
+        key = f'form_fields:form_id:{form_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
         return instance
 
     @staticmethod
@@ -41,8 +50,14 @@ class FormFieldService:
         :param form_field_id:
         :return: form or none
         """
-        form_field = FormField.query.get(form_field_id)
-        return form_field
+        result = RedisManager.get(f'form_field:{form_field_id}', 'data')
+
+        if result is None:
+            result = FormField.query.get(form_field_id)
+            if result is not None:
+                RedisManager.set(f'form_field:{form_field_id}', result)
+
+        return result
 
     @staticmethod
     def filter(form_id=None, field_id=None, question=None, position=None):
@@ -64,7 +79,13 @@ class FormFieldService:
             filter_data['position'] = position
         if question is not None:
             filter_data['question'] = question
-        result = FormField.query.filter_by(**filter_data).all()
+
+        key = RedisManager.generate_key('form_fields:', filter_data)
+        result = RedisManager.get(key, 'data')
+
+        if result is None:
+            result = FormField.query.filter_by(**filter_data).all()
+            RedisManager.set(key, result)
         return result
 
     @staticmethod
@@ -93,6 +114,19 @@ class FormFieldService:
         if question is not None:
             instance.question = question
         DB.session.merge(instance)
+
+        # delete object cache
+        key = f'form_field:{form_field_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
+        # delete list cache with this object
+        key = f'form_fields:form_id:{form_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
         return instance
 
     @staticmethod
@@ -108,6 +142,12 @@ class FormFieldService:
         if instance is None:
             raise FormFieldNotExist()
         DB.session.delete(instance)
+
+        key = f'form_fields:form_id:{form_field_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
         return True
 
     @staticmethod

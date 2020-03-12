@@ -5,6 +5,7 @@ FormResult service
 from app.helper.answer_validation import is_numeric
 from app.helper.constants import MAX_TEXT_LENGTH, MIN_POSTGRES_INT, MAX_POSTGRES_INT
 from app.helper.enums import FieldType
+from app.helper.redis_manager import RedisManager
 from app.models import FormResult, Range
 from app import DB
 from app.helper.decorators import transaction_decorator
@@ -39,6 +40,12 @@ class FormResultService:
         )
 
         DB.session.add(form_result)
+
+        key = f'form_results:form_id:{form_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
         return form_result
 
     @staticmethod
@@ -49,9 +56,14 @@ class FormResultService:
         :param form_result_id:
         :return: FormResult object or None
         """
+        result = RedisManager.get(f'form_result:{form_result_id}', 'data')
 
-        form_result = FormResult.query.get(form_result_id)
-        return form_result
+        if result is None:
+            result = FormResult.query.get(form_result_id)
+            if result is not None:
+                RedisManager.set(f'form_result:{form_result_id}', result)
+
+        return result
 
     @staticmethod
     def filter(form_result_id=None, user_id=None, form_id=None, answers=None, created=None):
@@ -78,7 +90,13 @@ class FormResultService:
         if created is not None:
             filter_data['created'] = created
 
-        result = FormResult.query.filter_by(**filter_data).all()
+        key = RedisManager.generate_key('form_results:', filter_data)
+        result = RedisManager.get(key, 'data')
+
+        if result is None:
+            result = FormResult.query.filter_by(**filter_data).all()
+            RedisManager.set(key, result)
+
         return result
 
     @staticmethod
