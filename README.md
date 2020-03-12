@@ -25,6 +25,11 @@ And for http access export:
 User must share the sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
 or give link with editing permission
 
+### Email sending
+You'll need to export the following environmental variables:
+ - MAIL_USERNAME
+ - MAIL_PASSWORD
+
 ### Install and configure rabbitmq-server on your machine:
 * Install rabbitmq-server
 ```
@@ -43,3 +48,28 @@ sudo rabbitmqctl set_permissions -p vhost username ".*" ".*" ".*"
     + CELERY_DEFAULT_QUEUE = "ngfg_queue"
 
     You can set custom CELERY_RESULT_BACKEND (Check out [Celery result backend documentation](https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#keeping-results))
+
+### Install and configure redis-server on your machine:
+* Install redis-server
+```
+sudo apt install redis-server
+```
+* Add user to redis-server
+    + Open redis-conf file
+    ```
+     sudo nano /etc/redis/redis.conf
+    ```
+    + Find line at SECURITY section
+    ```
+    # requirepass foobared
+    ```
+    + Replace the previous line with the following line
+    ```
+    requirepass <your_password>
+    ```
+* Restart redis-server
+```
+sudo systemctl restart redis.service
+```
+* Export the following environmental variables:
+    + REDIS_PASSWORD=`<your_password>`

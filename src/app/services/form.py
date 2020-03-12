@@ -175,3 +175,18 @@ class FormService:
                 if is_exist:
                     errors['is_exist'] = 'Form with such name already exist'
         return (not bool(errors), errors)
+
+    @staticmethod
+    def get_form_result_url(form_id):
+        """
+        Get form`s result url
+
+        :param form_id:
+        :return: url or None
+        """
+        form = FormService.get_by_id(form_id)
+
+        if form is None:
+            return None
+
+        return form.result_url
