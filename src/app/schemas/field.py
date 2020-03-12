@@ -123,15 +123,27 @@ class FieldPutSchema(BasicField):
         Field put schema meta
         """
         fields = (
-            "updated_name",
+            "updatedName",
+            "isStrict",
             "range",
-            "added_choice_options",
-            "removed_choice_options",
-            "updated_autocomplete"
+            "addedChoiceOptions",
+            "removedChoiceOptions",
+            "updatedAutocomplete",
+            "deleteRange"
         )
 
-    updated_name = fields.Str(required=False)
-    range = fields.Nested(RangeSchema, required=False)
-    added_choice_options = fields.List(fields.Str(), required=False)
-    removed_choice_options = fields.List(fields.Str(), required=False)
-    updated_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)
+    updated_name = fields.Str(required=False, data_key="updatedName")
+    range = fields.Nested(RangeSchema)
+    added_choice_options = fields.List(fields.Str(),
+                                       required=False,
+                                       data_key="addedChoiceOptions"
+                                       )
+    removed_choice_options = fields.List(fields.Str(),
+                                         required=False,
+                                         data_key="removedChoiceOptions"
+                                         )
+    updated_autocomplete = fields.Nested(SettingAutocompleteSchema,
+                                         required=False,
+                                         data_key="updatedAutocomplete")
+    delete_range = fields.Bool(required=False, data_key="deleteRange")
+    is_strict = fields.Bool(required=False, data_key="isStrict")

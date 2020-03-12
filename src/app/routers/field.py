@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.schemas import FieldPutSchema
+from app.schemas import BasicField
 
 from app import API
 from app.helper.enums import FieldType
@@ -35,11 +35,13 @@ EXTENDED_FIELD_MODEL = API.inherit('Extended_field', FIELD_MODEL, {
 })
 
 FIELD_PUT_MODEL = API.model('FieldPut', {
-    "updated_name": fields.String,
+    "updatedName": fields.String,
     "range": fields.Nested(RANGE_MODEL),
-    "added_choice_options": fields.List(fields.String),
-    "removed_choice_options": fields.List(fields.String),
-    "updated_autocomplete": fields.Nested(AUTOCOMPLETE_MODEL)
+    "addedChoiceOptions": fields.List(fields.String),
+    "removedChoiceOptions": fields.List(fields.String),
+    "updatedAutocomplete": fields.Nested(AUTOCOMPLETE_MODEL),
+    "deleteRange": fields.Boolean(default=False),
+    "isStrict": fields.Boolean
 })
 
 
@@ -256,72 +258,72 @@ class FieldAPI(Resource):
 
         form_membership = FieldService.check_form_membership(field_id)
         if form_membership:
-            raise Forbidden("Can't updated field that's already in use")
+            raise Forbidden("Can't update field that's already in use")
 
         data = request.get_json()
-
         is_correct, errors = FieldService.validate_update_field(data)
         if not is_correct:
             raise BadRequest(errors)
-
         field_type = field.field_type
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
             range_min, range_max = FieldService.check_for_range(data)
             response = FieldService.update_text_or_number_field(
                 field_id=field_id,
-                name=data.get('updated_name'),
+                name=data.get('updatedName'),
                 range_min=range_min,
                 range_max=range_max,
-                is_strict=field.is_strict
+                is_strict=data.get('isStrict'),
+                delete_range=data.get('deleteRange')
             )
 
         elif field_type == FieldType.TextArea.value:
             response = FieldService.update(
                 field_id=field_id,
-                name=data.get("updated_name"),
+                name=data.get("updatedName"),
                 is_strict=False
             )
-            response = FieldPutSchema().dump(response)
+            response = BasicField().dump(response)
 
         elif field_type == FieldType.Radio.value:
-            added_choice_options = data.get("added_choice_options")
-            removed_choice_options = data.get("removed_choice_options")
+            added_choice_options = data.get("addedChoiceOptions")
+            removed_choice_options = data.get("removedChoiceOptions")
             response = FieldService.update_radio_field(
                 field_id=field_id,
-                name=data.get("updated_name"),
+                name=data.get("updatedName"),
                 added_choice_options=added_choice_options,
                 removed_choice_options=removed_choice_options
             )
 
         elif field_type == FieldType.Autocomplete.value:
-            settings_autocomplete = data.get('updated_autocomplete')
+            settings_autocomplete = data.get('updatedAutocomplete')
             response = FieldService.update_autocomplete_field(
                 field_id=field_id,
-                name=data.get('updated_name'),
-                data_url=settings_autocomplete.get('data_url'),
+                name=data.get('updatedName'),
+                data_url=settings_autocomplete.get('dataUrl'),
                 sheet=settings_autocomplete.get('sheet'),
-                from_row=settings_autocomplete.get('from_row'),
-                to_row=settings_autocomplete.get('to_row')
+                from_row=settings_autocomplete.get('fromRow'),
+                to_row=settings_autocomplete.get('toRow')
             )
 
         elif field_type == FieldType.Checkbox.value:
             range_min, range_max = FieldService.check_for_range(data)
-            added_choice_options = data.get("added_choice_options")
-            removed_choice_options = data.get("removed_choice_options")
+            added_choice_options = data.get("addedChoiceOptions")
+            removed_choice_options = data.get("removedChoiceOptions")
             response = FieldService.update_checkbox_field(
                 field_id=field_id,
-                name=data.get("updated_name"),
+                name=data.get("updatedName"),
                 range_max=range_max,
                 range_min=range_min,
                 added_choice_options=added_choice_options,
-                removed_choice_options=removed_choice_options
+                removed_choice_options=removed_choice_options,
+                delete_range=data.get("deleteRange"),
             )
 
         if response is None:
             raise BadRequest("Couldn't update")
 
-        return Response(status=200)
+        return jsonify(response)
 
     @API.doc(
         responses={

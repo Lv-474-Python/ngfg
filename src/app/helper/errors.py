@@ -181,3 +181,9 @@ class ChoiceOptionNotDeleted(NotDeleted):
     """
     ChoiceOption not deleted error
     """
+
+
+class FieldRangeNotDeleted(NotDeleted):
+    """
+    FieldRange not deleted error
+    """
