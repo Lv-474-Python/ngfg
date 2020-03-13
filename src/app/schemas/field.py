@@ -73,15 +73,22 @@ class FieldCheckboxSchema(BasicField):
         :param kwargs:
         :return:
         """
+        print(data)
         range_dict = data.get('range')
         options_list = data.get('choice_options')
         if range_dict:
-            min_value = range_dict.get('min', False)
-            max_value = range_dict.get('max', False)
-            if min_value > len(options_list):
-                raise ValidationError('Minimal selected options must\'t be greater than list of options ')
-            if max_value > len(options_list):
-                raise ValidationError('Maximal selected options must\'t be greater than list of options ')
+            min_value = range_dict.get('min')
+            max_value = range_dict.get('max')
+            if min_value is not None:
+                if min_value < 0:
+                    raise ValidationError('Minimal selective options must be positive')
+                if min_value > len(options_list):
+                    raise ValidationError('Minimal selective options must\'t be greater than list of options')
+            if max_value is not None:
+                if max_value < 0:
+                    raise ValidationError('Maximal selective options must be positive')
+                if max_value > len(options_list):
+                    raise ValidationError('Maximal selective options must\'t be greater than list of options')
 
 
 class FieldRadioSchema(BasicField):
