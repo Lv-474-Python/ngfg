@@ -9,6 +9,8 @@ from werkzeug.exceptions import BadRequest
 
 from app import API
 from app.services import FormService, FormResultService
+from app.helper.sheet_manager import SheetManager
+
 
 FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='FormAnswer APIs')
 
@@ -60,7 +62,8 @@ class AnswersAPI(Resource):
         if form is None:
             raise BadRequest("No such form")
         if form.owner_id == current_user.id:
-            answers = FormResultService.to_json(form.form_results, many=True)
+            result = FormResultService.filter(form_id=form.id)
+            answers = FormResultService.to_json(result, many=True)
         else:
             result = FormResultService.filter(user_id=current_user.id, form_id=form.id)
             if result:
@@ -96,6 +99,26 @@ class AnswersAPI(Resource):
         else:
             result['user_id'] = None
         result['answers'] = FormResultService.create_answers_dict(form_id, result['answers'])
+
+        values = []
+        for answer in result['answers'].values():
+            values.append(answer)
+
+        form_url = FormService.get_form_result_url(form_id)
+
+        if form_url is None:
+            raise BadRequest('Could not found form result url')
+
+        sheet_id = SheetManager.get_sheet_id_from_url(form_url)
+
+        if sheet_id is None:
+            raise BadRequest("Could not found sheet id")
+
+        is_added = SheetManager.append_data(sheet_id, values)
+
+        if is_added is None:
+            raise BadRequest("Could not add results to google sheet")
+
         result = FormResultService.create(**result)
         if result is None:
             raise BadRequest("Cannot create result instance")

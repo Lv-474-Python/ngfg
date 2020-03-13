@@ -5,7 +5,7 @@ from marshmallow import fields
 from marshmallow.validate import Range
 
 from app import MA
-from .field import FieldSchema
+from .field import FieldPostSchema
 
 
 class FormFieldSchema(MA.Schema):
@@ -33,6 +33,6 @@ class FormFieldResponseSchema(MA.Schema):
         """
         fields = ("id", "field", "question", "position")
 
-    field = fields.Nested(FieldSchema, required=True)
+    field = fields.Nested(FieldPostSchema, required=True)
     question = fields.Str(required=True)
     position = fields.Integer(required=True, validate=Range(min=0))
