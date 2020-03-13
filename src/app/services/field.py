@@ -11,7 +11,8 @@ from app.helper.errors import (
     FieldAlreadyExist,
     ChoiceOptionNotCreated,
     ChoiceOptionNotDeleted,
-    FieldRangeNotDeleted
+    FieldRangeNotDeleted,
+    ChoiceOptionNotExist
 )
 from app.models import Field
 from app.schemas import (
@@ -670,6 +671,8 @@ class FieldService:
                     field_id=field.id,
                     option_text=removed_option
                 )
+                if radio_option is None:
+                    raise ChoiceOptionNotExist()
                 radio_option_update = ChoiceOptionService.delete(option_id=radio_option.id)
                 if radio_option_update is None:
                     raise ChoiceOptionNotDeleted()
@@ -741,6 +744,7 @@ class FieldService:
         :param range_max: maximum value of options that can be chosen
         :param range_min: minimum value of options that can be chosen
         :param added_choice_options: options to be added to the field
+        :param delete_range: boolean value to determine whether delete range restriction from field
         :param removed_choice_options: options to be removed from the field
         """
         field = FieldService.update(
@@ -787,6 +791,8 @@ class FieldService:
                     field_id=field.id,
                     option_text=removed_option
                 )
+                if checkbox_option is None:
+                    raise ChoiceOptionNotExist()
                 checkbox_option_update = ChoiceOptionService.delete(
                     option_id=checkbox_option.id
                 )
