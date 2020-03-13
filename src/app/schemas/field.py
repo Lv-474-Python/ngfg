@@ -66,6 +66,7 @@ class FieldCheckboxSchema(BasicField):
     range = fields.Nested(RangeSchema, required=False)
 
     @validates_schema
+    # pylint:disable=no-self-use
     def validate_range_of_choices(self, data, **kwargs):
         """
         Validates range to choice_options amount
@@ -83,12 +84,12 @@ class FieldCheckboxSchema(BasicField):
                 if min_value < 0:
                     raise ValidationError('Minimal selective options must be positive')
                 if min_value > len(options_list):
-                    raise ValidationError('Minimal selective options must\'t be greater than list of options')
+                    raise ValidationError('Min selective options must be less than list of options')
             if max_value is not None:
                 if max_value < 0:
                     raise ValidationError('Maximal selective options must be positive')
                 if max_value > len(options_list):
-                    raise ValidationError('Maximal selective options must\'t be greater than list of options')
+                    raise ValidationError('Max selective options must be less than list of options')
 
 
 class FieldRadioSchema(BasicField):
