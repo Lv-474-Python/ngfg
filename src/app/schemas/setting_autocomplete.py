@@ -1,10 +1,12 @@
 """
 SettingAutocomplete schemas
 """
+from urllib.parse import urlparse
+
 from marshmallow import fields, validates_schema, ValidationError
 
 from app import MA
-from urllib.parse import urlparse
+from app.helper.row_validation import validate_row
 
 
 class SettingAutocompleteSchema(MA.Schema):
@@ -24,16 +26,32 @@ class SettingAutocompleteSchema(MA.Schema):
     to_row = fields.Str(required=True, data_key="toRow")
 
     @validates_schema
+    # pylint:disable=no-self-use
     def validate_data_url(self, data, **kwargs):
+        """
+        Validates url, which must be docs.google.com
+        :param data:
+        :param kwargs:
+        :return:
+        """
         parsed_url = urlparse(data.get('data_url'))
         if parsed_url.netloc != 'docs.google.com':
-            raise ValidationError('You entered wrong url')
+            raise ValidationError('Wrong URL entered')
 
     @validates_schema
+    # pylint:disable=no-self-use
     def validate_rows(self, data, **kwargs):
+        """
+        Validates entered rows
+        :param data:
+        :param kwargs:
+        :return:
+        """
         from_row = data.get('from_row')
         to_row = data.get('to_row')
         if not from_row.isalnum() or not to_row.isalnum():
-            raise ValidationError('Wrong entered row limits')
+            raise ValidationError('Wrong symbols entered')
         if from_row.isnumeric() or to_row.isnumeric():
-            raise ValidationError('Entered only row/rows without column')
+            raise ValidationError('Entered only row/rows without specific column')
+        if not validate_row(from_row) or not validate_row(to_row):
+            raise ValidationError('Wrong rows entered')
