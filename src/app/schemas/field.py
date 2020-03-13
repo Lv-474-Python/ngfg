@@ -1,7 +1,7 @@
 """
 Field schemas
 """
-from marshmallow import fields
+from marshmallow import fields, validates_schema, ValidationError
 from marshmallow.validate import Range
 
 from app import MA
@@ -64,6 +64,24 @@ class FieldCheckboxSchema(BasicField):
 
     choice_options = fields.List(fields.Str(), required=True, data_key="choiceOptions")
     range = fields.Nested(RangeSchema, required=False)
+
+    @validates_schema
+    def validate_range_of_choices(self, data, **kwargs):
+        """
+        Validates range to choice_options amount
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        range_dict = data.get('range')
+        options_list = data.get('choice_options')
+        if range_dict:
+            min_value = range_dict.get('min', False)
+            max_value = range_dict.get('max', False)
+            if min_value > len(options_list):
+                raise ValidationError('Minimal selected options must\'t be greater than list of options ')
+            if max_value > len(options_list):
+                raise ValidationError('Maximal selected options must\'t be greater than list of options ')
 
 
 class FieldRadioSchema(BasicField):
