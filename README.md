@@ -25,6 +25,11 @@ And for http access export:
 User must share the sheet with ngfg-account@ngfg-268019.iam.gserviceaccount.com
 or give link with editing permission
 
+### Email sending
+You'll need to export the following environmental variables:
+ - MAIL_USERNAME
+ - MAIL_PASSWORD
+
 ### Install and configure rabbitmq-server on your machine:
 * Install rabbitmq-server
 ```

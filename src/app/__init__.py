@@ -5,11 +5,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
+from flask_cors import CORS
 from flask_script import Manager
 from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
+from flask_mail import Mail
 
 from redis import Redis
 from .celery_config import make_celery
@@ -23,6 +25,7 @@ from .config import (
 )
 
 APP = Flask(__name__)
+NGFG_CORS = CORS(APP, supports_credentials=True)
 APP.config.from_object(Config)
 REDIS = Redis(password=REDIS_PASSWORD)
 LOGIN_MANAGER = LoginManager()
@@ -62,6 +65,8 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
     consumer_secret=GOOGLE_CLIENT_SECRET
 )
 
+MAIL = Mail(APP)
+
 from .routers import (  # pylint: disable=wrong-import-position
     main,
     auth,
@@ -73,4 +78,4 @@ from .routers import (  # pylint: disable=wrong-import-position
     form_answer,
 )
 from .models import *  # pylint: disable=wrong-import-position
-from .celery_tasks import * # pylint: disable=wrong-import-position
+from .celery_tasks import *  # pylint: disable=wrong-import-position

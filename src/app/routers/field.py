@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.schemas import BasicField
+from app.schemas import BasicField, FieldPutSchema
 
 from app import API
 from app.helper.enums import FieldType
@@ -70,7 +70,7 @@ class FieldsAPI(Resource):
         :return: json
         """
         data = request.json
-        is_correct, errors = FieldService.validate(data)
+        is_correct, errors = FieldService.validate_post_field(data=data, user=current_user.id)
         if not is_correct:
             raise BadRequest(errors)
         field_type = data.get('fieldType')
@@ -146,8 +146,7 @@ class FieldsAPI(Resource):
         if field is None:
             raise BadRequest("Could not create")
 
-        field_json = FieldService.to_json(field)
-        response = jsonify(field_json)
+        response = jsonify(field)
         response.status_code = 201
         return response
 
@@ -261,7 +260,12 @@ class FieldAPI(Resource):
             raise Forbidden("Can't update field that's already in use")
 
         data = request.get_json()
-        is_correct, errors = FieldService.validate_update_field(data)
+
+        is_correct, errors = FieldService.validate_update_field(
+            data=data,
+            user=current_user.id,
+            field_id=field_id
+        )
         if not is_correct:
             raise BadRequest(errors)
         field_type = field.field_type

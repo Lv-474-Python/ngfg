@@ -165,12 +165,15 @@ class GroupService:
         return group
 
     @staticmethod
-    def validate_post_data(data):
+    def validate_post_data(data, user):
         """
         Validate data by GroupPostSchema
         """
         schema = GroupPostSchema()
         errors = schema.validate(data)
+        is_exist = GroupService.filter(name=data.get('name'), owner_id=user)
+        if is_exist:
+            errors['is_exist'] = 'Group with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod
@@ -226,12 +229,19 @@ class GroupService:
         return group_users
 
     @staticmethod
-    def validate_put_data(data):
+    def validate_put_data(data, user, group_id):
         """
         Validate data by GroupScheme
         """
         schema = GroupPutSchema()
         errors = schema.validate(data)
+        updated_name = data.get('name')
+        if updated_name:
+            is_changed = not bool(GroupService.filter(name=updated_name, group_id=group_id))
+            if is_changed:
+                is_exist = GroupService.filter(owner_id=user, name=updated_name)
+                if is_exist:
+                    errors['is_exist'] = 'Group with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod
