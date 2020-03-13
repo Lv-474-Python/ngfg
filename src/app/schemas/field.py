@@ -78,7 +78,6 @@ class FieldCheckboxSchema(BasicField):
         :param kwargs:
         :return:
         """
-        print(data)
         range_dict = data.get('range')
         options_list = data.get('choice_options')
         if range_dict:
