@@ -134,16 +134,20 @@ class FieldPutSchema(BasicField):
 
     updated_name = fields.Str(required=False, data_key="updatedName")
     range = fields.Nested(RangeSchema)
-    added_choice_options = fields.List(fields.Str(),
-                                       required=False,
-                                       data_key="addedChoiceOptions"
-                                       )
-    removed_choice_options = fields.List(fields.Str(),
-                                         required=False,
-                                         data_key="removedChoiceOptions"
-                                         )
-    updated_autocomplete = fields.Nested(SettingAutocompleteSchema,
-                                         required=False,
-                                         data_key="updatedAutocomplete")
+    added_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="addedChoiceOptions"
+    )
+    removed_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="removedChoiceOptions"
+    )
+    updated_autocomplete = fields.Nested(
+        SettingAutocompleteSchema,
+        required=False,
+        data_key="updatedAutocomplete"
+    )
     delete_range = fields.Bool(required=False, data_key="deleteRange")
     is_strict = fields.Bool(required=False, data_key="isStrict")
