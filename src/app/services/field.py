@@ -22,7 +22,12 @@ from app.schemas import (
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
     FieldCheckboxSchema,
-    FieldPutSchema
+    FieldPutSchema,
+    FieldNumberTextPutSchema,
+    FieldRadioPutSchema,
+    FieldCheckboxPutSchema,
+    FieldAutocompletePutSchema,
+    FieldTextAreaPutSchema
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
@@ -244,6 +249,31 @@ class FieldService:
                 is_exist = FieldService.filter(owner_id=user, name=updated_name)
                 if is_exist:
                     errors['is_exist'] = 'Field with such name already exist'
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_text_or_number_update(data):
+        errors = FieldNumberTextPutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_radio_update(data):
+        errors = FieldRadioPutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_checkbox_update(data):
+        errors = FieldCheckboxPutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_autocomplete_update(data):
+        errors = FieldAutocompletePutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_textarea_update(data):
+        errors = FieldTextAreaPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
@@ -757,7 +787,7 @@ class FieldService:
         if delete_range:
             if field_range is None:
                 raise FieldRangeNotDeleted()
-            deleted_field_range = FieldRangeService.delete(field_id=field.id)
+            deleted_field_range = FieldRangeService.delete(field_id=field.id) # pylint: disable=too-many-branches
             if deleted_field_range is None:
                 raise FieldRangeNotDeleted()
         else:

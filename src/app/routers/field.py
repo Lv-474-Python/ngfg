@@ -271,8 +271,13 @@ class FieldAPI(Resource):
         field_type = field.field_type
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
+            is_correct, errors = FieldService.validate_text_or_number_update(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
             range_min, range_max = FieldService.check_for_range(data)
-            response = FieldService.update_text_or_number_field(
+
+            updated_field = FieldService.update_text_or_number_field(
                 field_id=field_id,
                 name=data.get('updatedName'),
                 range_min=range_min,
@@ -282,17 +287,25 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.TextArea.value:
-            response = FieldService.update(
+            is_correct, errors = FieldService.validate_textarea_update(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
+            data = FieldService.update(
                 field_id=field_id,
                 name=data.get("updatedName"),
                 is_strict=False
             )
-            response = BasicField().dump(response)
+            updated_field = BasicField().dump(data)
 
         elif field_type == FieldType.Radio.value:
+            is_correct, errors = FieldService.validate_radio_update(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
             added_choice_options = data.get("addedChoiceOptions")
             removed_choice_options = data.get("removedChoiceOptions")
-            response = FieldService.update_radio_field(
+            updated_field = FieldService.update_radio_field(
                 field_id=field_id,
                 name=data.get("updatedName"),
                 added_choice_options=added_choice_options,
@@ -300,8 +313,12 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Autocomplete.value:
+            is_correct, errors = FieldService.validate_autocomplete_update(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
             settings_autocomplete = data.get('updatedAutocomplete')
-            response = FieldService.update_autocomplete_field(
+            updated_field = FieldService.update_autocomplete_field(
                 field_id=field_id,
                 name=data.get('updatedName'),
                 data_url=settings_autocomplete.get('dataUrl'),
@@ -311,10 +328,14 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Checkbox.value:
+            is_correct, errors = FieldService.validate_checkbox_update(data)
+            if not is_correct:
+                raise BadRequest(errors)
+
             range_min, range_max = FieldService.check_for_range(data)
             added_choice_options = data.get("addedChoiceOptions")
             removed_choice_options = data.get("removedChoiceOptions")
-            response = FieldService.update_checkbox_field(
+            updated_field = FieldService.update_checkbox_field(
                 field_id=field_id,
                 name=data.get("updatedName"),
                 range_max=range_max,
@@ -324,10 +345,12 @@ class FieldAPI(Resource):
                 delete_range=data.get("deleteRange"),
             )
 
-        if response is None:
+        if updated_field is None:
             raise BadRequest("Couldn't update")
 
-        return jsonify(response)
+        response = jsonify(updated_field)
+        response.status_code = 200
+        return response
 
     @API.doc(
         responses={
