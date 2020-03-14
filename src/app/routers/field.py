@@ -241,7 +241,8 @@ class FieldAPI(Resource):
     @API.expect(FIELD_PUT_MODEL, validate=False)
     @login_required
     # pylint: disable = no-self-use
-    def put(self, field_id): # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def put(self, field_id):
         """
         Field PUT method
 
