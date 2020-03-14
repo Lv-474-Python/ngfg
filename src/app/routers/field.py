@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 from flask_restx import fields, Resource
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest, Forbidden
-from app.schemas import BasicField, FieldPutSchema
+from app.schemas import BasicField
 
 from app import API
 from app.helper.enums import FieldType
@@ -241,7 +241,7 @@ class FieldAPI(Resource):
     @API.expect(FIELD_PUT_MODEL, validate=False)
     @login_required
     # pylint: disable = no-self-use
-    def put(self, field_id):
+    def put(self, field_id): # pylint: disable=too-many-branches
         """
         Field PUT method
 
@@ -303,13 +303,11 @@ class FieldAPI(Resource):
             if not is_correct:
                 raise BadRequest(errors)
 
-            added_choice_options = data.get("addedChoiceOptions")
-            removed_choice_options = data.get("removedChoiceOptions")
             updated_field = FieldService.update_radio_field(
                 field_id=field_id,
                 name=data.get("updatedName"),
-                added_choice_options=added_choice_options,
-                removed_choice_options=removed_choice_options
+                added_choice_options=data.get("addedChoiceOptions"),
+                removed_choice_options=data.get("removedChoiceOptions")
             )
 
         elif field_type == FieldType.Autocomplete.value:

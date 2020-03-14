@@ -207,7 +207,13 @@ class FieldCheckboxPutSchema(BasicField):
         """
         Fields for schema of field with checkbox type to use on put request
         """
-        fields = ("updated_name", "range", "added_choice_options", "removed_choice_options", "delete_range")
+        fields = (
+            "updated_name",
+            "range",
+            "added_choice_options",
+            "removed_choice_options",
+            "delete_range"
+        )
 
     updated_name = fields.Str(required=False, data_key="updatedName")
     range = fields.Nested(RangeSchema, required=False)

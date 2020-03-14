@@ -253,26 +253,51 @@ class FieldService:
 
     @staticmethod
     def validate_text_or_number_update(data):
+        """
+        Validation for text or number field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
         errors = FieldNumberTextPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
     def validate_radio_update(data):
+        """
+        Validation for radio field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
         errors = FieldRadioPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
     def validate_checkbox_update(data):
+        """
+        Validation for checkbox field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
         errors = FieldCheckboxPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
     def validate_autocomplete_update(data):
+        """
+        Validation for autocomplete field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
         errors = FieldAutocompletePutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
     def validate_textarea_update(data):
+        """
+        Validation for textarea field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
         errors = FieldTextAreaPutSchema().validate(data)
         return (not bool(errors), errors)
 
@@ -758,6 +783,7 @@ class FieldService:
     @transaction_decorator
     def update_checkbox_field(  # pylint: disable=too-many-arguments
                                 # pylint: disable=too-many-locals
+                                # pylint: disable=too-many-branches
             field_id,
             name,
             range_max,
