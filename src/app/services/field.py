@@ -14,6 +14,7 @@ from app.helper.errors import (
     FieldRangeNotDeleted,
     ChoiceOptionNotExist
 )
+from app.helper.sheet_manager import SheetManager
 from app.models import Field
 from app.schemas import (
     BasicField,
@@ -592,6 +593,14 @@ class FieldService:
             'fromRow': settings_autocomplete.from_row,
             'toRow': settings_autocomplete.to_row
         }
+
+        # add hashing later
+        sheet_id = SheetManager.get_sheet_id_from_url(settings_autocomplete.data_url)
+        data['values'] = SheetManager.get_data_with_range(
+            spreadsheet_id=sheet_id,
+            from_row=settings_autocomplete.from_row,
+            to_row=settings_autocomplete.to_row
+        )
 
         return data
 
