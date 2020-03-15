@@ -6,9 +6,11 @@ from urllib.parse import urlparse
 import apiclient.discovery  # pylint: disable=import-error
 import googleapiclient
 import httplib2
+
 from oauth2client.service_account import ServiceAccountCredentials
 
 from app import SHEET_LOGGER
+from app.helper.errors import WrongRange
 
 
 class SheetManager():
@@ -52,10 +54,14 @@ class SheetManager():
             ).execute()
 
             data = values.get('values')
+            data = SheetManager.lists_to_list(data)
             return data
 
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
+            return None
+        except WrongRange as error:
+            SHEET_LOGGER.warning('Range Error, message: %s', error)
             return None
 
     @staticmethod
@@ -71,11 +77,12 @@ class SheetManager():
         try:
             values = SheetManager.service.spreadsheets().values().get(  # pylint: disable=no-member
                 spreadsheetId=spreadsheet_id,
-                range='A:Z',
+                range='A:ZZZ',
                 majorDimension='ROWS'
             ).execute()
 
             data = values.get('values')
+            data = SheetManager.lists_to_list(data)
             return data
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
@@ -138,3 +145,22 @@ class SheetManager():
         sheet_id = link.path.split('/')[sheet_id_number]
 
         return sheet_id
+
+    @staticmethod
+    def lists_to_list(data, values=None):
+        """
+        Gather data from many lists into one list
+
+        :param data: user data
+        :param values: list to return
+        :return: list
+        """
+        if values is None:
+            values = []
+        for item in data:
+            if isinstance(item, list):
+                SheetManager.lists_to_list(item, values)
+            else:
+                values.append(item)
+
+        return values
