@@ -11,4 +11,4 @@ def validate_url(url):
     :return: True if url is from google docs
     """
     parsed_url = urlparse(url)
-    return bool(parsed_url.netloc == 'docs.google.com')
+    return bool(parsed_url.netloc == 'docs.google.com' and parsed_url.path[14] == 'd')
