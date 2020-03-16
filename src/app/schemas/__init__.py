@@ -6,9 +6,14 @@ from .form import FormSchema
 from .field import (
     FieldPostSchema,
     FieldNumberTextSchema,
+    FieldNumberTextPutSchema,
     FieldRadioSchema,
+    FieldRadioPutSchema,
     FieldSettingAutocompleteSchema,
+    FieldAutocompletePutSchema,
     FieldCheckboxSchema,
+    FieldCheckboxPutSchema,
+    FieldTextAreaPutSchema,
     FieldPutSchema,
     BasicField
 )

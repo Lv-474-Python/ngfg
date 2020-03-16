@@ -183,6 +183,12 @@ class ChoiceOptionNotDeleted(NotDeleted):
     """
 
 
+class FieldRangeNotDeleted(NotDeleted):
+    """
+    FieldRange not deleted error
+    """
+
+
 class WrongRange(CustomException):
     """
     Wrong range has been send

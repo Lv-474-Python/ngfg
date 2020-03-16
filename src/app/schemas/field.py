@@ -128,14 +128,135 @@ class FieldPutSchema(BasicField):
         """
         fields = (
             "updated_name",
+            "is_strict",
             "range",
             "added_choice_options",
             "removed_choice_options",
-            "updated_autocomplete"
+            "updated_autocomplete",
+            "delete_range"
         )
 
-    updated_name = fields.Str(required=False)
+    updated_name = fields.Str(required=False, data_key="updatedName")
+    range = fields.Nested(RangeSchema)
+    added_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="addedChoiceOptions"
+    )
+    removed_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="removedChoiceOptions"
+    )
+    updated_autocomplete = fields.Nested(
+        SettingAutocompleteSchema,
+        required=False,
+        data_key="updatedAutocomplete"
+    )
+    delete_range = fields.Bool(required=False, data_key="deleteRange")
+    is_strict = fields.Bool(required=False, data_key="isStrict")
+
+
+class FieldNumberTextPutSchema(BasicField):
+    """
+    Field with type number or text schema on put request
+    """
+
+    class Meta:
+        """
+        Fields for field of type number or text schema meta on put request
+        """
+        fields = ("updated_name", "range", "is_strict", "delete_range")
+
+    updated_name = fields.Str(required=False, data_key="updatedName")
+    is_strict = fields.Boolean(required=False, data_key="isStrict")
     range = fields.Nested(RangeSchema, required=False)
-    added_choice_options = fields.List(fields.Str(), required=False)
-    removed_choice_options = fields.List(fields.Str(), required=False)
-    updated_autocomplete = fields.Nested(SettingAutocompleteSchema, required=False)
+    delete_range = fields.Boolean(required=False, data_key="deleteRange")
+
+
+class FieldRadioPutSchema(BasicField):
+    """
+    Schema for field with radio type to use on put request
+    """
+
+    class Meta:
+        """
+        Fields for schema of field with radio type to use on put request
+        """
+        fields = ("updated_name", "added_choice_options", "removed_choice_options")
+
+    updated_name = fields.Str(required=False, data_key="updatedName")
+    added_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="addedChoiceOptions"
+    )
+    removed_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="removedChoiceOptions"
+    )
+
+
+class FieldCheckboxPutSchema(BasicField):
+    """
+    Schema for a field with checkbox type to use on put request
+    """
+
+    class Meta:
+        """
+        Fields for schema of field with checkbox type to use on put request
+        """
+        fields = (
+            "updated_name",
+            "range",
+            "added_choice_options",
+            "removed_choice_options",
+            "delete_range"
+        )
+
+    updated_name = fields.Str(required=False, data_key="updatedName")
+    range = fields.Nested(RangeSchema, required=False)
+    added_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="addedChoiceOptions"
+    )
+    removed_choice_options = fields.List(
+        fields.Str(),
+        required=False,
+        data_key="removedChoiceOptions"
+    )
+
+
+class FieldAutocompletePutSchema(BasicField):
+    """
+    Schema for a field with autocomplete type to use on put request
+    """
+
+    class Meta:
+        """
+        Fields for schema of field with autocomplete type to use on put request
+        """
+        fields = ("updated_name", "updated_autocomplete")
+
+    updated_name = fields.Str(required=False, data_key="updatedName")
+    updated_autocomplete = fields.Nested(
+        SettingAutocompleteSchema,
+        required=False,
+        data_key="updatedAutocomplete"
+    )
+
+
+class FieldTextAreaPutSchema(BasicField):
+    """
+    Schema for a field with textarea type to use on put request
+    """
+
+    class Meta:
+        """
+        Fields for schema of field with textarea type to use on put request
+        """
+        fields = ("updated_name",)
+
+    updated_name = fields.Str(required=False, data_key="updatedName")
