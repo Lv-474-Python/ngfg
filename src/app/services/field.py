@@ -10,8 +10,11 @@ from app.helper.errors import (
     SettingAutocompleteNotExist,
     FieldAlreadyExist,
     ChoiceOptionNotCreated,
-    ChoiceOptionNotDeleted
+    ChoiceOptionNotDeleted,
+    FieldRangeNotDeleted,
+    ChoiceOptionNotExist
 )
+from app.helper.sheet_manager import SheetManager
 from app.models import Field
 from app.schemas import (
     BasicField,
@@ -20,7 +23,12 @@ from app.schemas import (
     FieldSettingAutocompleteSchema,
     FieldRadioSchema,
     FieldCheckboxSchema,
-    FieldPutSchema
+    FieldPutSchema,
+    FieldNumberTextPutSchema,
+    FieldRadioPutSchema,
+    FieldCheckboxPutSchema,
+    FieldAutocompletePutSchema,
+    FieldTextAreaPutSchema
 )
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
@@ -242,6 +250,56 @@ class FieldService:
                 is_exist = FieldService.filter(owner_id=user, name=updated_name)
                 if is_exist:
                     errors['is_exist'] = 'Field with such name already exist'
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_text_or_number_update(data):
+        """
+        Validation for text or number field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
+        errors = FieldNumberTextPutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_radio_update(data):
+        """
+        Validation for radio field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
+        errors = FieldRadioPutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_checkbox_update(data):
+        """
+        Validation for checkbox field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
+        errors = FieldCheckboxPutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_autocomplete_update(data):
+        """
+        Validation for autocomplete field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
+        errors = FieldAutocompletePutSchema().validate(data)
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_textarea_update(data):
+        """
+        Validation for textarea field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
+        errors = FieldTextAreaPutSchema().validate(data)
         return (not bool(errors), errors)
 
     @staticmethod
@@ -536,6 +594,14 @@ class FieldService:
             'toRow': settings_autocomplete.to_row
         }
 
+        # add hashing later
+        sheet_id = SheetManager.get_sheet_id_from_url(settings_autocomplete.data_url)
+        data['values'] = SheetManager.get_data_with_range(
+            spreadsheet_id=sheet_id,
+            from_row=settings_autocomplete.from_row,
+            to_row=settings_autocomplete.to_row
+        )
+
         return data
 
     @staticmethod
@@ -590,6 +656,7 @@ class FieldService:
             name,
             range_min,
             range_max,
+            delete_range,
             is_strict
     ):
         """
@@ -600,6 +667,7 @@ class FieldService:
         :param is_strict: whether the field is restricted or not
         :param range_min: new minimum value for range object associated with the field
         :param range_max: new maximum value for range object associated with the field
+        :param delete_range: indicates whether existing range must be deleted
         :return: json object with updated field
         """
 
@@ -608,18 +676,27 @@ class FieldService:
             name=name,
             is_strict=is_strict
         )
+        data = FieldNumberTextSchema().dump(field)
         field_range = FieldRangeService.get_by_field_id(field_id)
 
-        if range_min is not None or range_max is not None:
-            range_instance = RangeService.create(range_min=range_min, range_max=range_max)
-            if field_range is not None:
-                FieldRangeService.update(field_id=field_id, range_id=range_instance.id)
-            else:
-                FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
-        if field_range is not None:
-            FieldRangeService.delete(field_id=field_id)
-
-        return field
+        if delete_range:
+            if field_range is None:
+                raise FieldRangeNotDeleted()
+            field_range_deleted = FieldRangeService.delete(field.id)
+            if field_range_deleted is None:
+                raise FieldRangeNotDeleted()
+        else:
+            if range_min is not None or range_max is not None:
+                range_instance = RangeService.create(range_min=range_min, range_max=range_max)
+                if field_range is not None:
+                    FieldRangeService.update(field_id=field.id, range_id=range_instance.id)
+                else:
+                    FieldRangeService.create(field_id=field.id, range_id=range_instance.id)
+        data.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        return data
 
     @staticmethod
     @transaction_decorator
@@ -641,23 +718,33 @@ class FieldService:
             field_id=field_id,
             name=name
         )
+        data = FieldRadioSchema().dump(field)
 
         if added_choice_options:
             for added_option in added_choice_options:
-                option_update = ChoiceOptionService.create(field_id=field_id,
-                                                           option_text=added_option)
-                if option_update is None:
+                radio_option_update = ChoiceOptionService.create(
+                    field_id=field.id,
+                    option_text=added_option
+                )
+                if radio_option_update is None:
                     raise ChoiceOptionNotCreated()
 
         if removed_choice_options:
             for removed_option in removed_choice_options:
-                option = ChoiceOptionService.get_by_field_and_text(field_id=field_id,
-                                                                   option_text=removed_option)
-                option_update = ChoiceOptionService.delete(option_id=option.id)
-                if option_update is None:
+                radio_option = ChoiceOptionService.get_by_field_and_text(
+                    field_id=field.id,
+                    option_text=removed_option
+                )
+                if radio_option is None:
+                    raise ChoiceOptionNotExist()
+                radio_option_update = ChoiceOptionService.delete(option_id=radio_option.id)
+                if radio_option_update is None:
                     raise ChoiceOptionNotDeleted()
-
-        return field
+        data.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        return data
 
     @staticmethod
     @transaction_decorator
@@ -683,7 +770,8 @@ class FieldService:
         """
 
         field = FieldService.update(field_id=field_id, name=name)
-        settings = SettingAutocompleteService.get_by_field_id(field_id)
+        data = FieldSettingAutocompleteSchema().dump(field)
+        settings = SettingAutocompleteService.get_by_field_id(field.id)
         if settings is None:
             raise SettingAutocompleteNotExist()
         SettingAutocompleteService.update(
@@ -692,18 +780,24 @@ class FieldService:
             sheet=sheet,
             from_row=from_row,
             to_row=to_row,
-            field_id=field_id
+            field_id=field.id
         )
-
-        return field
+        data.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        return data
 
     @staticmethod
     @transaction_decorator
     def update_checkbox_field(  # pylint: disable=too-many-arguments
+                                # pylint: disable=too-many-locals
+                                # pylint: disable=too-many-branches
             field_id,
             name,
             range_max,
             range_min,
+            delete_range,
             added_choice_options=None,
             removed_choice_options=None,
     ):
@@ -715,39 +809,65 @@ class FieldService:
         :param range_max: maximum value of options that can be chosen
         :param range_min: minimum value of options that can be chosen
         :param added_choice_options: options to be added to the field
+        :param delete_range: boolean value to determine whether delete range restriction from field
         :param removed_choice_options: options to be removed from the field
         """
         field = FieldService.update(
             field_id=field_id,
             name=name
         )
-        field_range = FieldRangeService.get_by_field_id(field_id)
+        data = FieldCheckboxSchema().dump(field)
+        field_range = FieldRangeService.get_by_field_id(field.id)
 
-        if range_min is not None or range_max is not None:
-            range_instance = RangeService.create(range_min=range_min, range_max=range_max)
-            if field_range is not None:
-                FieldRangeService.update(field_id=field_id, range_id=range_instance.id)
-            else:
-                FieldRangeService.create(field_id=field_id, range_id=range_instance.id)
-        if field_range is not None:
-            FieldRangeService.delete(field_id=field_id)
+        if delete_range:
+            if field_range is None:
+                raise FieldRangeNotDeleted()
+            deleted_field_range = FieldRangeService.delete(field_id=field.id) # pylint: disable=too-many-branches
+            if deleted_field_range is None:
+                raise FieldRangeNotDeleted()
+        else:
+            if range_min is not None or range_max is not None:
+                range_instance = RangeService.create(
+                    range_min=range_min,
+                    range_max=range_max
+                )
+                if field_range is not None:
+                    FieldRangeService.update(
+                        field_id=field.id,
+                        range_id=range_instance.id
+                    )
+                else:
+                    FieldRangeService.create(
+                        field_id=field.id,
+                        range_id=range_instance.id
+                    )
 
         if added_choice_options:
             for added_option in added_choice_options:
-                option_update = ChoiceOptionService.create(field_id=field_id,
-                                                           option_text=added_option)
-                if option_update is None:
+                checkbox_option_update = ChoiceOptionService.create(
+                    field_id=field.id,
+                    option_text=added_option
+                )
+                if checkbox_option_update is None:
                     raise ChoiceOptionNotCreated()
-
         if removed_choice_options:
             for removed_option in removed_choice_options:
-                option = ChoiceOptionService.get_by_field_and_text(field_id=field_id,
-                                                                   option_text=removed_option)
-                option_update = ChoiceOptionService.delete(option_id=option.id)
-                if option_update is None:
+                checkbox_option = ChoiceOptionService.get_by_field_and_text(
+                    field_id=field.id,
+                    option_text=removed_option
+                )
+                if checkbox_option is None:
+                    raise ChoiceOptionNotExist()
+                checkbox_option_update = ChoiceOptionService.delete(
+                    option_id=checkbox_option.id
+                )
+                if checkbox_option_update is None:
                     raise ChoiceOptionNotDeleted()
-
-        return field
+        data.update(FieldService.get_additional_options(
+            field_id=field.id,
+            field_type=field.field_type
+        ))
+        return data
 
     @staticmethod
     def check_form_membership(field_id):
