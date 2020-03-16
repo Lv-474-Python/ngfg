@@ -1,11 +1,11 @@
 """
 Form schemas
 """
-from urllib.parse import urlparse
 
 from marshmallow import fields, validates_schema, ValidationError
 
 from app import MA
+from app.helper.google_docs_url_validator import validate_url
 
 
 class FormSchema(MA.Schema):
@@ -39,6 +39,6 @@ class FormSchema(MA.Schema):
         :param kwargs:
         :return:
         """
-        parsed_url = urlparse(data.get('result_url'))
-        if parsed_url.netloc != 'docs.google.com':
+        result_url = data.get('result_url')
+        if not validate_url(url=result_url):
             raise ValidationError('Wrong URL entered')

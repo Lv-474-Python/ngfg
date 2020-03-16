@@ -1,11 +1,11 @@
 """
 SettingAutocomplete schemas
 """
-from urllib.parse import urlparse
 
 from marshmallow import fields, validates_schema, ValidationError
 
 from app import MA
+from app.helper.google_docs_url_validator import validate_url
 from app.helper.row_validation import validate_row
 
 
@@ -34,8 +34,8 @@ class SettingAutocompleteSchema(MA.Schema):
         :param kwargs:
         :return:
         """
-        parsed_url = urlparse(data.get('data_url'))
-        if parsed_url.netloc != 'docs.google.com':
+        data_url = data.get('data_url')
+        if not validate_url(url=data_url):
             raise ValidationError('Wrong URL entered')
 
     @validates_schema
