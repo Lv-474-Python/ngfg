@@ -6,6 +6,8 @@ from app import DB
 from app.models import SharedField
 from app.helper.decorators import transaction_decorator
 from app.helper.errors import SharedFieldNotExist
+from app.schemas import SharedFieldSchema, SharedFieldResponseSchema
+from app.models import Field
 
 
 class SharedFieldService:
@@ -75,3 +77,24 @@ class SharedFieldService:
             raise SharedFieldNotExist()
         DB.session.delete(shared_field)
         return True
+
+    @staticmethod
+    def to_json(data, many=False):
+        schema = SharedFieldSchema(many=many)
+        return schema.dump(data)
+
+    @staticmethod
+    def response_to_json(data, many=False):
+        schema = SharedFieldResponseSchema(many=many)
+        return schema.dump(data)
+
+    @staticmethod
+    def filter_by_owner(owner_id):
+        fields_intersection = Field.query.join(SharedField)
+        filtered_by_owner = [field for field in fields_intersection if field.owner_id == owner_id]
+        return filtered_by_owner
+
+    @staticmethod
+    def get_by_field_id(field_id):
+        shared_field_instance = SharedField.query.filter_by(field_id=field_id).first()
+        return shared_field_instance

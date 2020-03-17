@@ -184,3 +184,8 @@ class UserService:
                 raise UserNotCreated()
             users.append(user)
         return users
+
+    @staticmethod
+    def get_by_email(email):
+        user = User.query.filter_by(email=email).first()
+        return user
