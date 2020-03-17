@@ -18,7 +18,7 @@ class BasicField(MA.Schema):
         """
         Basic field schema meta
         """
-        fields = ("id", "owner_id", "name", "field_type", 'created')
+        fields = ("id", "owner_id", "name", "field_type", "created")
 
     name = fields.Str(required=True)
     owner_id = fields.Integer(data_key="ownerId")

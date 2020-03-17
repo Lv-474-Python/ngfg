@@ -19,7 +19,7 @@ class FormSchema(MA.Schema):
         """
         Form schema meta
         """
-        fields = ("id", "owner_id", "name", "title", "result_url", "is_published", 'created')
+        fields = ("id", "owner_id", "name", "title", "result_url", "is_published", "created")
 
     owner_id = fields.Int(dump_only=True, data_key='ownerId')
     name = fields.Str(required=True)
