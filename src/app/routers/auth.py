@@ -4,7 +4,7 @@ app to auth user by google services
 import os
 import requests
 
-from flask import Response, request, session
+from flask import Response, request
 from flask_login import (
     current_user,
     login_required,
