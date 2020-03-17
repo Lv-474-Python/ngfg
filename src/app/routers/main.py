@@ -39,6 +39,6 @@ def share_message():
 
     :return: str
     """
-    call_share_field_task(["vitaliiya.ol@gmail.com", "akkasteam0002@gmail.com"],
+    call_share_field_task(['just_mail@gmail.com'],
                           FieldService.field_to_json(FieldService.get_by_id(21), many=False))
     return 'Message sent!'
