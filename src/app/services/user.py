@@ -187,5 +187,11 @@ class UserService:
 
     @staticmethod
     def get_by_email(email):
+        """
+        Get user by email
+
+        :param email: email to get user by
+        :return: User instance or None
+        """
         user = User.query.filter_by(email=email).first()
         return user

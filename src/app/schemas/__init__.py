@@ -22,4 +22,4 @@ from .setting_autocomplete import SettingAutocompleteSchema
 from .range import RangeSchema
 from .form_result import FormResultGetSchema, FormResultPostSchema
 from .group import BaseGroupSchema, GroupPutSchema, GroupPostSchema
-from .shared_field import SharedFieldSchema, SharedFieldResponseSchema
+from .shared_field import SharedFieldPostSchema, SharedFieldResponseSchema
