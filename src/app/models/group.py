@@ -1,6 +1,8 @@
 """
 Group model
 """
+from sqlalchemy import func
+
 from app import DB
 from .abstract_model import AbstractModel
 
@@ -22,3 +24,4 @@ class Group(AbstractModel):
     owner_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete="SET NULL"), nullable=False)
 
     groups_users = DB.relationship('GroupUser', backref='group', cascade='all,delete')
+    created = DB.Column(DB.TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
