@@ -1,6 +1,8 @@
 """
 Field model
 """
+from sqlalchemy import func
+
 from app import DB
 from .abstract_model import AbstractModel
 
@@ -27,6 +29,7 @@ class Field(AbstractModel):
     )
     field_type = DB.Column(DB.SmallInteger, unique=False, nullable=False)
     is_strict = DB.Column(DB.Boolean, default=False)
+    created = DB.Column(DB.TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
 
     choice_options = DB.relationship('ChoiceOption', cascade="all,delete", backref='field')
     shared_fields = DB.relationship('SharedField', backref='field')

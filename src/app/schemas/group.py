@@ -14,7 +14,7 @@ class BaseGroupSchema(MA.Schema):
         """
         Base group schema meta
         """
-        fields = ("id", "owner_id", "name")
+        fields = ("id", "owner_id", "name", "created")
 
     owner_id = fields.Int(dump_only=True, data_key='ownerId')
     name = fields.Str(required=True)
