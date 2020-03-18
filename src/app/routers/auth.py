@@ -73,7 +73,7 @@ class LogoutAPI(Resource):
         Logout user
         """
         logout_user()
-        return Response(status=302)
+        return Response(status=200)
 
 
 @APP.route('/home_page/')
