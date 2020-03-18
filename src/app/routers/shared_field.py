@@ -129,7 +129,7 @@ class SharedFieldAPI(Resource):
     """
     SharedField API
 
-    url: '/shared_fields/{id}'
+    url: '/shared_fields/{field_id}/user/{user_id}'
     methods: get, delete
     """
 
