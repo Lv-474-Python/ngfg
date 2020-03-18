@@ -115,7 +115,7 @@ class SharedFieldService:
     @staticmethod
     def validate_post_data(data):
         """
-        Validate data by FormSchema
+        Validate data by SharedFieldPostSchema
         """
         schema = SharedFieldPostSchema()
         errors = schema.validate(data)
