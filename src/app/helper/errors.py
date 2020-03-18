@@ -193,3 +193,15 @@ class WrongRange(CustomException):
     """
     Wrong range has been send
     """
+
+
+class SharedFieldNotCreated(NotCreated):
+    """
+    SharedField not created error
+    """
+
+
+class SharedFieldAlreadyExist(AlreadyExist):
+    """
+    SharedField already exist error
+    """

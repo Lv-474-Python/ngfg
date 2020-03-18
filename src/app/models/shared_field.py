@@ -20,6 +20,7 @@ class SharedField(AbstractModel):
 
     user_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     field_id = DB.Column(DB.Integer, DB.ForeignKey('fields.id', ondelete='CASCADE'), nullable=False)
+    owner_id = DB.Column(DB.Integer, DB.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"SharedField {self.id}, field: {self.field_id}, user: {self.user_id}"

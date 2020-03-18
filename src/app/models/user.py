@@ -22,7 +22,16 @@ class User(AbstractModel, UserMixin):
 
     forms = DB.relationship('Form', backref='owner')
     fields = DB.relationship('Field', backref='owner')
-    shared_fields = DB.relationship('SharedField', backref='user')
+    shared_fields = DB.relationship(
+        'SharedField',
+        backref='user',
+        foreign_keys='SharedField.user_id'
+    )
     form_results = DB.relationship('FormResult', backref='user')
     groups = DB.relationship('Group', backref='user')
     groups_users = DB.relationship('GroupUser', backref='user')
+    shared_by = DB.relationship(
+        'SharedField',
+        backref='owner',
+        foreign_keys='SharedField.owner_id'
+    )
