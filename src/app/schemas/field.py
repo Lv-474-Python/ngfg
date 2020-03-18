@@ -90,7 +90,7 @@ class FieldCheckboxSchema(BasicField):
                     raise ValidationError('Min selective options must be less than list of options')
             if max_value is not None:
                 if max_value < 0:
-                    raise ValidationError('Min selective options must be positive')
+                    raise ValidationError('Max selective options must be positive')
                 if max_value > len(options_list):
                     raise ValidationError('Max selective options must be less than list of options')
 
