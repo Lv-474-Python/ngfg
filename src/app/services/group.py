@@ -233,6 +233,8 @@ class GroupService:
         """
         Validate data by GroupScheme
         """
+        data = data.copy()
+        del data['created']
         schema = GroupPutSchema()
         errors = schema.validate(data)
         updated_name = data.get('name')
