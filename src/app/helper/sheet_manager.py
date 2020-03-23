@@ -106,9 +106,9 @@ class SheetManager():
                 return None
 
             # check for multiple choice answer
-            for en, answer in enumerate(values):
+            for index, answer in enumerate(values):
                 if isinstance(answer, list):
-                    values[en] = ';'.join(answer)
+                    values[index] = ';'.join(answer)
 
             data = [[element] for element in values]
             resource = {
