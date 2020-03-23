@@ -1,6 +1,7 @@
 """
 Answer validation functions
 """
+from app import LOGGER
 
 
 def is_numeric(value):
@@ -13,5 +14,9 @@ def is_numeric(value):
     try:
         float(value)
         return True
-    except ValueError:
+    except ValueError as error:
+        LOGGER.warning(error)
+        return False
+    except TypeError as error:
+        LOGGER.warning(error)
         return False
