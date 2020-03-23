@@ -5,6 +5,7 @@ from marshmallow import fields, validates_schema, ValidationError
 
 from app import MA
 from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
+from app.helper.choice_options_validator import check_for_repeated_options, check_for_same_options
 from app.schemas.range import RangeSchema
 from app.schemas.setting_autocomplete import SettingAutocompleteSchema
 
@@ -53,6 +54,18 @@ class FieldPostSchema(BasicField):
         """
         if data.get('field_type') > MAX_FIELD_TYPE or data.get('field_type') < MIN_FIELD_TYPE:
             raise ValidationError('Must be greater than or equal to 1 and less than or equal to 6.')
+
+    @validates_schema
+    # pylint: disable=no-self-use
+    def validate_choice_options(self, data, **kwargs):
+        """
+        Validates if choice options has repeated values
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        if check_for_repeated_options(options=data.get('choice_options')):
+            raise ValidationError('Repeated values')
 
 
 class FieldCheckboxSchema(BasicField):
@@ -180,6 +193,17 @@ class FieldPutSchema(BasicField):
     )
     delete_range = fields.Bool(required=False, data_key="deleteRange")
     is_strict = fields.Bool(required=False, data_key="isStrict")
+
+    @validates_schema
+    def validate_choice_options(self, data, **kwargs):
+        added_options = data.get('added_choice_options')
+        removed_options = data.get('removed_choice_options')
+        if check_for_repeated_options(options=added_options):
+            raise ValidationError('Repeated added values')
+        if check_for_repeated_options(options=removed_options):
+            raise ValidationError('Repeated removed values')
+        if check_for_same_options(added=added_options, removed=removed_options):
+            raise ValidationError('Identical values in added and removed options')
 
 
 class FieldNumberTextPutSchema(BasicField):
