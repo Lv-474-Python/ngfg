@@ -267,10 +267,15 @@ class FieldService:
         """
         Validation for radio field on update
         :param data: received request body
-        :return: errors and whether they occured
+        :return: errors and whether they occurred
         """
         errors = FieldRadioPutSchema().validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_options(added, removed, range_values):
+        # TODO add validator that validates existance of options
+        pass
 
     @staticmethod
     def validate_checkbox_update(data):
@@ -791,8 +796,8 @@ class FieldService:
     @staticmethod
     @transaction_decorator
     def update_checkbox_field(  # pylint: disable=too-many-arguments
-                                # pylint: disable=too-many-locals
-                                # pylint: disable=too-many-branches
+            # pylint: disable=too-many-locals
+            # pylint: disable=too-many-branches
             field_id,
             name,
             range_max,
@@ -822,7 +827,7 @@ class FieldService:
         if delete_range:
             if field_range is None:
                 raise FieldRangeNotDeleted()
-            deleted_field_range = FieldRangeService.delete(field_id=field.id) # pylint: disable=too-many-branches
+            deleted_field_range = FieldRangeService.delete(field_id=field.id)  # pylint: disable=too-many-branches
             if deleted_field_range is None:
                 raise FieldRangeNotDeleted()
         else:
