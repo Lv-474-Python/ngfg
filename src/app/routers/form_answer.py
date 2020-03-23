@@ -104,24 +104,26 @@ class AnswersAPI(Resource):
         for answer in result['answers'].values():
             values.append(answer)
 
+        result = FormResultService.create(**result)
+        if result is None:
+            raise BadRequest("Cannot create result instance")
+
         form_url = FormService.get_form_result_url(form_id)
 
         if form_url is None:
-            raise BadRequest('Could not found form result url')
+            raise BadRequest("Cannot create result instance")
 
         sheet_id = SheetManager.get_sheet_id_from_url(form_url)
 
         if sheet_id is None:
-            raise BadRequest("Could not found sheet id")
+            raise BadRequest("Cannot create result instance")
 
         is_added = SheetManager.append_data(sheet_id, values)
 
         if is_added is None:
-            raise BadRequest("Could not add results to google sheet")
-
-        result = FormResultService.create(**result)
-        if result is None:
             raise BadRequest("Cannot create result instance")
+
+
         result_json = FormResultService.to_json(result, many=False)
 
         response = jsonify(result_json)
