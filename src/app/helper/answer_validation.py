@@ -14,9 +14,6 @@ def is_numeric(value):
     try:
         float(value)
         return True
-    except ValueError as error:
-        LOGGER.warning(error)
-        return False
-    except TypeError as error:
+    except (ValueError, TypeError) as error:
         LOGGER.warning(error)
         return False
