@@ -276,6 +276,7 @@ class FieldCheckboxPutSchema(BasicField):
         required=False,
         data_key="removedChoiceOptions"
     )
+    delete_range = fields.Boolean(data_key='deleteRange')
 
 
 class FieldAutocompletePutSchema(BasicField):
