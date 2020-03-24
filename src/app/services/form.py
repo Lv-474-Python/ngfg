@@ -2,7 +2,7 @@
 Form operations.
 """
 
-from app import DB
+from app import DB, LOGGER
 from app.helper.errors import FormNotExist
 from app.models import Form
 from app.schemas import FormSchema
@@ -104,7 +104,7 @@ class FormService:
 
     @staticmethod
     @transaction_decorator
-    def filter(form_id=None, # pylint: disable=too-many-arguments
+    def filter(form_id=None,  # pylint: disable=too-many-arguments
                owner_id=None,
                name=None,
                title=None,
@@ -187,6 +187,7 @@ class FormService:
         form = FormService.get_by_id(form_id)
 
         if form is None:
+            LOGGER.warning('Could not found form result url')
             return None
 
         return form.result_url

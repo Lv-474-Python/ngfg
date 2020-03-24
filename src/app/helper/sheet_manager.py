@@ -10,7 +10,6 @@ import httplib2
 from oauth2client.service_account import ServiceAccountCredentials
 
 from app import SHEET_LOGGER
-from app.helper.errors import WrongRange
 
 
 class SheetManager():
@@ -54,14 +53,14 @@ class SheetManager():
             ).execute()
 
             data = values.get('values')
-            data = SheetManager.lists_to_list(data)
+
+            if data is not None:
+                data = SheetManager.lists_to_list(data)
+
             return data
 
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
-            return None
-        except WrongRange as error:
-            SHEET_LOGGER.warning('Range Error, message: %s', error)
             return None
 
     @staticmethod
@@ -82,7 +81,9 @@ class SheetManager():
             ).execute()
 
             data = values.get('values')
-            data = SheetManager.lists_to_list(data)
+
+            if data is not None:
+                data = SheetManager.lists_to_list(data)
             return data
         except googleapiclient.errors.HttpError as error:
             SHEET_LOGGER.warning('Error, message: %s', error)
@@ -103,6 +104,11 @@ class SheetManager():
             if not isinstance(values, list):
                 SHEET_LOGGER.warning('Someone tried to transfer values not in list')
                 return None
+
+            # check for multiple choice answer
+            for index, answer in enumerate(values):
+                if isinstance(answer, list):
+                    values[index] = ';'.join(answer)
 
             data = [[element] for element in values]
             resource = {
@@ -143,6 +149,8 @@ class SheetManager():
         link = urlparse(url)
         # split path and get sheet_id from it
         sheet_id = link.path.split('/')[sheet_id_number]
+        if sheet_id is None:
+            SHEET_LOGGER.warning('Could not found sheet id')
 
         return sheet_id
 
@@ -157,6 +165,10 @@ class SheetManager():
         """
         if values is None:
             values = []
+
+        if data is None:
+            return None
+
         for item in data:
             if isinstance(item, list):
                 SheetManager.lists_to_list(item, values)
