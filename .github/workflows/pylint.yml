@@ -36,6 +36,12 @@ jobs:
           APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
           OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
       - name: coverage
-        run: coverage run -m pytest
+        run: cd src; coverage run -m pytest
+        env:
+          GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+          GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
+          OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
       - name: coveralls
-        run: corevalls
+        run: cd src; corevalls
+
