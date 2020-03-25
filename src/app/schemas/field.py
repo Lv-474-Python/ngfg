@@ -195,7 +195,7 @@ class FieldPutSchema(BasicField):
     is_strict = fields.Bool(required=False, data_key="isStrict")
 
     @validates_schema
-    def validate_choice_options(self, data, **kwargs):
+    def validate_choice_options_repeats(self, data, **kwargs):
         added_options = data.get('added_choice_options')
         removed_options = data.get('removed_choice_options')
         if check_for_repeated_options(options=added_options):
@@ -204,6 +204,13 @@ class FieldPutSchema(BasicField):
             raise ValidationError('Repeated removed values')
         if check_for_same_options(added=added_options, removed=removed_options):
             raise ValidationError('Identical values in added and removed options')
+
+    @validates_schema
+    def validate_new_or_deleted_range(self, data, **kwargs):
+        new_range = data.get('range')
+        delete_range = data.get('delete_range')
+        if new_range and delete_range:
+            raise ValidationError('Can\'t update and delete фе щту ешьу')
 
 
 class FieldNumberTextPutSchema(BasicField):
