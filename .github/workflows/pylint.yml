@@ -19,6 +19,9 @@ jobs:
         with:
           python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+        env:
+          - GOOGLE_CLIENT_ID: ${{secret.GOOGLE_CLIENT_ID}}
+          - GOOGLE_CLIENT_SECRET: ${{secret.GOOGLE_CLIENT_SECRET}}
       - name: Python version
         run: python -V
       - name: install requirements
