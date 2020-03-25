@@ -13,3 +13,4 @@ def check_for_repeated_options(options):
 def check_for_same_options(added, removed):
     if added and removed:
         return bool(set(added) & set(removed))
+    return False

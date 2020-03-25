@@ -243,14 +243,43 @@ class FieldService:
         """
         errors = FieldPutSchema().validate(data)
 
-        updated_name = data.get('updated_name')
+        updated_name = data.get('updatedName')
         if updated_name:
             is_changed = not bool(FieldService.filter(name=updated_name, field_id=field_id))
             if is_changed:
                 is_exist = FieldService.filter(owner_id=user, name=updated_name)
                 if is_exist:
                     errors['is_exist'] = 'Field with such name already exist'
+
+        options_validator = FieldService.validate_options_update(
+            field_id=field_id,
+            added=data.get('addedChoiceOptions', []),
+            removed=data.get('removedChoiceOptions', [])
+        )
+        if options_validator:
+            errors['choice_options_validation_error'] = options_validator
         return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_options_update(field_id, added, removed):
+        """
+        Validates choice options
+        :param field_id:
+        :param added:
+        :param removed:
+        :return:
+        """
+        additional_options = FieldService._get_choice_additional_options(field_id=field_id)
+        current_options = additional_options.get('choiceOptions')
+
+        if added and len(set(current_options) & set(added)) != 0:
+            return 'Added choices already exist'
+        if removed and len(set(current_options) & set(removed)) != len(removed):
+            return 'Removed options don\'t exist'
+        if removed:
+            if len(current_options) - len(removed) + len(added) < 1:
+                return 'Can\'t delete all options'
+        return None
 
     @staticmethod
     def validate_text_or_number_update(data):
@@ -273,11 +302,6 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_options(added, removed, range_values):
-        # TODO add validator that validates existance of options
-        pass
-
-    @staticmethod
     def validate_checkbox_update(data):
         """
         Validation for checkbox field on update
@@ -286,6 +310,31 @@ class FieldService:
         """
         errors = FieldCheckboxPutSchema().validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_checkbox_options_and_range_update(field_id, added, removed, new_range, range_deleted):
+        """
+
+        # TODO add validator (new_range replaces fully)
+        :param field_id:
+        :param added:
+        :param removed:
+        :param new_range:
+        :param range_deleted:
+        :return:
+        """
+        additional_options = FieldService._get_choice_additional_options(field_id=field_id)
+        current_options = additional_options.get('choiceOptions')
+        current_range = additional_options.get('range')
+        new_option_amount = len(current_options) + len(added) - len(removed)
+
+        if current_range is None and range_deleted:
+            return 'Can\'t delete range that doesn\'t exist'
+        if current_range and new_range is None and range_deleted is None:
+            range_min = current_range.get('min')
+            if range_min and range_min > new_option_amount:
+                return 'Current min choice range is greater than updated choice amount'
+        return False
 
     @staticmethod
     def validate_autocomplete_update(data):
