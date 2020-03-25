@@ -43,5 +43,5 @@ jobs:
           APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
           OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
       - name: coveralls
-        run: cd src; corevalls
+        run: cd src; coveralls
 
