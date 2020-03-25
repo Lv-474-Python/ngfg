@@ -1,4 +1,4 @@
-# ngfg
+# ngfg [![Coverage Status](https://coveralls.io/repos/github/Lv-474-Python/ngfg/badge.svg?branch=develop)](https://coveralls.io/github/Lv-474-Python/ngfg?branch=develop)
 ## New Generation Form Generator
 
 
