@@ -19,11 +19,30 @@ jobs:
         with:
           python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+
       - name: Python version
-        run: python -V
+        run: python -V; echo "$CREDENTIALS" >> src/app/ngfg-сredentials.json;cd src/app;ls;
+        env:
+          CREDENTIALS: ${{secrets.CREDENTIALS}}
       - name: install requirements
         run: pip install -r requirements.txt
       - name: run pylint
         run: pylint *
       - name: run tests
-        run: pytest
+        run: cd src; pytest
+        env:
+          GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+          GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
+          OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
+      - name: coverage
+        run: cd src; coverage run -m pytest
+        env:
+          GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+          GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
+          OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
+      - name: coveralls
+        run: cd src; coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
