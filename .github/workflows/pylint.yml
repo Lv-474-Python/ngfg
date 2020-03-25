@@ -23,8 +23,8 @@ jobs:
       - name: Python version
         run: python -V
         env:
-          - GOOGLE_CLIENT_ID: ${{secret.GOOGLE_CLIENT_ID}}
-          - GOOGLE_CLIENT_SECRET: ${{secret.GOOGLE_CLIENT_SECRET}}
+          GOOGLE_CLIENT_ID: ${{secret.GOOGLE_CLIENT_ID}}
+          GOOGLE_CLIENT_SECRET: ${{secret.GOOGLE_CLIENT_SECRET}}
       - name: install requirements
         run: pip install -r requirements.txt
       - name: run pylint
