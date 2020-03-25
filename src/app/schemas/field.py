@@ -210,7 +210,7 @@ class FieldPutSchema(BasicField):
         new_range = data.get('range')
         delete_range = data.get('delete_range')
         if new_range and delete_range:
-            raise ValidationError('Can\'t update and delete фе щту ешьу')
+            raise ValidationError('Can\'t update and delete range')
 
 
 class FieldNumberTextPutSchema(BasicField):

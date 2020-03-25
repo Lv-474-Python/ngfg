@@ -327,7 +327,7 @@ class FieldAPI(Resource):
             )
 
         elif field_type == FieldType.Checkbox.value:
-            is_correct, errors = FieldService.validate_checkbox_update(data)
+            is_correct, errors = FieldService.validate_checkbox_update(data, field_id)
             if not is_correct:
                 raise BadRequest(errors)
 

@@ -302,20 +302,29 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_checkbox_update(data):
+    def validate_checkbox_update(data, field_id):
         """
         Validation for checkbox field on update
         :param data: received request body
+        :param field_id: received field_id
         :return: errors and whether they occured
         """
         errors = FieldCheckboxPutSchema().validate(data)
+        options_and_range_validator = FieldService.validate_checkbox_options_and_range_update(
+            field_id=field_id,
+            added=data.get('addedChoiceOptions', []),
+            removed=data.get('removedChoiceOptions', []),
+            new_range=data.get('range'),
+            range_deleted=data.get('deleteRange')
+        )
+        if options_and_range_validator:
+            errors['options_and_range_error'] = options_and_range_validator
         return (not bool(errors), errors)
 
     @staticmethod
     def validate_checkbox_options_and_range_update(field_id, added, removed, new_range, range_deleted):
         """
-
-        # TODO add validator (new_range replaces fully)
+        Validates choice options depending on existing, new or deleted range
         :param field_id:
         :param added:
         :param removed:
@@ -332,8 +341,18 @@ class FieldService:
             return 'Can\'t delete range that doesn\'t exist'
         if current_range and new_range is None and range_deleted is None:
             range_min = current_range.get('min')
+            range_max = current_range.get('max')
             if range_min and range_min > new_option_amount:
                 return 'Current min choice range is greater than updated choice amount'
+            if range_max and range_max > new_option_amount:
+                return 'Current max choice range is greater than updated choice amount'
+        if new_range:
+            new_range_min = new_range.get('min')
+            new_range_max = new_range.get('max')
+            if new_range_min and new_range_min > new_option_amount:
+                return 'New min choice range is greater than updated choice amount'
+            if new_range_max and new_range_max > new_option_amount:
+                return 'New max choice range is greater than updated choice amount'
         return False
 
     @staticmethod
