@@ -21,7 +21,7 @@ jobs:
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
       - name: Python version
-        run: python -V; echo "$CREDENTIALS" >> src/app/ngfg-credentials.json;cd src/app;ls;
+        run: python -V; echo "$CREDENTIALS" >> src/app/ngfg-сredentials.json;cd src/app;ls;
         env:
           CREDENTIALS: ${{secrets.CREDENTIALS}}
       - name: install requirements
