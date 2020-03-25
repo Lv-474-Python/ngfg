@@ -3,9 +3,8 @@ app to auth user by google services
 """
 import os
 import requests
-import base64
 
-from flask import Response, request, session
+from flask import Response, request
 from flask_login import (
     current_user,
     login_required,
@@ -132,7 +131,11 @@ def callback(response):
 
 @APP.route('/verify_login')
 def verify_login():
+    """
+    View for check if user is log in
+
+    :return:
+    """
     if current_user.is_authenticated:
         return Response(status=200)
-    else:
-        return Response(status=401)
+    return Response(status=401)
