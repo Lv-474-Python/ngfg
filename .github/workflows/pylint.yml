@@ -21,7 +21,9 @@ jobs:
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
       - name: Python version
-        run: python -V; echo ${{secrets.CREDENTIALS}} >> app/ngfg-credentials.json
+        run: python -V; echo "$CREDENTIALS" >> app/ngfg-credentials.json
+        env:
+          CREDENTIALS: ${{secrets.CREDENTIALS}}
       - name: install requirements
         run: pip install -r requirements.txt
       - name: run pylint
