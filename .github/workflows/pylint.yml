@@ -27,3 +27,7 @@ jobs:
         run: pylint *
       - name: run tests
         run: pytest
+      - name: coverage
+        run: coverage run -m pytest
+      - name: coveralls
+        run: corevalls
