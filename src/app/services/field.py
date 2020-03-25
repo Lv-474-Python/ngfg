@@ -322,7 +322,12 @@ class FieldService:
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_checkbox_options_and_range_update(field_id, added, removed, new_range, range_deleted):
+    def validate_checkbox_options_and_range_update(
+            field_id,
+            added,
+            removed,
+            new_range,
+            range_deleted):
         """
         Validates choice options depending on existing, new or deleted range
         :param field_id:

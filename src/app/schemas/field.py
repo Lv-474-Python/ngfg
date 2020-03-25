@@ -195,7 +195,14 @@ class FieldPutSchema(BasicField):
     is_strict = fields.Bool(required=False, data_key="isStrict")
 
     @validates_schema
+    # pylint:disable=no-self-use
     def validate_choice_options_repeats(self, data, **kwargs):
+        """
+        Validates if in added or removed are repeatable values
+        :param data:
+        :param kwargs:
+        :return:
+        """
         added_options = data.get('added_choice_options')
         removed_options = data.get('removed_choice_options')
         if check_for_repeated_options(options=added_options):
@@ -206,7 +213,14 @@ class FieldPutSchema(BasicField):
             raise ValidationError('Identical values in added and removed options')
 
     @validates_schema
+    # pylint:disable=no-self-use
     def validate_new_or_deleted_range(self, data, **kwargs):
+        """
+        Validates if trying to update and delete range in same field
+        :param data:
+        :param kwargs:
+        :return:
+        """
         new_range = data.get('range')
         delete_range = data.get('delete_range')
         if new_range and delete_range:
