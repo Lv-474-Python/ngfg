@@ -25,6 +25,8 @@ jobs:
         env:
           GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
           GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
+          OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
       - name: install requirements
         run: pip install -r requirements.txt
       - name: run pylint
