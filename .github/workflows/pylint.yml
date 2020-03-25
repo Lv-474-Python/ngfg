@@ -29,7 +29,7 @@ jobs:
       - name: run pylint
         run: pylint *
       - name: run tests
-        run: cd src/app;ls; cd ../..; pytest
+        run: cd src; pytest
         env:
           GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
           GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
