@@ -179,9 +179,3 @@ def test_lists_to_list(data, expected):
     :param expected: test expected result
     """
     assert SheetManager.lists_to_list(data) == expected
-
-
-# @mock.patch('app.helper.sheet_manager.SheetManager.a')
-# def test_mock(mock_a):
-#     mock_a.return_value = 10
-#     assert SheetManager.a() == 10
