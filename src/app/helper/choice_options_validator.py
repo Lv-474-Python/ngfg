@@ -25,3 +25,14 @@ def check_for_same_options(added, removed):
     if added and removed:
         return bool(set(added) & set(removed))
     return False
+
+
+def validate_repeats_of_choice_options(added, removed):
+    errors = []
+    if check_for_repeated_options(options=added):
+        errors.append('Repeated added values')
+    if check_for_repeated_options(options=removed):
+        errors.append('Repeated removed values')
+    if check_for_same_options(added=added, removed=removed):
+        errors.append('Identical values in added and removed options')
+    return errors

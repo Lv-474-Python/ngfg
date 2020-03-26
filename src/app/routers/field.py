@@ -272,7 +272,7 @@ class FieldAPI(Resource):
         field_type = field.field_type
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
-            is_correct, errors = FieldService.validate_text_or_number_update(data)
+            is_correct, errors = FieldService.validate_text_or_number_update(data=data, field_type=field_type)
             if not is_correct:
                 raise BadRequest(errors)
 
@@ -300,7 +300,7 @@ class FieldAPI(Resource):
             updated_field = BasicField().dump(data)
 
         elif field_type == FieldType.Radio.value:
-            is_correct, errors = FieldService.validate_radio_update(data)
+            is_correct, errors = FieldService.validate_radio_update(data, field_id)
             if not is_correct:
                 raise BadRequest(errors)
 

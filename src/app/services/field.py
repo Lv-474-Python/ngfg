@@ -15,6 +15,7 @@ from app.helper.errors import (
     ChoiceOptionNotExist
 )
 from app.helper.sheet_manager import SheetManager
+from app.helper.range_validator import validate_range_text
 from app.models import Field
 from app.schemas import (
     BasicField,
@@ -242,14 +243,41 @@ class FieldService:
         :return: errors if validation failed
         """
         errors = FieldPutSchema().validate(data)
-
         updated_name = data.get('updatedName')
         if updated_name:
             is_changed = not bool(FieldService.filter(name=updated_name, field_id=field_id))
             if is_changed:
                 is_exist = FieldService.filter(owner_id=user, name=updated_name)
                 if is_exist:
-                    errors['is_exist'] = 'Field with such name already exist'
+                    errors['updatedName'] = {'_schema': 'Field with such name already exist'}
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_text_or_number_update(data, field_type):
+        """
+        Validation for text or number field on update
+        :param data: received request body
+        :return: errors and whether they occured
+        """
+        errors = FieldNumberTextPutSchema().validate(data)
+        if field_type == FieldType.Text.value:
+            ranges = data.get('range')
+            if ranges:
+                range_min = ranges.get('min')
+                range_max = ranges.get('max')
+                validator = validate_range_text(range_min, range_max)
+                if validator:
+                    errors['range'] = {'_schema': validator}
+        return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_radio_update(data, field_id):
+        """
+        Validation for radio field on update
+        :param data: received request body
+        :return: errors and whether they occurred
+        """
+        errors = FieldRadioPutSchema().validate(data)
 
         options_validator = FieldService.validate_options_update(
             field_id=field_id,
@@ -257,7 +285,8 @@ class FieldService:
             removed=data.get('removedChoiceOptions', [])
         )
         if options_validator:
-            errors['choice_options_validation_error'] = options_validator
+            # TODO add custom results to marshmallow result
+            errors['choiceOptions'] = {'_schema': options_validator}
         return (not bool(errors), errors)
 
     @staticmethod
@@ -267,39 +296,19 @@ class FieldService:
         :param field_id:
         :param added:
         :param removed:
-        :return:
+        :return: list with validation errors
         """
         additional_options = FieldService._get_choice_additional_options(field_id=field_id)
         current_options = additional_options.get('choiceOptions')
-
+        errors = []
         if added and len(set(current_options) & set(added)) != 0:
-            return 'Added choices already exist'
+            errors.append('Added choices already exist')
         if removed and len(set(current_options) & set(removed)) != len(removed):
-            return 'Removed options don\'t exist'
+            errors.append('Removed options don\'t exist')
         if removed:
             if len(current_options) - len(removed) + len(added) < 1:
-                return 'Can\'t delete all options'
-        return None
-
-    @staticmethod
-    def validate_text_or_number_update(data):
-        """
-        Validation for text or number field on update
-        :param data: received request body
-        :return: errors and whether they occured
-        """
-        errors = FieldNumberTextPutSchema().validate(data)
-        return (not bool(errors), errors)
-
-    @staticmethod
-    def validate_radio_update(data):
-        """
-        Validation for radio field on update
-        :param data: received request body
-        :return: errors and whether they occurred
-        """
-        errors = FieldRadioPutSchema().validate(data)
-        return (not bool(errors), errors)
+                errors.append('Can\'t delete all options')
+        return errors
 
     @staticmethod
     def validate_checkbox_update(data, field_id):
@@ -310,6 +319,16 @@ class FieldService:
         :return: errors and whether they occured
         """
         errors = FieldCheckboxPutSchema().validate(data)
+
+        options_validator = FieldService.validate_options_update(
+            field_id=field_id,
+            added=data.get('addedChoiceOptions', []),
+            removed=data.get('removedChoiceOptions', [])
+        )
+        if options_validator:
+            # TODO add custom results to marshmallow result
+            errors['choiceOptions'] = {'_schema': options_validator}
+
         options_and_range_validator = FieldService.validate_checkbox_options_and_range_update(
             field_id=field_id,
             added=data.get('addedChoiceOptions', []),

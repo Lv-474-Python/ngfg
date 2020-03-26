@@ -4,12 +4,15 @@ Field schemas
 from marshmallow import fields, validates_schema, ValidationError
 
 from app import MA
+from app.helper.choice_options_validator import (
+    check_for_repeated_options,
+    validate_repeats_of_choice_options
+)
+from app.helper.range_validator import validate_range_checkbox, validate_range_text
 from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
-from app.helper.choice_options_validator import check_for_repeated_options, check_for_same_options
+from app.helper.enums import FieldType
 from app.schemas.range import RangeSchema
 from app.schemas.setting_autocomplete import SettingAutocompleteSchema
-from app.helper.enums import FieldType
-from app.helper.constants import MAX_TEXT_LENGTH
 
 
 class BasicField(MA.Schema):
@@ -68,8 +71,15 @@ class FieldPostSchema(BasicField):
         :param kwargs:
         :return:
         """
-        if check_for_repeated_options(options=data.get('choice_options')):
-            raise ValidationError({'choiceOptions': {'_schema': 'Repeated values'}})
+        if data.get('field_type') in (FieldType.Radio.value, FieldType.Checkbox.value):
+            errors = []
+            options = data.get('choice_options')
+            if not options and isinstance(options, list):
+                errors.append('choiceOptions is empty')
+            if check_for_repeated_options(options=options):
+                errors.append('Repeated values')
+            if errors:
+                raise ValidationError({'choiceOptions': {'_schema': errors}})
 
     @validates_schema
     # pylint: disable=no-self-use
@@ -87,15 +97,9 @@ class FieldPostSchema(BasicField):
             range_min = ranges.get('min')
             range_max = ranges.get('max')
             if field_type == FieldType.Text.value:
-                if range_min and range_min > MAX_TEXT_LENGTH:
-                    errors.append('Min range must\'t be greater than 255')
-                if range_max and range_max > MAX_TEXT_LENGTH:
-                    errors.append('Max range must\'t be greater than 255')
-            if field_type in (FieldType.Text.value, FieldType.Checkbox.value):
-                if range_min and range_min < 0:
-                    errors.append('Min range must\'t be less than 0')
-                if range_max and range_max < 0:
-                    errors.append('Max range must\'t be less than 0')
+                errors.extend(validate_range_text(range_min, range_max))
+            if field_type == FieldType.Checkbox.value:
+                errors.extend(validate_range_checkbox(range_min, range_max))
         if errors:
             raise ValidationError({'range': {'_schema': errors}})
 
@@ -232,27 +236,6 @@ class FieldPutSchema(BasicField):
 
     @validates_schema
     # pylint:disable=no-self-use
-    def validate_choice_options_repeats(self, data, **kwargs):
-        """
-        Validates if in added or removed are repeatable values
-        :param data:
-        :param kwargs:
-        :return:
-        """
-        added_options = data.get('added_choice_options')
-        removed_options = data.get('removed_choice_options')
-        errors = []
-        if check_for_repeated_options(options=added_options):
-            errors.append('Repeated added values')
-        if check_for_repeated_options(options=removed_options):
-            errors.append('Repeated removed values')
-        if check_for_same_options(added=added_options, removed=removed_options):
-            errors.append('Identical values in added and removed options')
-        if errors:
-            raise ValidationError({'choiceOptions': {'_schema': errors}})
-
-    @validates_schema
-    # pylint:disable=no-self-use
     def validate_new_or_deleted_range(self, data, **kwargs):
         """
         Validates if trying to update and delete range in same field
@@ -306,6 +289,21 @@ class FieldRadioPutSchema(BasicField):
         data_key="removedChoiceOptions"
     )
 
+    @validates_schema
+    # pylint:disable=no-self-use
+    def validate_choice_options(self, data, **kwargs):
+        """
+        Validates if in added or removed are repeatable values
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        errors = validate_repeats_of_choice_options(
+            added=data.get('added_choice_options'),
+            removed=data.get('removed_choice_options'))
+        if errors:
+            raise ValidationError({'choiceOptions': {'_schema': errors}})
+
 
 class FieldCheckboxPutSchema(BasicField):
     """
@@ -337,6 +335,39 @@ class FieldCheckboxPutSchema(BasicField):
         data_key="removedChoiceOptions"
     )
     delete_range = fields.Boolean(data_key='deleteRange')
+
+    @validates_schema
+    # pylint:disable=no-self-use
+    def validate_choice_options(self, data, **kwargs):
+        """
+        Validates if in added or removed are repeatable values
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        errors = validate_repeats_of_choice_options(
+            added=data.get('added_choice_options'),
+            removed=data.get('removed_choice_options'))
+        if errors:
+            raise ValidationError({'choiceOptions': {'_schema': errors}})
+
+    @validates_schema
+    # pylint:disable=no-self-use
+    def validate_checkbox_range(self, data, **kwargs):
+        """
+        Validates checkbox range
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        ranges = data.get('range')
+        errors = []
+        if ranges:
+            range_min = ranges.get('min')
+            range_max = ranges.get('max')
+            errors.extend(validate_range_checkbox(range_min, range_max))
+        if errors:
+            raise ValidationError({'range': {'_schema': errors}})
 
 
 class FieldAutocompletePutSchema(BasicField):
