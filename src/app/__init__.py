@@ -83,3 +83,4 @@ from .routers import (  # pylint: disable=wrong-import-position
 )
 from .models import *  # pylint: disable=wrong-import-position
 from .celery_tasks import *  # pylint: disable=wrong-import-position
+from .helper.socket import *  # pylint: disable=wrong-import-position
