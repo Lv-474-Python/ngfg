@@ -54,8 +54,8 @@ def test_get_data_with_range_error(test_input, expected):
     :param expected: test expected result
     """
     mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_execute:
-        mock_execute().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
+    with mock.patch(mock_patch_path) as mock_spreadsheets:
+        mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
         spreadsheet_id, from_row, to_row = test_input
         assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
@@ -74,8 +74,8 @@ def test_get_all_data_true(spreadsheet_id, expected):
     :param expected: test expected result
     """
     mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_execute:
-        mock_execute().values().get().execute.return_value = {'values': [expected]}
+    with mock.patch(mock_patch_path) as mock_spreadsheets:
+        mock_spreadsheets().values().get().execute.return_value = {'values': [expected]}
 
         assert SheetManager.get_all_data(spreadsheet_id) == expected
 
