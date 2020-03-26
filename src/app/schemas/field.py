@@ -8,6 +8,8 @@ from app.helper.constants import MAX_FIELD_TYPE, MIN_FIELD_TYPE
 from app.helper.choice_options_validator import check_for_repeated_options, check_for_same_options
 from app.schemas.range import RangeSchema
 from app.schemas.setting_autocomplete import SettingAutocompleteSchema
+from app.helper.enums import FieldType
+from app.helper.constants import MAX_TEXT_LENGTH
 
 
 class BasicField(MA.Schema):
@@ -53,7 +55,9 @@ class FieldPostSchema(BasicField):
         :return: None or raise error
         """
         if data.get('field_type') > MAX_FIELD_TYPE or data.get('field_type') < MIN_FIELD_TYPE:
-            raise ValidationError('Must be greater than or equal to 1 and less than or equal to 6.')
+            raise ValidationError(
+                {'fieldType': {'_schema': 'Must be greater than or equal to 1 and less than or equal to 6.'}}
+            )
 
     @validates_schema
     # pylint: disable=no-self-use
@@ -65,7 +69,35 @@ class FieldPostSchema(BasicField):
         :return:
         """
         if check_for_repeated_options(options=data.get('choice_options')):
-            raise ValidationError('Repeated values')
+            raise ValidationError({'choiceOptions': {'_schema': 'Repeated values'}})
+
+    @validates_schema
+    # pylint: disable=no-self-use
+    def validate_range_values(self, data, **kwargs):
+        """
+        Validates range for text and checkbox fields
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        field_type = data.get('field_type')
+        ranges = data.get('range')
+        errors = []
+        if ranges:
+            range_min = ranges.get('min')
+            range_max = ranges.get('max')
+            if field_type == FieldType.Text.value:
+                if range_min and range_min > MAX_TEXT_LENGTH:
+                    errors.append('Min range must\'t be greater than 255')
+                if range_max and range_max > MAX_TEXT_LENGTH:
+                    errors.append('Max range must\'t be greater than 255')
+            if field_type in (FieldType.Text.value, FieldType.Checkbox.value):
+                if range_min and range_min < 0:
+                    errors.append('Min range must\'t be less than 0')
+                if range_max and range_max < 0:
+                    errors.append('Max range must\'t be less than 0')
+        if errors:
+            raise ValidationError({'range': {'_schema': errors}})
 
 
 class FieldCheckboxSchema(BasicField):
@@ -89,23 +121,27 @@ class FieldCheckboxSchema(BasicField):
         Validates range to choice_options amount
         :param data:
         :param kwargs:
-        :return:
+        :return: if raised returns
+        {"message":{"range":{"_schema": [errors] }}}
         """
         range_dict = data.get('range')
         options_list = data.get('choice_options')
+        errors = []
         if range_dict:
             min_value = range_dict.get('min')
             max_value = range_dict.get('max')
             if min_value is not None:
                 if min_value < 0:
-                    raise ValidationError('Min selective options must be positive')
+                    errors.append('Min selective options must be positive')
                 if min_value > len(options_list):
-                    raise ValidationError('Min selective options must be less than list of options')
+                    errors.append('Min selective options must be less than list of options')
             if max_value is not None:
                 if max_value < 0:
-                    raise ValidationError('Max selective options must be positive')
+                    errors.append('Max selective options must be positive')
                 if max_value > len(options_list):
-                    raise ValidationError('Max selective options must be less than list of options')
+                    errors.append('Max selective options must be less than list of options')
+        if errors:
+            raise ValidationError({'range': {'_schema': errors}})
 
 
 class FieldRadioSchema(BasicField):
@@ -205,12 +241,15 @@ class FieldPutSchema(BasicField):
         """
         added_options = data.get('added_choice_options')
         removed_options = data.get('removed_choice_options')
+        errors = []
         if check_for_repeated_options(options=added_options):
-            raise ValidationError('Repeated added values')
+            errors.append('Repeated added values')
         if check_for_repeated_options(options=removed_options):
-            raise ValidationError('Repeated removed values')
+            errors.append('Repeated removed values')
         if check_for_same_options(added=added_options, removed=removed_options):
-            raise ValidationError('Identical values in added and removed options')
+            errors.append('Identical values in added and removed options')
+        if errors:
+            raise ValidationError({'choiceOptions': {'_schema': errors}})
 
     @validates_schema
     # pylint:disable=no-self-use
@@ -224,7 +263,7 @@ class FieldPutSchema(BasicField):
         new_range = data.get('range')
         delete_range = data.get('delete_range')
         if new_range and delete_range:
-            raise ValidationError('Can\'t update and delete range')
+            raise ValidationError({'range': {'_schema': 'Can\'t update and delete range'}})
 
 
 class FieldNumberTextPutSchema(BasicField):
