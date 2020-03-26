@@ -298,7 +298,7 @@ class FieldService:
         :param removed:
         :return: list with validation errors
         """
-        additional_options = FieldService._get_choice_additional_options(field_id=field_id)
+        additional_options = FieldService._get_choice_additional_options(field_id)
         current_options = additional_options.get('choiceOptions')
         added_current_options_matches = set(current_options) & set(added)
         removed_current_options_matches = set(current_options) & set(removed)
