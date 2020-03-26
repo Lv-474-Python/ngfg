@@ -127,3 +127,15 @@ def callback(response):
 
     login_user(user)
     return Response(status=200)
+
+
+@APP.route('/verify_login')
+def verify_login():
+    """
+    View for check if user is log in
+
+    :return:
+    """
+    if current_user.is_authenticated:
+        return Response(status=200)
+    return Response(status=401)
