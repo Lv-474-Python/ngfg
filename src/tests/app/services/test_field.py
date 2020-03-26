@@ -1,7 +1,8 @@
 import pytest
+import mock
+
 from app.services import FieldService
 from app.models.field import Field
-import mock
 
 
 @pytest.fixture()
