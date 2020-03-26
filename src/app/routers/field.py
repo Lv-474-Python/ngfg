@@ -9,7 +9,7 @@ from app.schemas import BasicField
 
 from app import API
 from app.helper.enums import FieldType
-from app.services import FieldService
+from app.services import FieldService, UserService
 
 FIELDS_NS = API.namespace('fields', description='Field APIs')
 
@@ -183,6 +183,12 @@ class FieldsAPI(Resource):
             if extra_options:
                 for key, value in extra_options.items():
                     field[key] = value
+
+            owner = UserService.get_by_id(field['ownerId'])
+            field['owner'] = UserService.to_json(owner)
+            if field['ownerId'] == current_user.id:
+                field['owner']['current'] = True
+            
             response.append(field)
 
         return jsonify({"fields": response})
