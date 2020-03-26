@@ -300,13 +300,15 @@ class FieldService:
         """
         additional_options = FieldService._get_choice_additional_options(field_id=field_id)
         current_options = additional_options.get('choiceOptions')
+        added_current_options_matches = set(current_options) & set(added)
+        removed_current_options_matches = set(current_options) & set(removed)
         errors = []
-        if added and len(set(current_options) & set(added)) != 0:
+        if added and len(added_current_options_matches) != 0:
             errors.append('Added choices already exist')
-        if removed and len(set(current_options) & set(removed)) != len(removed):
+        if removed and len(removed_current_options_matches) != len(removed):
             errors.append('Removed options don\'t exist')
         if removed:
-            if len(current_options) - len(removed) + len(added) < 1:
+            if len(set(current_options)) - len(removed_current_options_matches) + len(set(added)) < 1:
                 errors.append('Can\'t delete all options')
         return errors
 

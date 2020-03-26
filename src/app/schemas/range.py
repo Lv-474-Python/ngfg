@@ -40,4 +40,4 @@ class RangeSchema(MA.Schema):
         if (min_value and max_value) and min_value > max_value:
             errors.append('min must be less than max')
         if errors:
-            raise ValidationError({'range': {'_schema': errors}})
+            raise ValidationError({'_schema': errors})
