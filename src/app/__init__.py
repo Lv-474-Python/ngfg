@@ -25,7 +25,7 @@ from .config import (
 )
 
 APP = Flask(__name__)
-NGFG_CORS = CORS(APP, supports_credentials=True)
+NGFG_CORS = CORS(APP, supports_credentials=True, expose_headers=['session', "Set-Cookie"])
 APP.config.from_object(Config)
 REDIS = Redis(password=REDIS_PASSWORD)
 LOGIN_MANAGER = LoginManager()
