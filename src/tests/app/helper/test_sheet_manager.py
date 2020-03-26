@@ -25,7 +25,8 @@ from .helper_test_data import (
     "test_input, expected", 
     SHEET_MANAGER_TEST_GET_DATA_WITH_RANGE_TRUE_DATA
 )
-def test_get_data_with_range_true(test_input, expected):
+@mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
+def test_get_data_with_range_true(mock_spreadsheets, test_input, expected):
     """
     Test SheetManager get_data_with_range()
     Test case when method executed successfully
@@ -33,19 +34,18 @@ def test_get_data_with_range_true(test_input, expected):
     :param test_input: test input data (spreadsheet_id, from_row, to_row)
     :param expected: test expected result
     """
-    mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_execute:
-        mock_execute().values().get().execute.return_value = {'values': [expected]}
+    mock_spreadsheets().values().get().execute.return_value = {'values': [expected]}
 
-        spreadsheet_id, from_row, to_row = test_input
-        assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
+    spreadsheet_id, from_row, to_row = test_input
+    assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
 
 
 @pytest.mark.parametrize(
     "test_input, expected", 
     SHEET_MANAGER_TEST_GET_DATA_WITH_RANGE_ERROR_DATA
 )
-def test_get_data_with_range_error(test_input, expected):
+@mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
+def test_get_data_with_range_error(mock_spreadsheets, test_input, expected):
     """
     Test SheetManager get_data_with_range()
     Test case when method raised googleapiclient.errors.HttpError
@@ -53,19 +53,18 @@ def test_get_data_with_range_error(test_input, expected):
     :param test_input: test input data (spreadsheet_id, from_row, to_row)
     :param expected: test expected result
     """
-    mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_spreadsheets:
-        mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
+    mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
-        spreadsheet_id, from_row, to_row = test_input
-        assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
+    spreadsheet_id, from_row, to_row = test_input
+    assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
 
 
 @pytest.mark.parametrize(
     "spreadsheet_id, expected",
     SHEET_MANAGER_TEST_GET_ALL_DATA_TRUE_DATA
 )
-def test_get_all_data_true(spreadsheet_id, expected):
+@mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
+def test_get_all_data_true(mock_spreadsheets, spreadsheet_id, expected):
     """
     Test SheetManager get_all_data()
     Test case when method executed successfully
@@ -73,18 +72,17 @@ def test_get_all_data_true(spreadsheet_id, expected):
     :param spreadsheet_id: id of spreadsheet from which data will be retrieved
     :param expected: test expected result
     """
-    mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_spreadsheets:
-        mock_spreadsheets().values().get().execute.return_value = {'values': [expected]}
+    mock_spreadsheets().values().get().execute.return_value = {'values': [expected]}
 
-        assert SheetManager.get_all_data(spreadsheet_id) == expected
+    assert SheetManager.get_all_data(spreadsheet_id) == expected
 
 
 @pytest.mark.parametrize(
     "spreadsheet_id, expected",
     SHEET_MANAGER_TEST_GET_ALL_DATA_ERROR_DATA
 )
-def test_get_all_data_raised_error(spreadsheet_id, expected):
+@mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
+def test_get_all_data_raised_error(mock_spreadsheets, spreadsheet_id, expected):
     """
     Test SheetManager get_all_data()
     Test case when method raised googleapiclient.errors.HttpError
@@ -92,18 +90,17 @@ def test_get_all_data_raised_error(spreadsheet_id, expected):
     :param spreadsheet_id: id of spreadsheet from which data will be retrieved
     :param expected: test expected result
     """
-    mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_spreadsheets:
-        mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
+    mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
-        assert SheetManager.get_all_data(spreadsheet_id) == expected
+    assert SheetManager.get_all_data(spreadsheet_id) == expected
 
 
 @pytest.mark.parametrize(
     "test_input, expected",
     SHEET_MANAGER_TEST_APPEND_DATA_TRUE_DATA
 )
-def test_append_data_true(test_input, expected):
+@mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
+def test_append_data_true(mock_spreadsheets, test_input, expected):
     """
     Test SheetManager append_data()
     Test case when method executed successfully
@@ -111,11 +108,10 @@ def test_append_data_true(test_input, expected):
     :param test_input: test input data (spreadsheet_id, values)
     :param expected: test expected result
     """
-    with mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets') as mock_spreadsheets:
-        mock_spreadsheets().values().append().execute.return_value = None
+    mock_spreadsheets().values().append().execute.return_value = None
 
-        spreadsheet_id, values = test_input
-        assert SheetManager.append_data(spreadsheet_id, values) == expected
+    spreadsheet_id, values = test_input
+    assert SheetManager.append_data(spreadsheet_id, values) == expected
 
 
 @pytest.mark.parametrize(
@@ -133,11 +129,13 @@ def test_append_data_values_not_list(test_input, expected):
     spreadsheet_id, values = test_input
     assert SheetManager.append_data(spreadsheet_id, values) == expected
 
+
 @pytest.mark.parametrize(
     "test_input, expected",
     SHEET_MANAGER_TEST_APPEND_DATA_ERROR_DATA
 )
-def test_get_all_data_error(test_input, expected):
+@mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
+def test_get_all_data_error(mock_spreadsheets, test_input, expected):
     """
     Test SheetManager get_all_data()
     Test case when method raised googleapiclient.errors.HttpError
@@ -145,12 +143,10 @@ def test_get_all_data_error(test_input, expected):
     :param test_input: test input data (spreadsheet_id, values)
     :param expected: test expected result
     """
-    mock_patch_path = 'app.helper.sheet_manager.SheetManager.service.spreadsheets'
-    with mock.patch(mock_patch_path) as mock_spreadsheets:
-        mock_spreadsheets().values().append().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
+    mock_spreadsheets().values().append().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
-        spreadsheet_id, values = test_input
-        assert SheetManager.append_data(spreadsheet_id, values) == expected
+    spreadsheet_id, values = test_input
+    assert SheetManager.append_data(spreadsheet_id, values) == expected
 
 
 @pytest.mark.parametrize(
@@ -165,6 +161,7 @@ def test_get_sheet_id_from_url(url, expected):
     :param expected: test expected result
     """
     assert SheetManager.get_sheet_id_from_url(url) == expected
+
 
 @pytest.mark.parametrize(
     "data, expected", 
