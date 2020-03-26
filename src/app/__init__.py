@@ -12,6 +12,7 @@ from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
 from flask_mail import Mail
+from flask_socketio import SocketIO
 
 from redis import Redis
 from .celery_config import make_celery
@@ -66,6 +67,8 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
 )
 
 MAIL = Mail(APP)
+
+SOCKETIO = SocketIO(APP)
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,
