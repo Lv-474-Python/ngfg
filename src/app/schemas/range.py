@@ -32,9 +32,12 @@ class RangeSchema(MA.Schema):
         :return:
         """
         min_value, max_value = data.get('min'), data.get('max')
+        errors = []
         if min_value and not MIN_POSTGRES_INT < min_value < MAX_POSTGRES_INT:
-            raise ValidationError(f'min must be between {MIN_POSTGRES_INT} and {MAX_POSTGRES_INT}')
+            errors.append(f'min must be between {MIN_POSTGRES_INT} and {MAX_POSTGRES_INT}')
         if max_value and not MIN_POSTGRES_INT < max_value < MAX_POSTGRES_INT:
-            raise ValidationError(f'max must be between {MIN_POSTGRES_INT} and {MAX_POSTGRES_INT}')
+            errors.append(f'max must be between {MIN_POSTGRES_INT} and {MAX_POSTGRES_INT}')
         if (min_value and max_value) and min_value > max_value:
-            raise ValidationError('min must be less than max')
+            errors.append('min must be less than max')
+        if errors:
+            raise ValidationError({'range': {'_schema': errors}})
