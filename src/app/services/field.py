@@ -285,7 +285,7 @@ class FieldService:
             removed=data.get('removedChoiceOptions', [])
         )
         if options_validator:
-            # TODO add custom results to marshmallow result
+            # add custom results to marshmallow result
             errors['choiceOptions'] = {'_schema': options_validator}
         return (not bool(errors), errors)
 
@@ -326,7 +326,7 @@ class FieldService:
             removed=data.get('removedChoiceOptions', [])
         )
         if options_validator:
-            # TODO add custom results to marshmallow result
+            # add custom results to marshmallow result
             errors['choiceOptions'] = {'_schema': options_validator}
 
         options_and_range_validator = FieldService.validate_checkbox_options_and_range_update(

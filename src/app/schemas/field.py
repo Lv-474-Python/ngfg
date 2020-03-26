@@ -59,7 +59,9 @@ class FieldPostSchema(BasicField):
         """
         if data.get('field_type') > MAX_FIELD_TYPE or data.get('field_type') < MIN_FIELD_TYPE:
             raise ValidationError(
-                {'fieldType': {'_schema': 'Must be greater than or equal to 1 and less than or equal to 6.'}}
+                {'fieldType': {
+                    '_schema': 'Must be greater than or equal to 1 and less than or equal to 6.'
+                }}
             )
 
     @validates_schema

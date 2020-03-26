@@ -272,7 +272,9 @@ class FieldAPI(Resource):
         field_type = field.field_type
 
         if field_type in (FieldType.Number.value, FieldType.Text.value):
-            is_correct, errors = FieldService.validate_text_or_number_update(data=data, field_type=field_type)
+            is_correct, errors = FieldService.validate_text_or_number_update(
+                data=data,
+                field_type=field_type)
             if not is_correct:
                 raise BadRequest(errors)
 
