@@ -188,7 +188,7 @@ class FieldsAPI(Resource):
             field['owner'] = UserService.to_json(owner)
             if field['ownerId'] == current_user.id:
                 field['owner']['current'] = True
-            
+
             response.append(field)
 
         return jsonify({"fields": response})
