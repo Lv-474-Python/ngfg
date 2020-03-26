@@ -166,6 +166,10 @@ class FieldsAPI(Resource):
         """
         field_list = FieldService.filter(owner_id=current_user.id)
 
+        # append shared fields for this user
+        shared_fields = FieldService.get_shared_fields(user_id=current_user.id)
+        field_list.extend(shared_fields)
+
         response = []
 
         # add options to field json

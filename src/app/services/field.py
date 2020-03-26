@@ -30,6 +30,7 @@ from app.schemas import (
     FieldAutocompletePutSchema,
     FieldTextAreaPutSchema
 )
+from app.services.shared_field import SharedFieldService
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
@@ -879,3 +880,18 @@ class FieldService:
         """
         field_in_form = FormFieldService.filter(field_id=field_id)
         return bool(field_in_form)
+
+    @staticmethod
+    def get_shared_fields(user_id):
+        """
+        Get all fields, shared for this user
+
+        :param user_id:
+        :return:
+        """
+        result = []
+        shared_fields = SharedFieldService.filter(user_id=user_id)
+        for shared_field in shared_fields:
+            field = FieldService.get_by_id(shared_field.field_id)
+            result.append(field)
+        return result
