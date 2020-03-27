@@ -141,37 +141,49 @@ class FormResultService:
                         for form_field in form_fields
                         if form_field.position == answer["position"]][0]
             field = FieldService.get_by_id(field_id)
-            f_range = None
-
-            if field.field_type in (
-                    FieldType.Number.value,
-                    FieldType.Text.value,
-                    FieldType.Checkbox.value
-            ):
-                range_id = FieldRangeService.get_by_field_id(field_id=field.id)
-                if range_id is not None:
-                    f_range = RangeService.get_by_id(range_id.range_id)
+            options = FieldService.get_additional_options(
+                field.id,
+                field.field_type
+            )
 
             if field.field_type == FieldType.Number.value:
-                FormResultService._check_number_field(field, answer, f_range, errors)
+                FormResultService._check_number_field(field, options, answer, errors)
             elif field.field_type == FieldType.Text.value:
-                FormResultService._check_text_field(field, answer, f_range, errors)
+                FormResultService._check_text_field(field, options, answer, errors)
             elif field.field_type == FieldType.Checkbox.value:
-                FormResultService._check_checkbox_field(field, answer, f_range, errors)
+                FormResultService._check_checkbox_field(field, options, answer, errors)
             elif field.field_type == FieldType.Radio.value:
-                FormResultService._check_radio_field(field, answer, errors)
+                FormResultService._check_radio_field(options, answer, errors)
             elif field.field_type == FieldType.TextArea.value:
                 pass
             elif field.field_type == FieldType.Autocomplete.value:
-                pass
+                FormResultService._check_autocomplete_field(options, answer, errors)
 
         return [not bool(errors), errors]
 
     @staticmethod
-    def _check_radio_field(field, answer, errors):
+    def _check_autocomplete_field(options, answer, errors):
         """
 
-        :param field:
+        :param options:
+        :param answer:
+        :param errors:
+        :return:
+        """
+        if not isinstance(answer['answer'], str):
+            errors[answer["position"]] = "Must be string."
+            return False
+
+        if str(answer['answer']) not in options['values']:
+            errors[answer["position"]] = "No such choice in this field."
+            return False
+        return True
+
+    @staticmethod
+    def _check_radio_field(options, answer, errors):
+        """
+
+        :param options:
         :param answer:
         :param errors:
         :return:
@@ -186,19 +198,18 @@ class FormResultService:
             return False
 
         radio_answer = str(radio_answer[0])
-        choice_options = [co.option_text for co in field.choice_options]
-        if radio_answer not in choice_options:
+        if radio_answer not in options['choiceOptions']:
             errors[answer["position"]] = "No such choice in this field."
             return False
         return True
 
     @staticmethod
-    def _check_checkbox_field(field, answer, f_range, errors):
+    def _check_checkbox_field(field, options, answer, errors):
         """
 
         :param field:
+        :param options:
         :param answer:
-        :param f_range:
         :param errors:
         :return:
         """
@@ -207,32 +218,41 @@ class FormResultService:
             errors[answer["position"]] = "Answers must be list type."
             return False
         answers = list(set(answers))  # Remove all repeating answers
-        choice_options = [co.option_text for co in field.choice_options]
 
-        if f_range is None:
-            f_range = Range(min=0, max=len(choice_options))
-        if f_range.min is None and f_range.max is not None:
-            f_range = Range(min=0, max=f_range.max)
-        if f_range.max is None and f_range.min is not None:
-            f_range = Range(min=f_range.min, max=len(choice_options))
+        if options['range']['min'] is None and options['range']['max'] is None:
+            field.range = Range(min=0, max=len(options['choiceOptions']))
+        elif options['range']['min'] is None and options['range']['max'] is not None:
+            field.range = Range(min=0, max=options['range']['max'])
+        elif options['range']['min'] is not None and options['range']['max'] is None:
+            field.range = Range(min=options['range']['min'], max=len(options['choiceOptions']))
+        else:
+            field.range = Range(min=options['range']['min'], max=options['range']['max'])
 
-        if not f_range.min <= len(answers) <= f_range.max:
+        if not field.range.min <= len(answers) <= field.range.max:
             errors[answer["position"]] = "Answers amount out of range."
             return False
 
+        wrong_answers = []
+
         for ans in answers:
-            if ans not in choice_options:
-                errors[answer["position"]] = "No such choice in this field."
-                return False
+            if ans not in options['choiceOptions']:
+                wrong_answers.append(ans)
+
+        if len(wrong_answers) > 0:
+            errors[answer["position"]] = 'There is no '
+            for ans in wrong_answers:
+                errors[answer["position"]] += ans + '; '
+            errors[answer["position"]] += 'in possible choices.'
+            return False
         return True
 
     @staticmethod
-    def _check_number_field(field, answer, f_range, errors):
+    def _check_number_field(field, options, answer, errors):
         """
 
         :param field:
         :param answer:
-        :param f_range:
+        :param options:
         :param errors:
         :return:
         """
@@ -241,30 +261,32 @@ class FormResultService:
             return False
         answer["answer"] = float(answer["answer"])
 
-        if f_range is None:
-            f_range = Range(min=MIN_POSTGRES_INT, max=MAX_POSTGRES_INT)
-        if f_range.min is None and f_range.max is not None:
-            f_range = Range(min=MIN_POSTGRES_INT, max=f_range.max)
-        if f_range.max is None and f_range.min is not None:
-            f_range = Range(min=f_range.min, max=MAX_POSTGRES_INT)
-
         if field.is_strict:
             if int(answer["answer"]) != answer["answer"]:
                 errors[answer["position"]] = "Value is not strict number"
                 return False
 
-        if not f_range.min <= answer["answer"] <= f_range.max:
+        if options['range']['min'] is None and options['range']['max'] is None:
+            field.range = Range(min=MIN_POSTGRES_INT, max=MAX_POSTGRES_INT)
+        elif options['range']['min'] is None and options['range']['max'] is not None:
+            field.range = Range(min=MIN_POSTGRES_INT, max=options['range']['max'])
+        elif options['range']['max'] is None and options['range']['min'] is not None:
+            field.range = Range(min=options['range']['min'], max=MAX_POSTGRES_INT)
+        else:
+            field.range = Range(min=options['range']['min'], max=options['range']['max'])
+
+        if not field.range.min <= answer["answer"] <= field.range.max:
             errors[answer["position"]] = "Value is out of range!"
             return False
         return True
 
     @staticmethod
-    def _check_text_field(field, answer, f_range, errors):
+    def _check_text_field(field, options, answer, errors):
         """
 
         :param field:
+        :param options:
         :param answer:
-        :param f_range:
         :param errors:
         :return:
         """
@@ -273,14 +295,16 @@ class FormResultService:
                 errors[answer["position"]] = "Value is not strict text"
                 return False
 
-        if f_range is None:
-            f_range = Range(min=0, max=MAX_TEXT_LENGTH)
-        if f_range.min is None and f_range.max is not None:
-            f_range = Range(min=0, max=f_range.max)
-        if f_range.max is None and f_range.min is not None:
-            f_range = Range(min=f_range.min, max=MAX_TEXT_LENGTH)
+        if options['range']['min'] is None and options['range']['max'] is None:
+            field.range = Range(min=0, max=MAX_TEXT_LENGTH)
+        elif options['range']['min'] is None and options['range']['max'] is not None:
+            field.range = Range(min=0, max=options['range']['max'])
+        elif options['range']['max'] is None and options['range']['max'] is not None:
+            field.range = Range(min=options['range']['min'], max=MAX_TEXT_LENGTH)
+        else:
+            field.range = Range(min=options['range']['min'], max=options['range']['max'])
 
-        if not f_range.min <= len(str(answer["answer"])) <= f_range.max:
+        if not field.range.min <= len(str(answer["answer"])) <= field.range.max:
             errors[answer["position"]] = "Value length is out of range!"
             return False
 
