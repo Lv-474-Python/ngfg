@@ -26,10 +26,7 @@ USER_SERVICE_UPDATE_DATA = [
     (5, "laaajnvvmm", "pos42a@gmai.com", "oda1", True),
 ]
 
-USER_SERVICE_UPDATE_ERROR_DATA = [
-    1,
-    2
-]
+USER_SERVICE_UPDATE_ERROR_DATA = [1, 2]
 
 USER_SERVICE_DELETE_DATA = [1, 2]
 
