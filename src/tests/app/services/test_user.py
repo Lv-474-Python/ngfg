@@ -13,13 +13,23 @@ import pytest
 from app.models import User
 from app.services.user import UserService
 
+from services_test_data import (
+    USER_SERVICE_CREATE_WITHOUT_FILTER_DATA,
+    USER_SERVICE_CREATE_WITH_FILTER_DATA,
+    USER_SERVICE_GET_BY_ID_DATA,
+    USER_SERVICE_UPDATE_DATA,
+    USER_SERVICE_UPDATE_ERROR_DATA,
+    USER_SERVICE_DELETE_DATA,
+    USER_SERVICE_DELETE_ERROR_DATA,
+    USER_SERVICE_FILTER_BY_USERNAME_DATA,
+    USER_SERVICE_FILTER_BY_EMAIL_DATA,
+    USER_SERVICE_FILTER_BY_GOOGLE_TOKEN_DATA,
+    USER_SERVICE_FILTER_BY_IS_ACTIVE_DATA,
+    USER_SERVICE_FILTER_BY_ALL_DATA 
+)
+
 
 # create
-USER_SERVICE_CREATE_WITHOUT_FILTER_DATA = [
-    ("kaic", "kaic@gmail.com", "asdsadaa"),
-    ("lsoa", "lsoa@gmail.com", "2fas2af")
-]
-
 @pytest.mark.parametrize(
     "username, email, google_token",
     USER_SERVICE_CREATE_WITHOUT_FILTER_DATA
@@ -52,11 +62,6 @@ def test_create_without_filter(
     assert user.google_token == result.google_token
 
 
-USER_SERVICE_CREATE_WITH_FILTER_DATA = [
-    ("kaic", "kaic@gmail.com", "asdsadaa"),
-    ("lsoa", "lsoa@gmail.com", "2fas2af")
-]
-
 @pytest.mark.parametrize(
     "username, email, google_token",
     USER_SERVICE_CREATE_WITH_FILTER_DATA
@@ -83,11 +88,6 @@ def test_create_with_filter(mock_user_filter, username, email, google_token):
 
 
 # get_by_id
-USER_SERVICE_GET_BY_ID_DATA = [
-    (1, "kaidac", "kwqaic@gmail.com", "asdsadaa"),
-    (2, "lsodsaa", "lssadoa@gmail.com", "2fas2af")
-]
-
 @pytest.mark.parametrize(
     "user_id, username, email, google_token",
     USER_SERVICE_GET_BY_ID_DATA
@@ -122,15 +122,6 @@ def user():
         google_token="asd21"
     )
     return user
-
-
-USER_SERVICE_UPDATE_DATA = [
-    (1, None, None, None, None),
-    (2, "lsodsaa", None, None, None),
-    (3, "laaasqwq", "la3a@gmai.com", None, None),
-    (4, "sqqasqwq", "laa@gmai.com", "asda", None),
-    (5, "laaajnvvmm", "pos42a@gmai.com", "oda1", True),
-]
 
 @pytest.mark.parametrize(
     "user_id, username, email, google_token, is_active ",
@@ -167,8 +158,6 @@ def test_update(
     assert updated_is_active == result.is_active
 
 
-USER_SERVICE_UPDATE_ERROR_DATA = [1, 2]
-
 @pytest.mark.parametrize(
     "user_id",
     USER_SERVICE_UPDATE_ERROR_DATA
@@ -187,8 +176,6 @@ def test_update_error(mock_user_get, user_id):
 
 
 # delete
-USER_SERVICE_DELETE_DATA = [1, 2]
-
 @pytest.mark.parametrize(
     "user_id",
     USER_SERVICE_DELETE_DATA
@@ -207,8 +194,6 @@ def test_delete(mock_user_get, mock_db_merge, user, user_id):
     assert result == True
 
 
-USER_SERVICE_DELETE_ERROR_DATA = [1, 2]
-
 @pytest.mark.parametrize(
     "user_id",
     USER_SERVICE_DELETE_ERROR_DATA
@@ -226,8 +211,6 @@ def test_delete_error(mock_user_get, user_id):
 
 
 # filter
-USER_SERVICE_FILTER_BY_USERNAME_DATA = ["sda", "lsodsaa"]
-
 @pytest.mark.parametrize(
     "username",
     USER_SERVICE_FILTER_BY_USERNAME_DATA
@@ -246,8 +229,6 @@ def test_filter_by_username(mock_user_query, user, username):
 
     assert [user] == result
 
-
-USER_SERVICE_FILTER_BY_EMAIL_DATA = ["sda@gmail.com", "lsodsaa@gmail.com"]
 
 @pytest.mark.parametrize(
     "email",
@@ -268,8 +249,6 @@ def test_filter_by_email(mock_user_query, user, email):
     assert [user] == result
 
 
-USER_SERVICE_FILTER_BY_GOOGLE_TOKEN_DATA = ["sda@gmail.com", "lsodsaa@gmail.com"]
-
 @pytest.mark.parametrize(
     "google_token",
     USER_SERVICE_FILTER_BY_GOOGLE_TOKEN_DATA
@@ -289,8 +268,6 @@ def test_filter_by_google_token(mock_user_query, user, google_token):
     assert [user] == result
 
 
-USER_SERVICE_FILTER_BY_IS_ACTIVE_DATA = [True, False]
-
 @pytest.mark.parametrize(
     "is_active",
     USER_SERVICE_FILTER_BY_IS_ACTIVE_DATA
@@ -309,11 +286,6 @@ def test_filter_by_is_active(mock_user_query, user, is_active):
 
     assert [user] == result
 
-
-USER_SERVICE_FILTER_BY_ALL_DATA = [
-    ("aasdasda", "ada@gmail.com", "asdsada", True),
-    ("gd2as", "adacv@gmail.com", "2asd2", False)
-]
 
 @pytest.mark.parametrize(
     "username, email, google_token, is_active",
