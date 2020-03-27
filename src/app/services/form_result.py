@@ -10,8 +10,6 @@ from app.models import FormResult, Range
 from app import DB
 from app.helper.decorators import transaction_decorator
 from app.schemas import FormResultPostSchema, FormResultGetSchema
-from app.services.field_range import FieldRangeService
-from app.services.range import RangeService
 from app.services.field import FieldService
 from app.services.form_field import FormFieldService
 
