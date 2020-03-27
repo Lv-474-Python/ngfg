@@ -26,8 +26,15 @@ USER_SERVICE_CREATE_WITHOUT_FILTER_DATA = [
 )
 @mock.patch("app.DB.session.add")
 @mock.patch("app.services.UserService.filter")
-def test_create_without_filter(mock_user_filter, mock_db_add, username, email, google_token):
+def test_create_without_filter(
+        mock_user_filter,
+        mock_db_add,
+        username,
+        email,
+        google_token):
     """
+    Test UserService create()
+    Test case when UserService.filter() returned None
     """
     user = User(
         username=username,
@@ -57,6 +64,8 @@ USER_SERVICE_CREATE_WITH_FILTER_DATA = [
 @mock.patch("app.services.UserService.filter")
 def test_create_with_filter(mock_user_filter, username, email, google_token):
     """
+    Test UserService create()
+    Test case when UserService.filter() returned users
     """
     user = User(
         username=username,
@@ -86,6 +95,8 @@ USER_SERVICE_GET_BY_ID_DATA = [
 @mock.patch("app.models.User.query")
 def test_get_by_id(mock_user_query, user_id, username, email, google_token):
     """
+    Test UserService get_by_id()
+    Test case when method executed successfully
     """
     user = User(
         username=username,
@@ -127,8 +138,18 @@ USER_SERVICE_UPDATE_DATA = [
 )
 @mock.patch("app.DB.session.merge")
 @mock.patch("app.services.UserService.get_by_id")
-def test_update(mock_user_get, mock_db_merge, user, user_id, username, email, google_token, is_active):
+def test_update(
+        mock_user_get,
+        mock_db_merge,
+        user,
+        user_id,
+        username,
+        email,
+        google_token,
+        is_active):
     """
+    Test UserService update()
+    Test case when method executed successfully
     """
     mock_user_get.return_value = user
     mock_db_merge.return_value = None
@@ -139,8 +160,6 @@ def test_update(mock_user_get, mock_db_merge, user, user_id, username, email, go
     updated_is_active = is_active if is_active else user.is_active
 
     result = UserService.update(user_id, username, email, google_token, is_active)
-
-    # import pdb; pdb.set_trace()
 
     assert updated_username == result.username
     assert updated_email == result.email
@@ -157,6 +176,8 @@ USER_SERVICE_UPDATE_ERROR_DATA = [1, 2]
 @mock.patch("app.services.UserService.get_by_id")
 def test_update_error(mock_user_get, user_id):
     """
+    Test UserService update()
+    Test case when method raised UserNotExist and returned None
     """
     mock_user_get.return_value = None
 
@@ -176,6 +197,8 @@ USER_SERVICE_DELETE_DATA = [1, 2]
 @mock.patch("app.services.UserService.get_by_id")
 def test_delete(mock_user_get, mock_db_merge, user, user_id):
     """
+    Test UserService delete()
+    Test case when method executed successfully
     """
     mock_user_get.return_value = user
     mock_db_merge.return_value = None
@@ -193,6 +216,8 @@ USER_SERVICE_DELETE_ERROR_DATA = [1, 2]
 @mock.patch("app.services.UserService.get_by_id")
 def test_delete_error(mock_user_get, user_id):
     """
+    Test UserService delete()
+    Test case when method raised UserNotExist and returned None
     """
     mock_user_get.return_value = None
 
@@ -210,6 +235,8 @@ USER_SERVICE_FILTER_BY_USERNAME_DATA = ["sda", "lsodsaa"]
 @mock.patch("app.models.User.query")
 def test_filter_by_username(mock_user_query, user, username):
     """
+    Test UserService filter()
+    Test case when method filter just by username
     """
     user.username = username
 
@@ -229,6 +256,8 @@ USER_SERVICE_FILTER_BY_EMAIL_DATA = ["sda@gmail.com", "lsodsaa@gmail.com"]
 @mock.patch("app.models.User.query")
 def test_filter_by_email(mock_user_query, user, email):
     """
+    Test UserService filter()
+    Test case when method filter just by email
     """
     user.email = email
 
@@ -248,6 +277,8 @@ USER_SERVICE_FILTER_BY_GOOGLE_TOKEN_DATA = ["sda@gmail.com", "lsodsaa@gmail.com"
 @mock.patch("app.models.User.query")
 def test_filter_by_google_token(mock_user_query, user, google_token):
     """
+    Test UserService filter()
+    Test case when method filter just by google_token
     """
     user.google_token = google_token
 
@@ -267,6 +298,8 @@ USER_SERVICE_FILTER_BY_IS_ACTIVE_DATA = [True, False]
 @mock.patch("app.models.User.query")
 def test_filter_by_is_active(mock_user_query, user, is_active):
     """
+    Test UserService filter()
+    Test case when method filter just by is_active
     """
     user.is_active = is_active
 
@@ -287,8 +320,16 @@ USER_SERVICE_FILTER_BY_ALL_DATA = [
     USER_SERVICE_FILTER_BY_ALL_DATA
 )
 @mock.patch("app.models.User.query")
-def test_filter_by_all(mock_user_query, user, username, email, google_token, is_active):
+def test_filter_by_all(
+        mock_user_query,
+        user,
+        username,
+        email,
+        google_token,
+        is_active):
     """
+    Test UserService filter()
+    Test case when method filter by username, email, google_token, is_active
     """
     user = User(
         username=username,
