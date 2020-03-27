@@ -683,23 +683,118 @@ def test_get_autocomplete_additional_options_error(mock_settings_get, field_id):
 
 
 
+# get_additional_options
+FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_NUMBER_TEXT_DATA = [
+    (1, 1, {'isStrict': True, 'range': {'min': 5, 'max': 10}}),
+    (1, 2, {'isStrict': False, 'range': {'min': 1, 'max': 10}}),
+]
+@pytest.mark.parametrize(
+    "field_id, field_type, expected",
+    FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_NUMBER_TEXT_DATA
+)
+@mock.patch('app.services.FieldService._get_text_or_number_additional_options')
+def test_get_additional_options_number_text(mock_field_get_options, field_id, field_type, expected):
+    """
+    """
+    mock_field_get_options.return_value = expected
+
+    assert FieldService.get_additional_options(field_id, field_type) == expected
 
 
+FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_TEXT_AREA_DATA = [
+    (4, 3, {}),
+    (5, 3, {}),
+]
+@pytest.mark.parametrize(
+    "field_id, field_type, expected",
+    FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_TEXT_AREA_DATA
+)
+def test_get_additional_options_text_area(field_id, field_type, expected):
+    """
+    """
+    assert FieldService.get_additional_options(field_id, field_type) == expected
 
 
+FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_RADIO_CHECKBOX_DATA = [
+    (6, 4, {'choiceOptions': ['Yes', 'No']}),
+    (7, 6, {'choiceOptions': ['Male', 'Female', 'Other'], 'range': {'min': 1, 'max': 2}}),
+]
+@pytest.mark.parametrize(
+    "field_id, field_type, expected",
+    FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_RADIO_CHECKBOX_DATA
+)
+@mock.patch('app.services.FieldService._get_choice_additional_options')
+def test_get_additional_options_radio_checkbox(mock_field_get_options, field_id, field_type, expected):
+    """
+    """
+    mock_field_get_options.return_value = expected
+
+    assert FieldService.get_additional_options(field_id, field_type) == expected
 
 
+FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
+    (8, 5, {
+        'settingAutocomplete': {
+            'dataUrl': 'http://docs.google.com/spreadsheet/d/a', 
+            'sheet': 'sheet',
+            'fromRow': 'A1',
+            'toRow': 'A2'
+        },
+        'values': ['male', 'female']
+    }),
+    (9, 5, {
+        'settingAutocomplete': {
+            'dataUrl': 'http://docs.google.com/spreadsheet/d/aasd', 
+            'sheet': 'sheet 2',
+            'fromRow': 'B1',
+            'toRow': 'C2'
+        },
+        'values': ['yes', 'no']
+    } ),
+]
+@pytest.mark.parametrize(
+    "field_id, field_type, expected",
+    FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA
+)
+@mock.patch('app.services.FieldService._get_autocomplete_additional_options')
+def test_get_additional_options_autocomplete(mock_field_get_options, field_id, field_type, expected):
+    """
+    """
+    mock_field_get_options.return_value = expected
+
+    assert FieldService.get_additional_options(field_id, field_type) == expected
 
 
+FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_ERROR_DATA = [
+    (9, 4, None),
+    (10, 6, None),
+]
+@pytest.mark.parametrize(
+    "field_id, field_type, expected",
+    FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_ERROR_DATA
+)
+@mock.patch('app.services.FieldService._get_choice_additional_options')
+def test_get_additional_options_error(mock_field_get_options, field_id, field_type, expected):
+    """
+    """
+    mock_field_get_options.side_effect = FieldNotExist()
+
+    assert FieldService.get_additional_options(field_id, field_type) == expected
 
 
-
-
-
-
-
-
-
+# check_for_range
+FIELD_SERVICE_CHECK_FOR_RANGE_DATA = [
+    ({'range': {'min': 2, 'max': 4}}, (2, 4)),
+    ({}, (None, None))
+]
+@pytest.mark.parametrize(
+    "data, expected",
+    FIELD_SERVICE_CHECK_FOR_RANGE_DATA
+)
+def test_check_for_range(data, expected):
+    """
+    """
+    assert FieldService.check_for_range(data) == expected
 
 
 
