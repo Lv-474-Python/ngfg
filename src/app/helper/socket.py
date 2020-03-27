@@ -2,7 +2,7 @@
 Sockets module
 """
 from flask_login import current_user
-from flask_socketio import ConnectionRefusedError  # pylint: disable=redefined-builtin
+from flask_socketio import join_room, leave_room, ConnectionRefusedError  # pylint: disable=redefined-builtin
 
 from app import CONNECTIONS_LOGGER, SOCKETIO
 
@@ -15,6 +15,7 @@ def connect():
     """
     if current_user.is_anonymous:
         raise ConnectionRefusedError('Unauthorized')
+    join_room(current_user.email)
     CONNECTIONS_LOGGER.info('Connected: %s', current_user.email)
 
 
@@ -24,6 +25,7 @@ def disconnect():
     Log that user disconnected
 
     """
+    leave_room(current_user.email)
     CONNECTIONS_LOGGER.info('Disconnected: %s', current_user.email)
 
 
@@ -32,4 +34,4 @@ def send_notification(message):
     Send message via socket
 
     """
-    SOCKETIO.send(message)
+    SOCKETIO.send(message, broadcast=False, room=current_user.email)
