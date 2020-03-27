@@ -12,8 +12,9 @@ def form_field_data():
 
 
 @pytest.fixture()
-def form_field_id():
-    return 1
+def form_field_updated_data():
+    data = {'form_id': 2, 'field_id': 2, 'question': 'new_string', 'position': 2}
+    return data
 
 
 @mock.patch('app.DB.session.add')
@@ -42,3 +43,23 @@ def test_get_by_id(redis_manager_get_mock, query_mock, form_field_data):
     test_instance = FormFieldService.get_by_id(1)
 
     assert instance == test_instance
+
+
+@mock.patch('app.helper.redis_manager.RedisManager.get')
+@mock.patch('app.DB.session.merge')
+@mock.patch('app.services.FormFieldService.get_by_id')
+def test_update(get_by_id_mock, db_mock,redis_manager_get_mock, form_field_data, form_field_updated_data):
+    instance = FormField(**form_field_data)
+
+    get_by_id_mock.return_value = instance
+    db_mock.return_value = None
+    redis_manager_get_mock.return_value = True
+
+    updated_instance = FormField(**form_field_updated_data)
+
+    test_instance = FormFieldService.update(1, **form_field_updated_data)
+
+    assert updated_instance.form_id == test_instance.form_id
+    assert updated_instance.field_id == test_instance.field_id
+    assert updated_instance.question == test_instance.question
+    assert updated_instance.position == test_instance.position
