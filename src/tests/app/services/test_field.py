@@ -10,7 +10,7 @@ from app.services import FieldService
 from app.helper.errors import FieldNotExist, SettingAutocompleteNotExist
 
 
-# create_text_or_number_field_without_range
+# create_text_or_number_field
 FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITHOUT_RANGE_DATA = [
     ("age", 1, 1, False),
     ("towns", 2, 1, True)
@@ -20,8 +20,12 @@ FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITHOUT_RANGE_DATA = [
     FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITHOUT_RANGE_DATA
 )
 @mock.patch('app.services.FieldService.create')
-def test_create_text_or_number_field_without_range(mock_field_create, test_input):
+def test_create_text_or_number_field_without_range(
+        mock_field_create,
+        test_input):
     """
+    Test FieldService create_text_or_number_field()
+    Test case when method text or number field is created without range
     """
     name, owner_id, field_type, is_strict = test_input
     field = Field(
@@ -32,14 +36,19 @@ def test_create_text_or_number_field_without_range(mock_field_create, test_input
     )
     mock_field_create.return_value = field
 
-    result = FieldService.create_text_or_number_field(name, owner_id, field_type, is_strict)
+    result = FieldService.create_text_or_number_field(
+        name,
+        owner_id,
+        field_type,
+        is_strict
+    )
 
-    assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    assert field.is_strict == result['isStrict']
-    # assert field.created == result['created']
+    assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] ==field.owner_id
+    assert result['fieldType'] == field.field_type
+    assert result['isStrict'] == field.is_strict
+    # assert result['created'] == field.created
 
 
 FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITH_RANGE_DATA = [
@@ -53,12 +62,15 @@ FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITH_RANGE_DATA = [
 @mock.patch('app.services.field_range.FieldRangeService.create')
 @mock.patch('app.services.range.RangeService.create')
 @mock.patch('app.services.field.FieldService.create')
-def test_create_text_or_number_field_with_range(mock_field_create,
-                                                mock_range_create,
-                                                mock_field_range_create,
-                                                test_input):
+def test_create_text_or_number_field_with_range(
+        mock_field_create,
+        mock_range_create,
+        mock_field_range_create,
+        test_input):
     """
-    """ 
+    Test FieldService create_text_or_number_field()
+    Test case when method text or number field is created with range
+    """
     name, owner_id, field_type, is_strict, range_min, range_max = test_input
     field = Field(
         name=name,
@@ -84,33 +96,36 @@ def test_create_text_or_number_field_with_range(mock_field_create,
         range_max
     )
 
-    assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    assert field.is_strict == result['isStrict']
-    # assert field.created == result['created']
-    assert range_min == result['range']['min']
-    assert range_max == result['range']['max']
+    assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] == field.owner_id
+    assert result['fieldType'] == field.field_type
+    assert result['isStrict'] == field.is_strict
+    # assert result['created'] == field.created
+    assert result['range']['min'] == range_min
+    assert result['range']['max'] == range_max 
 
 
 FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_ERROR_DATA = [
-    (("school", 5, 2), None),
-    (("university", 6, 2), None)
+    ("school", 5, 2),
+    ("university", 6, 2)
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_ERROR_DATA
 )
 @mock.patch('app.services.field.FieldService.create')
-def test_create_text_or_number_field_error(mock_field_create, test_input, expected):
+def test_create_text_or_number_field_error(mock_field_create, test_input):
     """
+    Test FieldService create_text_or_number_field()
+    Test case when method raised FieldAlreadyExist and returned None
     """
     name, owner_id, field_type = test_input
     mock_field_create.return_value = None
 
-    assert FieldService.create_text_or_number_field(name, owner_id, field_type) == expected
+    result = FieldService.create_text_or_number_field(name, owner_id, field_type)
 
+    assert result is None
 
 
 # create_text_area
