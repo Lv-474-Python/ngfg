@@ -35,6 +35,11 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
           APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
           OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
+          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          HOST: ${{secrets.HOST}}
+          PORT: ${{secrets.PORT}}
+          DB_NAME: ${{secrets.DB_NAME}}
       - name: coverage
         run: cd src; coverage run -m pytest
         env:
@@ -42,6 +47,11 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
           APP_SECRET_KEY: ${{secrets.APP_SECRET_KEY}}
           OAUTHLIB_INSECURE_TRANSPORT: ${{secrets.OAUTHLIB_INSECURE_TRANSPORT}}
+          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          HOST: ${{secrets.HOST}}
+          PORT: ${{secrets.PORT}}
+          DB_NAME: ${{secrets.DB_NAME}}
       - name: coveralls
         run: cd src; coveralls
         env:
