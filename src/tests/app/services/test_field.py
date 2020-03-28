@@ -140,6 +140,8 @@ FIELD_SERVICE_CREATE_TEXT_AREA_TRUE_DATA = [
 @mock.patch('app.services.FieldService.create')
 def test_create_text_area_true(mock_field_create, test_input):
     """
+    Test FieldService create_text_area()
+    Test case when method executed successfully
     """
     name, owner_id, field_type = test_input
     field = Field(
@@ -151,29 +153,33 @@ def test_create_text_area_true(mock_field_create, test_input):
 
     result = FieldService.create_text_area(name, owner_id, field_type)
 
-    assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    assert field.created == result['created']
+    assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] == field.owner_id
+    assert result['fieldType'] == field.field_type
+    assert result['created'] == field.created
 
 
 FIELD_SERVICE_CREATE_TEXT_AREA_ERROR_DATA = [
-    (("first school", 9, 3), None),
-    (("first university", 10, 3), None)
+    ("first school", 9, 3),
+    ("first university", 10, 3)
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_TEXT_AREA_ERROR_DATA
 )
 @mock.patch('app.services.field.FieldService.create')
-def test_create_text_area_error(mock_field_create, test_input, expected):
+def test_create_text_area_error(mock_field_create, test_input):
     """
+    Test FieldService create_text_area()
+    Test case when method raised FieldAlreadyExist and returned None
     """
     name, owner_id, field_type = test_input
     mock_field_create.return_value = None
 
-    assert FieldService.create_text_area(name, owner_id, field_type) == expected
+    result = FieldService.create_text_area(name, owner_id, field_type)
+
+    assert result is None
 
 
 #create_radio_field
@@ -187,8 +193,13 @@ FIELD_SERVICE_CREATE_RADIO_FIELD_TRUE_DATA = [
 )
 @mock.patch('app.services.ChoiceOptionService.create')
 @mock.patch('app.services.FieldService.create')
-def test_create_radio_field_true(mock_field_create, mock_choice_option_create, test_input):
+def test_create_radio_field_true(
+        mock_field_create,
+        mock_choice_option_create,
+        test_input):
     """
+    Test FieldService create_radio_field()
+    Test case when method executed successfully
     """
     name, owner_id, field_type, choice_options, is_strict = test_input
     field = Field(
@@ -199,49 +210,69 @@ def test_create_radio_field_true(mock_field_create, mock_choice_option_create, t
     mock_field_create.return_value = field
     mock_choice_option_create.return_value = None
 
-    result = FieldService.create_radio_field(name, owner_id, field_type, choice_options, is_strict)
+    result = FieldService.create_radio_field(
+        name,
+        owner_id,
+        field_type,
+        choice_options,
+        is_strict
+    )
 
-    # import pdb ; pdb.set_trace()
-
-    # assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    # assert field.created == result['created']
-    assert choice_options == result['choiceOptions']
+    # assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] == field.owner_id
+    assert result['fieldType'] == field.field_type
+    # assert result['created'] == field.created
+    assert result['choiceOptions'] == choice_options
 
 
 FIELD_SERVICE_CREATE_RADIO_FIELD_NOT_OPTIONS_DATA = [
-    (("words", 13, 4, []), None),
-    (("text", 14, 4, None), None)
+    ("words", 13, 4, []),
+    ("text", 14, 4, None)
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_RADIO_FIELD_NOT_OPTIONS_DATA
 )
-def test_create_radio_field_not_options(test_input, expected):
+def test_create_radio_field_not_options(test_input):
     """
+    Test FieldService create_radio_field()
+    Test case when choice_options weren't passed
+    Method raised ChoiceNotSend and returned None
     """
     name, owner_id, field_type, choice_options = test_input
-    assert FieldService.create_radio_field(name, owner_id, field_type, choice_options) == expected
+
+    result = FieldService.create_radio_field(name, owner_id, field_type, choice_options)
+
+    assert result is None
 
 
 FIELD_SERVICE_CREATE_RADIO_FIELD_NOT_FIELD_DATA = [
-    (("colors", 15, 4, ["r", "g", "b"]), None),
-    (("cmyk", 16, 4, ["c", "m", "y", "k"]), None)
+    ("colors", 15, 4, ["r", "g", "b"]),
+    ("cmyk", 16, 4, ["c", "m", "y", "k"])
 ]
 @pytest.mark.parametrize(
     "test_input, expected",
     FIELD_SERVICE_CREATE_RADIO_FIELD_NOT_FIELD_DATA
 )
 @mock.patch('app.services.field.FieldService.create')
-def test_create_radio_field_not_field(mock_field_create, test_input, expected):
+def test_create_radio_field_not_field(mock_field_create, test_input):
     """
+    Test FieldService create_radio_field()
+    Test case when field wasn't created
+    Method raised FieldAlreadyExist and returned None
     """
     name, owner_id, field_type, choice_options = test_input
     mock_field_create.return_value = None
 
-    assert FieldService.create_radio_field(name, owner_id, field_type, choice_options) == expected
+    result = FieldService.create_radio_field(
+        name,
+        owner_id,
+        field_type,
+        choice_options
+    )
+
+    assert result is None
 
 
 
