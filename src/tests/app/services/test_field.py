@@ -182,7 +182,7 @@ def test_create_text_area_error(mock_field_create, test_input):
     assert result is None
 
 
-#create_radio_field
+# create_radio_field
 FIELD_SERVICE_CREATE_RADIO_FIELD_TRUE_DATA = [
     ("age", 11, 4, ["10", "11", "12"], True),
     ("towns", 12, 4, ["Rivne", "Lviv"], False)
@@ -252,7 +252,7 @@ FIELD_SERVICE_CREATE_RADIO_FIELD_NOT_FIELD_DATA = [
     ("cmyk", 16, 4, ["c", "m", "y", "k"])
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_RADIO_FIELD_NOT_FIELD_DATA
 )
 @mock.patch('app.services.field.FieldService.create')
@@ -275,8 +275,7 @@ def test_create_radio_field_not_field(mock_field_create, test_input):
     assert result is None
 
 
-
-#create_checkbox_field
+# create_checkbox_field
 FIELD_SERVICE_CREATE_CHECKBOX_FIELD_WITHOUT_RANGE_DATA = [
     ("age", 17, 6, ["10", "11", "12"], True),
     ("cities", 18, 6, ["Kyiv", "Lviv"], False)
@@ -287,8 +286,13 @@ FIELD_SERVICE_CREATE_CHECKBOX_FIELD_WITHOUT_RANGE_DATA = [
 )
 @mock.patch('app.services.ChoiceOptionService.create')
 @mock.patch('app.services.FieldService.create')
-def test_create_checkbox_field_without_range(mock_field_create, mock_choice_option_create, test_input):
+def test_create_checkbox_field_without_range(
+        mock_field_create,
+        mock_choice_option_create,
+        test_input):
     """
+    Test FieldService create_checkbox_field()
+    Test case when method checkbox field is created without range
     """
     name, owner_id, field_type, choice_options, is_strict = test_input
     field = Field(
@@ -299,14 +303,20 @@ def test_create_checkbox_field_without_range(mock_field_create, mock_choice_opti
     mock_field_create.return_value = field
     mock_choice_option_create.return_value = None
 
-    result = FieldService.create_checkbox_field(name, owner_id, field_type, choice_options, is_strict)
+    result = FieldService.create_checkbox_field(
+        name,
+        owner_id,
+        field_type,
+        choice_options,
+        is_strict
+    )
 
-    # assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    # assert field.created == result['created']
-    assert choice_options == result['choiceOptions']
+    # assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] == field.owner_id
+    assert result['fieldType'] == field.field_type
+    # assert result['created'] == field.created
+    assert result['choiceOptions'] == choice_options
 
 
 FIELD_SERVICE_CREATE_CHECKBOX_FIELD_WITH_RANGE_DATA = [
@@ -322,12 +332,14 @@ FIELD_SERVICE_CREATE_CHECKBOX_FIELD_WITH_RANGE_DATA = [
 @mock.patch('app.services.RangeService.create')
 @mock.patch('app.services.FieldService.create')
 def test_create_checkbox_field_with_range(
-    mock_field_create,
-    mock_range_create,
-    mock_field_range_create,
-    mock_choice_option_create,
-    test_input):
+        mock_field_create,
+        mock_range_create,
+        mock_field_range_create,
+        mock_choice_option_create,
+        test_input):
     """
+    Test FieldService create_checkbox_field()
+    Test case when method checkbox field is created with range
     """
     name, owner_id, field_type, choice_options, is_strict, range_min, range_max = test_input
     field = Field(
@@ -355,35 +367,37 @@ def test_create_checkbox_field_with_range(
         range_max
     )
 
-    # import pdb ; pdb.set_trace()
-
-    # assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    # assert field.created == result['created']
-    assert choice_options == result['choiceOptions']
-    assert range_min == result['range']['min']
-    assert range_max == result['range']['max']
+    # assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] == field.owner_id
+    assert result['fieldType'] == field.field_type
+    # assert result['created'] == field.created
+    assert result['choiceOptions'] == choice_options
+    assert result['range']['min'] == range_min
+    assert result['range']['max'] == range_max
 
 
 FIELD_SERVICE_CREATE_CHECKBOX_FIELD_ERROR_DATA = [
-    (("beasts", 21, 5, []), None),
-    (("elks", 22, 5, []), None)
+    ("beasts", 21, 5, []),
+    ("elks", 22, 5, [])
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_CHECKBOX_FIELD_ERROR_DATA
 )
-def test_create_checkbox_field_error(test_input, expected):
+def test_create_checkbox_field_error(test_input):
     """
+    Test FieldService create_checkbox_field()
+    Test case when method raised ChoiceNotSend and return None
     """
     name, owner_id, field_type, choice_options = test_input
-    assert FieldService.create_checkbox_field(name, owner_id, field_type, choice_options) == expected
+
+    result = FieldService.create_checkbox_field(name, owner_id, field_type, choice_options)
+
+    assert result is None
 
 
-
-#create_autocomplete_field
+# create_autocomplete_field
 FIELD_SERVICE_CREATE_AUTOCOMPLETE_FIELD_TRUE_DATA = [
     ("age", 23, 5, "data_url 1", "sheet 1", "A1", "A11"),
     ("towns", 24, 5, "data_url 2", "sheet 2", "B12", "B15"),
@@ -394,8 +408,13 @@ FIELD_SERVICE_CREATE_AUTOCOMPLETE_FIELD_TRUE_DATA = [
 )
 @mock.patch('app.services.SettingAutocompleteService.create')
 @mock.patch('app.services.FieldService.create')
-def test_create_autocomplete_field_true(mock_field_create, mock_settings_create, test_input):
+def test_create_autocomplete_field_true(
+        mock_field_create,
+        mock_settings_create,
+        test_input):
     """
+    Test FieldService create_autocomplete_field()
+    Test case when method executed successfully
     """
     name, owner_id, field_type, data_url, sheet, from_row, to_row = test_input
     field = Field(
@@ -409,7 +428,7 @@ def test_create_autocomplete_field_true(mock_field_create, mock_settings_create,
         from_row=from_row,
         to_row=to_row,
         field_id=field.id
-     )
+    )
 
     mock_field_create.return_value = field
     mock_settings_create.return_value = settings
@@ -424,30 +443,33 @@ def test_create_autocomplete_field_true(mock_field_create, mock_settings_create,
         to_row
     )
 
-    # assert field.id == result['id']
-    assert field.name == result['name']
-    assert field.owner_id == result['ownerId']
-    assert field.field_type == result['fieldType']
-    # assert field.created == result['created']
-    assert settings.data_url == result['settingAutocomplete']['dataUrl']
-    assert settings.sheet == result['settingAutocomplete']['sheet']
-    assert settings.from_row == result['settingAutocomplete']['fromRow']
-    assert settings.to_row == result['settingAutocomplete']['toRow']
+    # assert result['id'] == field.id
+    assert result['name'] == field.name
+    assert result['ownerId'] == field.owner_id
+    assert result['fieldType'] == field.field_type
+    # assert result['created'] == field.created
+    assert result['settingAutocomplete']['dataUrl'] == settings.data_url
+    assert result['settingAutocomplete']['sheet'] == settings.sheet
+    assert result['settingAutocomplete']['fromRow'] == settings.from_row
+    assert result['settingAutocomplete']['toRow'] == settings.to_row
 
-    # якщо тут вивести field, result, settings (то settings не виведе бо в неї field None і ми типу з None беремо id)
+    # якщо тут вивести field, result, settings (то settings не виведе бо в неї field None і ми типу з None беремо id в __repr__)
 
 
 FIELD_SERVICE_CREATE_AUTOCOMPLETE_FIELD_NOT_FIELD_DATA = [
-    (("crowns", 25, 5, "data_url 3", "sheet 3", "C1", "C11"), None),
-    (("towns", 26, 5, "data_url 4", "sheet 4", "D12", "D15"), None)
+    ("crowns", 25, 5, "data_url 3", "sheet 3", "C1", "C11"),
+    ("towns", 26, 5, "data_url 4", "sheet 4", "D12", "D15")
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_AUTOCOMPLETE_FIELD_NOT_FIELD_DATA
 )
 @mock.patch('app.services.FieldService.create')
-def test_create_autocomplete_field_not_field(mock_field_create, test_input, expected):
+def test_create_autocomplete_field_not_field(mock_field_create, test_input):
     """
+    Test FieldService create_autocomplete_field()
+    Test case when field wasn't created
+    Method raised FieldNotExist and returned None
     """
     name, owner_id, field_type, data_url, sheet, from_row, to_row = test_input
     mock_field_create.return_value = None
@@ -462,21 +484,30 @@ def test_create_autocomplete_field_not_field(mock_field_create, test_input, expe
         to_row
     )
 
-    assert result == expected
+    assert result is None
+
+    # там рейситься FieldNotExist а має FieldAlreadyExist або FieldNotCreated
+    # швидше всього FieldAlreadyExist бо до того це було
 
 
 FIELD_SERVICE_CREATE_AUTOCOMPLETE_FIELD_NOT_SETTINGS_DATA = [
-    (("clowns", 27, 5, "data_url 5", "sheet 5", "K1", "K11"), None),
-    (("towns", 28, 5, "data_url 6", "sheet 6", "F12", "F15"), None)
+    ("clowns", 27, 5, "data_url 5", "sheet 5", "K1", "K11"),
+    ("towns", 28, 5, "data_url 6", "sheet 6", "F12", "F15")
 ]
 @pytest.mark.parametrize(
-    "test_input, expected",
+    "test_input",
     FIELD_SERVICE_CREATE_AUTOCOMPLETE_FIELD_NOT_SETTINGS_DATA
 )
 @mock.patch('app.services.SettingAutocompleteService.create')
 @mock.patch('app.services.FieldService.create')
-def test_create_autocomplete_field_not_settings(mock_field_create, mock_settings_create, test_input, expected):
+def test_create_autocomplete_field_not_settings(
+        mock_field_create,
+        mock_settings_create,
+        test_input):
     """
+    Test FieldService create_autocomplete_field()
+    Test case when settings wasn't created
+    Method raised SettingAutocompleteNotExist and returned None
     """
     name, owner_id, field_type, data_url, sheet, from_row, to_row = test_input
     field = Field(
@@ -498,7 +529,10 @@ def test_create_autocomplete_field_not_settings(mock_field_create, mock_settings
         to_row
     )
 
-    assert result == expected
+    assert result is None
+
+    # там рейситься SettingAutocompleteNotExist а має SettingAutocompleteAlreadyExist або SettingAutocompleteNotCreated
+    # швидше всього SettingAutocompleteAlreadyExist
 
 
 
