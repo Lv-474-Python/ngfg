@@ -3,7 +3,6 @@ Helper test data
 """
 
 # sheet_manager.py
-
 SHEET_MANAGER_TEST_GET_DATA_WITH_RANGE_TRUE_DATA = [
     (("1Vg2q1qeksamWE9", 'A1', 'A13'), ['test1.1', 'test1.2']),
     (("1Vg1yuasdasddsa", 'A100', 'A130'), ['test2.1', 'test2.2']),

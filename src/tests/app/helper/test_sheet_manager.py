@@ -21,8 +21,9 @@ from .helper_test_data import (
 )
 
 
+# get_data_with_range
 @pytest.mark.parametrize(
-    "test_input, expected", 
+    "test_input, expected",
     SHEET_MANAGER_TEST_GET_DATA_WITH_RANGE_TRUE_DATA
 )
 @mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
@@ -34,11 +35,13 @@ def test_get_data_with_range_true(mock_spreadsheets, test_input, expected):
     mock_spreadsheets().values().get().execute.return_value = {'values': [expected]}
 
     spreadsheet_id, from_row, to_row = test_input
-    assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
+    result = SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row)
+
+    assert result == expected
 
 
 @pytest.mark.parametrize(
-    "test_input, expected", 
+    "test_input, expected",
     SHEET_MANAGER_TEST_GET_DATA_WITH_RANGE_ERROR_DATA
 )
 @mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
@@ -50,9 +53,12 @@ def test_get_data_with_range_error(mock_spreadsheets, test_input, expected):
     mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
     spreadsheet_id, from_row, to_row = test_input
-    assert SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row) == expected
+    result = SheetManager.get_data_with_range(spreadsheet_id, from_row, to_row)
+
+    assert result == expected
 
 
+# get_all_data
 @pytest.mark.parametrize(
     "spreadsheet_id, expected",
     SHEET_MANAGER_TEST_GET_ALL_DATA_TRUE_DATA
@@ -65,7 +71,9 @@ def test_get_all_data_true(mock_spreadsheets, spreadsheet_id, expected):
     """
     mock_spreadsheets().values().get().execute.return_value = {'values': [expected]}
 
-    assert SheetManager.get_all_data(spreadsheet_id) == expected
+    result = SheetManager.get_all_data(spreadsheet_id)
+
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -80,9 +88,12 @@ def test_get_all_data_raised_error(mock_spreadsheets, spreadsheet_id, expected):
     """
     mock_spreadsheets().values().get().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
-    assert SheetManager.get_all_data(spreadsheet_id) == expected
+    result = SheetManager.get_all_data(spreadsheet_id)
+
+    assert result == expected
 
 
+# append_data
 @pytest.mark.parametrize(
     "test_input, expected",
     SHEET_MANAGER_TEST_APPEND_DATA_TRUE_DATA
@@ -96,7 +107,9 @@ def test_append_data_true(mock_spreadsheets, test_input, expected):
     mock_spreadsheets().values().append().execute.return_value = None
 
     spreadsheet_id, values = test_input
-    assert SheetManager.append_data(spreadsheet_id, values) == expected
+    result = SheetManager.append_data(spreadsheet_id, values)
+
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -109,7 +122,9 @@ def test_append_data_values_not_list(test_input, expected):
     Test case when variable values isn't list
     """
     spreadsheet_id, values = test_input
-    assert SheetManager.append_data(spreadsheet_id, values) == expected
+    result = SheetManager.append_data(spreadsheet_id, values)
+
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -117,7 +132,7 @@ def test_append_data_values_not_list(test_input, expected):
     SHEET_MANAGER_TEST_APPEND_DATA_ERROR_DATA
 )
 @mock.patch('app.helper.sheet_manager.SheetManager.service.spreadsheets')
-def test_get_all_data_error(mock_spreadsheets, test_input, expected):
+def test_append_data_error(mock_spreadsheets, test_input, expected):
     """
     Test SheetManager get_all_data()
     Test case when method raised googleapiclient.errors.HttpError
@@ -125,9 +140,12 @@ def test_get_all_data_error(mock_spreadsheets, test_input, expected):
     mock_spreadsheets().values().append().execute.side_effect = googleapiclient.errors.HttpError('Test', b'Test')
 
     spreadsheet_id, values = test_input
-    assert SheetManager.append_data(spreadsheet_id, values) == expected
+    result = SheetManager.append_data(spreadsheet_id, values)
+
+    assert result == expected
 
 
+# get_sheet_id_from_url
 @pytest.mark.parametrize(
     "url, expected",
     SHEET_MANAGER_TEST_GET_SHEET_ID_FROM_URL_DATA
@@ -136,16 +154,20 @@ def test_get_sheet_id_from_url(url, expected):
     """
     Test SheetManager get_sheet_id_from_url()
     """
-    assert SheetManager.get_sheet_id_from_url(url) == expected
+    result = SheetManager.get_sheet_id_from_url(url)
+
+    assert result == expected
 
 
+# lists_to_list
 @pytest.mark.parametrize(
-    "data, expected", 
-    SHEET_MANAGER_TEST_LISTS_TO_LIST_DATA, 
-    ids=["1_2_3_5", "1_2_2", "1_2_3_4", "None"]
+    "data, expected",
+    SHEET_MANAGER_TEST_LISTS_TO_LIST_DATA,
 )
 def test_lists_to_list(data, expected):
     """
-    Test SheetManager get_sheet_id_from_url()
+    Test SheetManager lists_to_list()
     """
-    assert SheetManager.lists_to_list(data) == expected
+    result = SheetManager.lists_to_list(data)
+
+    assert result == expected
