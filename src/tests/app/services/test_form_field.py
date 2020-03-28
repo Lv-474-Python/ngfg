@@ -3,6 +3,7 @@ import mock
 
 from app.services import FormFieldService
 from app.models import FormField
+from app.schemas import FormFieldSchema
 
 
 @pytest.fixture()
