@@ -48,7 +48,7 @@ def test_get_by_id(redis_manager_get_mock, query_mock, form_field_data):
 @mock.patch('app.helper.redis_manager.RedisManager.get')
 @mock.patch('app.DB.session.merge')
 @mock.patch('app.services.FormFieldService.get_by_id')
-def test_update(get_by_id_mock, db_mock,redis_manager_get_mock, form_field_data, form_field_updated_data):
+def test_update(get_by_id_mock, db_mock, redis_manager_get_mock, form_field_data, form_field_updated_data):
     instance = FormField(**form_field_data)
 
     get_by_id_mock.return_value = instance
@@ -63,3 +63,12 @@ def test_update(get_by_id_mock, db_mock,redis_manager_get_mock, form_field_data,
     assert updated_instance.field_id == test_instance.field_id
     assert updated_instance.question == test_instance.question
     assert updated_instance.position == test_instance.position
+
+
+@mock.patch('app.services.FormFieldService.get_by_id')
+def test_update_with_form_field_not_exist(get_by_id_mock, form_field_data):
+    get_by_id_mock.return_value = None
+
+    test_instance = FormFieldService.update(form_field_data.get('id'))
+
+    assert test_instance == None
