@@ -3,19 +3,6 @@ import mock
 
 from app.services import GroupService
 from app.models import Group, GroupUser
-from app.helper.errors import GroupNotExist
-
-
-@pytest.fixture()
-def group_data():
-    data = {'id': 1, 'name': 'string', 'owner_id': 1}
-    return data
-
-
-@pytest.fixture()
-def group_user_data():
-    user = {'user_id': 1, 'group_id': 1}
-    return user
 
 
 @pytest.fixture()
