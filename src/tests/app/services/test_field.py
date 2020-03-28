@@ -798,7 +798,7 @@ def test_get_additional_options_error(
     "data, expected",
     FIELD_SERVICE_CHECK_FOR_RANGE_DATA
 )
-def check_for_range(data, expected):
+def test_check_for_range(data, expected):
     """
     Test FieldService get_additional_options()
     Test case when method executed successfully
