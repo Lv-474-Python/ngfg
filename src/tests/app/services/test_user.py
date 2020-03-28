@@ -216,7 +216,7 @@ def test_delete_error(mock_user_get, user_id):
 def test_filter_by_username(mock_user_query, user, username):
     """
     Test UserService filter()
-    Test case when method filter just by username
+    Test case when method filtered just by username
     """
     user.username = username
 
@@ -235,7 +235,7 @@ def test_filter_by_username(mock_user_query, user, username):
 def test_filter_by_email(mock_user_query, user, email):
     """
     Test UserService filter()
-    Test case when method filter just by email
+    Test case when method filtered just by email
     """
     user.email = email
 
@@ -254,7 +254,7 @@ def test_filter_by_email(mock_user_query, user, email):
 def test_filter_by_google_token(mock_user_query, user, google_token):
     """
     Test UserService filter()
-    Test case when method filter just by google_token
+    Test case when method filtered just by google_token
     """
     user.google_token = google_token
 
@@ -273,7 +273,7 @@ def test_filter_by_google_token(mock_user_query, user, google_token):
 def test_filter_by_is_active(mock_user_query, user, is_active):
     """
     Test UserService filter()
-    Test case when method filter just by is_active
+    Test case when method filtered just by is_active
     """
     user.is_active = is_active
 
@@ -298,7 +298,7 @@ def test_filter_by_all(
         is_active):
     """
     Test UserService filter()
-    Test case when method filter by username, email, google_token, is_active
+    Test case when method filtered by username, email, google_token, is_active
     """
     user = User(
         username=username,
