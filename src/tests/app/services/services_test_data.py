@@ -2,7 +2,6 @@
 Services test data
 """
 
-
 # FormService
 FORM_SERVICE_CREATE_DATA = [
     (1, "login form", "login", "http://docs.google.com/spreadsheet/d/s1", True),

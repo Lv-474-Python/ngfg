@@ -1,4 +1,6 @@
-# from app.helper.answer_validation import is_numeric
+"""
+Init module
+"""
 
 from app.services import *
 from app.models import *
