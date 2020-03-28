@@ -137,9 +137,9 @@ def test_create_text_or_number_field_error(mock_field_create, test_input):
     Test FieldService create_text_or_number_field()
     Test case when method raised FieldAlreadyExist and returned None
     """
-    name, owner_id, field_type = test_input
     mock_field_create.return_value = None
 
+    name, owner_id, field_type = test_input
     result = FieldService.create_text_or_number_field(name, owner_id, field_type)
 
     assert result is None
@@ -183,9 +183,9 @@ def test_create_text_area_error(mock_field_create, test_input):
     Test FieldService create_text_area()
     Test case when method raised FieldAlreadyExist and returned None
     """
-    name, owner_id, field_type = test_input
     mock_field_create.return_value = None
 
+    name, owner_id, field_type = test_input
     result = FieldService.create_text_area(name, owner_id, field_type)
 
     assert result is None
@@ -242,7 +242,6 @@ def test_create_radio_field_not_options(test_input):
     Method raised ChoiceNotSend and returned None
     """
     name, owner_id, field_type, choice_options = test_input
-
     result = FieldService.create_radio_field(name, owner_id, field_type, choice_options)
 
     assert result is None
@@ -376,7 +375,6 @@ def test_create_checkbox_field_error(test_input):
     Test case when method raised ChoiceNotSend and return None
     """
     name, owner_id, field_type, choice_options = test_input
-
     result = FieldService.create_checkbox_field(name, owner_id, field_type, choice_options)
 
     assert result is None
