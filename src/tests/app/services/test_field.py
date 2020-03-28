@@ -535,21 +535,26 @@ def test_create_autocomplete_field_not_settings(
     # швидше всього SettingAutocompleteAlreadyExist
 
 
-
 # _get_text_or_number_additional_options
-FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_WITH_STRICT_DATA = [
+FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_TRUE_DATA = [
     ("age", 29, 1, True, 1, 2),
     ("name", 30, 1, True, 1, None)
 ]
 @pytest.mark.parametrize(
     "test_input",
-    FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_WITH_STRICT_DATA
+    FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_TRUE_DATA
 )
 @mock.patch('app.services.RangeService.get_by_id')
 @mock.patch('app.services.FieldService.get_by_id')
 @mock.patch('app.services.FieldRangeService.get_by_field_id')
-def test_get_text_or_number_additional_options_with_strict(mock_field_range_get, mock_field_get, mock_range_get, test_input):
+def test_get_text_or_number_additional_options_true(
+        mock_field_range_get,
+        mock_field_get,
+        mock_range_get,
+        test_input):
     """
+    Test FieldService _get_text_or_number_additional_options()
+    Test case when settings method executed successfully
     """
     name, owner_id, field_type, is_strict, range_min, range_max = test_input
     field = Field(
@@ -573,49 +578,9 @@ def test_get_text_or_number_additional_options_with_strict(mock_field_range_get,
 
     result = FieldService._get_text_or_number_additional_options(field.id)
 
-    assert field.is_strict == result['isStrict']
-    assert range_.min == result['range']['min']
-    assert range_.max == result['range']['max']
-
-
-FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_WITHOUT_STRICT_DATA = [
-    ("surname", 31, 2, False, 1, 2),
-    ("last name", 32, 2, False, 1, None)
-]
-@pytest.mark.parametrize(
-    "test_input",
-    FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_WITHOUT_STRICT_DATA
-)
-@mock.patch('app.services.RangeService.get_by_id')
-@mock.patch('app.services.FieldService.get_by_id')
-@mock.patch('app.services.FieldRangeService.get_by_field_id')
-def test_get_text_or_number_additional_options_without_strict(mock_field_range_get, mock_field_get, mock_range_get, test_input):
-    """
-    """
-    name, owner_id, field_type, is_strict, range_min, range_max = test_input
-    field = Field(
-        name=name,
-        owner_id=owner_id,
-        field_type=field_type,
-        is_strict=is_strict
-    )
-    range_ = Range(
-        min=range_min,
-        max=range_max
-    )
-    field_range = FieldRange(
-        field_id=field.id,
-        range_id=range_.id
-    )
-
-    mock_field_range_get.return_value = field_range
-    mock_field_get.return_value = field
-    mock_range_get.return_value = range_
-
-    result = FieldService._get_text_or_number_additional_options(field.id)
-
-    assert range_.min == result['range']['min']
-    assert range_.max == result['range']['max']
+    assert result['isStrict'] == field.is_strict
+    assert result['range']['min'] == range_.min
+    assert result['range']['max'] == range_.max
 
 
 FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_EMPTY_DATA = [
@@ -628,8 +593,14 @@ FIELD_SERVICE_GET_TEXT_OR_NUMBER_ADDITIONAL_OPTIONS_EMPTY_DATA = [
 )
 @mock.patch('app.services.FieldService.get_by_id')
 @mock.patch('app.services.FieldRangeService.get_by_field_id')
-def test_get_text_or_number_additional_options_empty(mock_field_range_get, mock_field_get, test_input, expected):
+def test_get_text_or_number_additional_options_empty(
+        mock_field_range_get,
+        mock_field_get,
+        test_input,
+        expected):
     """
+    Test FieldService _get_text_or_number_additional_options()
+    Test case when method returned empty dict
     """
     name, owner_id, field_type = test_input
     field = Field(
@@ -646,7 +617,6 @@ def test_get_text_or_number_additional_options_empty(mock_field_range_get, mock_
     assert result == expected
 
 
-
 # _get_choice_additional_options
 FIELD_SERVICE_GET_CHOICE_ADDITIONAL_OPTIONS_TRUE_DATA = [
     (1, ["1", "2", "3"], 2, 3),
@@ -659,8 +629,14 @@ FIELD_SERVICE_GET_CHOICE_ADDITIONAL_OPTIONS_TRUE_DATA = [
 @mock.patch('app.services.RangeService.get_by_id')
 @mock.patch('app.services.FieldRangeService.get_by_field_id')
 @mock.patch('app.services.ChoiceOptionService.filter')
-def test_get_choice_additional_options_true(mock_option_filter, mock_field_range_get, mock_range_get, test_input):
+def test_get_choice_additional_options_true(
+        mock_option_filter,
+        mock_field_range_get,
+        mock_range_get,
+        test_input):
     """
+    Test FieldService _get_choice_additional_options()
+    Test case when method executed successfully
     """
     field_id, options, range_min, range_max = test_input
 
@@ -687,25 +663,27 @@ def test_get_choice_additional_options_true(mock_option_filter, mock_field_range
     assert range_.max == result['range']['max']
 
 
-FIELD_SERVICE_GET_CHOICE_ADDITIONAL_OPTIONS_ERROR_DATA = [
-    1,
-    2
-]
+FIELD_SERVICE_GET_CHOICE_ADDITIONAL_OPTIONS_ERROR_DATA = [1, 2]
+
 @pytest.mark.parametrize(
     "field_id",
     FIELD_SERVICE_GET_CHOICE_ADDITIONAL_OPTIONS_ERROR_DATA
 )
 @mock.patch('app.services.FieldRangeService.get_by_field_id')
 @mock.patch('app.services.ChoiceOptionService.filter')
-def test_get_choice_additional_options_error(mock_option_filter, mock_field_range_get, field_id):
+def test_get_choice_additional_options_error(
+        mock_option_filter,
+        mock_field_range_get,
+        field_id):
     """
+    Test FieldService _get_choice_additional_options()
+    Test case when method raised FieldNotExist
     """
     mock_option_filter.return_value = None
     mock_field_range_get.return_value = None
 
     with pytest.raises(FieldNotExist):
         FieldService._get_choice_additional_options(field_id)
-
 
 
 # _get_autocomplete_additional_options
@@ -719,8 +697,13 @@ FIELD_SERVICE_GET_AUTOCOMPLETE_ADDITIONAL_OPTIONS_TRUE_DATA = [
 )
 @mock.patch('app.helper.sheet_manager.SheetManager.get_data_with_range')
 @mock.patch('app.services.SettingAutocompleteService.get_by_field_id')
-def test_get_autocomplete_additional_options_true(mock_settings_get, mock_manager_get_data, test_input):
+def test_get_autocomplete_additional_options_true(
+        mock_settings_get,
+        mock_manager_get_data,
+        test_input):
     """
+    Test FieldService _get_choice_additional_options()
+    Test case when method executed successfully
     """
     field_id, data_url, sheet, from_row, to_row, sheet_data = test_input
 
@@ -737,17 +720,15 @@ def test_get_autocomplete_additional_options_true(mock_settings_get, mock_manage
 
     result = FieldService._get_autocomplete_additional_options(field_id)
 
-    assert data_url == result['settingAutocomplete']['dataUrl']
-    assert sheet == result['settingAutocomplete']['sheet']
-    assert from_row == result['settingAutocomplete']['fromRow']
-    assert to_row == result['settingAutocomplete']['toRow']
-    assert sheet_data == result['values']
+    assert result['settingAutocomplete']['dataUrl'] == data_url
+    assert result['settingAutocomplete']['sheet'] == sheet
+    assert result['settingAutocomplete']['fromRow'] == from_row
+    assert result['settingAutocomplete']['toRow'] == to_row
+    assert result['values'] == sheet_data
 
 
-FIELD_SERVICE_GET_AUTOCOMPLETE_ADDITIONAL_OPTIONS_ERROR_DATA = [
-    1,
-    2
-]
+FIELD_SERVICE_GET_AUTOCOMPLETE_ADDITIONAL_OPTIONS_ERROR_DATA = [1, 2]
+
 @pytest.mark.parametrize(
     "field_id",
     FIELD_SERVICE_GET_AUTOCOMPLETE_ADDITIONAL_OPTIONS_ERROR_DATA
@@ -755,12 +736,13 @@ FIELD_SERVICE_GET_AUTOCOMPLETE_ADDITIONAL_OPTIONS_ERROR_DATA = [
 @mock.patch('app.services.SettingAutocompleteService.get_by_field_id')
 def test_get_autocomplete_additional_options_error(mock_settings_get, field_id):
     """
+    Test FieldService _get_choice_additional_options()
+    Test case when method raised SettingAutocompleteNotExist
     """
     mock_settings_get.return_value = None
 
     with pytest.raises(SettingAutocompleteNotExist):
         FieldService._get_autocomplete_additional_options(field_id)
-
 
 
 # get_additional_options
