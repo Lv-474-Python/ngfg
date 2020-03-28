@@ -124,7 +124,7 @@ def test_create_text_or_number_field_with_range(
     assert result['isStrict'] == field.is_strict
     # assert result['created'] == field.created
     assert result['range']['min'] == range_min
-    assert result['range']['max'] == range_max 
+    assert result['range']['max'] == range_max
 
 
 @pytest.mark.parametrize(

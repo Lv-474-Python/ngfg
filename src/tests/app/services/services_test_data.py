@@ -115,7 +115,7 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_RADIO_CHECKBOX_DATA = [
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
     (8, 5, {
         'settingAutocomplete': {
-            'dataUrl': 'http://docs.google.com/spreadsheet/d/a', 
+            'dataUrl': 'http://docs.google.com/spreadsheet/d/a',
             'sheet': 'sheet',
             'fromRow': 'A1',
             'toRow': 'A2'
@@ -124,7 +124,7 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
     }),
     (9, 5, {
         'settingAutocomplete': {
-            'dataUrl': 'http://docs.google.com/spreadsheet/d/aasd', 
+            'dataUrl': 'http://docs.google.com/spreadsheet/d/aasd',
             'sheet': 'sheet 2',
             'fromRow': 'B1',
             'toRow': 'C2'
