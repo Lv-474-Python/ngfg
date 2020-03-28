@@ -24,6 +24,7 @@ USER_SERVICE_UPDATE_DATA = [
     (3, "laaasqwq", "la3a@gmai.com", None, None),
     (4, "sqqasqwq", "laa@gmai.com", "asda", None),
     (5, "laaajnvvmm", "pos42a@gmai.com", "oda1", True),
+    (6, "laaajndsam", "po1c2a@gmai.com", "ytrp", False)
 ]
 
 USER_SERVICE_UPDATE_ERROR_DATA = [1, 2]

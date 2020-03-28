@@ -2,11 +2,6 @@
 Test UserService
 """
 
-
-# ЩОБ ВСЮДИ ДЕ None було 'is None'
-
-
-
 import mock
 import pytest
 
@@ -57,9 +52,9 @@ def test_create_without_filter(
 
     result = UserService.create(username, email, google_token)
 
-    assert user.username == result.username
-    assert user.email == result.email
-    assert user.google_token == result.google_token
+    assert result.username == user.username
+    assert result.email == user.email
+    assert result.google_token == user.google_token
 
 
 @pytest.mark.parametrize(
@@ -82,9 +77,9 @@ def test_create_with_filter(mock_user_filter, username, email, google_token):
 
     result = UserService.create(username, email, google_token)
 
-    assert user.username == result.username
-    assert user.email == result.email
-    assert user.google_token == result.google_token
+    assert result.username == user.username
+    assert result.email == user.email
+    assert result.google_token == user.google_token
 
 
 # get_by_id
@@ -108,9 +103,9 @@ def test_get_by_id(mock_user_query, user_id, username, email, google_token):
 
     result = UserService.get_by_id(user_id)
 
-    assert user.username == result.username
-    assert user.email == result.email
-    assert user.google_token == result.google_token
+    assert result.username == user.username
+    assert result.email == user.email
+    assert result.google_token == user.google_token
 
 
 # update
@@ -145,17 +140,17 @@ def test_update(
     mock_user_get.return_value = user
     mock_db_merge.return_value = None
 
-    updated_username = username if username else user.username
-    updated_email = email if email else user.email
-    updated_google_token = google_token if google_token else user.google_token
-    updated_is_active = is_active if is_active else user.is_active
+    updated_username = username if username is not None else user.username
+    updated_email = email if email is not None else user.email
+    updated_google_token = google_token if google_token is not None else user.google_token
+    updated_is_active = is_active if is_active is not None else user.is_active
 
     result = UserService.update(user_id, username, email, google_token, is_active)
 
-    assert updated_username == result.username
-    assert updated_email == result.email
-    assert updated_google_token == result.google_token
-    assert updated_is_active == result.is_active
+    assert result.username == updated_username
+    assert result.email == updated_email
+    assert result.google_token == updated_google_token
+    assert result.is_active == updated_is_active
 
 
 @pytest.mark.parametrize(
@@ -182,15 +177,16 @@ def test_update_error(mock_user_get, user_id):
 )
 @mock.patch("app.DB.session.delete")
 @mock.patch("app.services.UserService.get_by_id")
-def test_delete(mock_user_get, mock_db_merge, user, user_id):
+def test_delete(mock_user_get, mock_db_delete, user, user_id):
     """
     Test UserService delete()
     Test case when method executed successfully
     """
     mock_user_get.return_value = user
-    mock_db_merge.return_value = None
+    mock_db_delete.return_value = None
 
     result = UserService.delete(user_id)
+
     assert result == True
 
 
@@ -207,6 +203,7 @@ def test_delete_error(mock_user_get, user_id):
     mock_user_get.return_value = None
 
     result = UserService.delete(user_id)
+
     assert result is None
 
 
@@ -227,7 +224,7 @@ def test_filter_by_username(mock_user_query, user, username):
 
     result = UserService.filter(username=username)
 
-    assert [user] == result
+    assert result == [user]
 
 
 @pytest.mark.parametrize(
@@ -246,7 +243,7 @@ def test_filter_by_email(mock_user_query, user, email):
 
     result = UserService.filter(email=email)
 
-    assert [user] == result
+    assert result == [user]
 
 
 @pytest.mark.parametrize(
@@ -265,7 +262,7 @@ def test_filter_by_google_token(mock_user_query, user, google_token):
 
     result = UserService.filter(google_token=google_token)
 
-    assert [user] == result
+    assert result == [user]
 
 
 @pytest.mark.parametrize(
@@ -284,7 +281,7 @@ def test_filter_by_is_active(mock_user_query, user, is_active):
 
     result = UserService.filter(is_active=is_active)
 
-    assert [user] == result
+    assert result == [user]
 
 
 @pytest.mark.parametrize(
@@ -312,6 +309,11 @@ def test_filter_by_all(
 
     mock_user_query.filter_by().all.return_value = [user]
 
-    result = UserService.filter(is_active=is_active)
+    result = UserService.filter(
+        username=username,
+        email=email,
+        google_token=google_token,
+        is_active=is_active
+    )
 
-    assert [user] == result
+    assert result == [user]
