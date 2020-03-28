@@ -755,12 +755,19 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_NUMBER_TEXT_DATA = [
     FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_NUMBER_TEXT_DATA
 )
 @mock.patch('app.services.FieldService._get_text_or_number_additional_options')
-def test_get_additional_options_number_text(mock_field_get_options, field_id, field_type, expected):
+def test_get_additional_options_number_text(
+        mock_field_get_options,
+        field_id,
+        field_type,expected):
     """
+    Test FieldService get_additional_options()
+    Test case when field type is number or text
     """
     mock_field_get_options.return_value = expected
 
-    assert FieldService.get_additional_options(field_id, field_type) == expected
+    result = FieldService.get_additional_options(field_id, field_type)
+
+    assert result == expected
 
 
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_TEXT_AREA_DATA = [
@@ -773,8 +780,12 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_TEXT_AREA_DATA = [
 )
 def test_get_additional_options_text_area(field_id, field_type, expected):
     """
+    Test FieldService get_additional_options()
+    Test case when field type is textarea
     """
-    assert FieldService.get_additional_options(field_id, field_type) == expected
+    result = FieldService.get_additional_options(field_id, field_type)
+
+    assert result == expected
 
 
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_RADIO_CHECKBOX_DATA = [
@@ -786,12 +797,20 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_RADIO_CHECKBOX_DATA = [
     FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_RADIO_CHECKBOX_DATA
 )
 @mock.patch('app.services.FieldService._get_choice_additional_options')
-def test_get_additional_options_radio_checkbox(mock_field_get_options, field_id, field_type, expected):
+def test_get_additional_options_radio_checkbox(
+        mock_field_get_options,
+        field_id,
+        field_type,
+        expected):
     """
+    Test FieldService get_additional_options()
+    Test case when field type is radio or checkbox
     """
     mock_field_get_options.return_value = expected
 
-    assert FieldService.get_additional_options(field_id, field_type) == expected
+    result = FieldService.get_additional_options(field_id, field_type)
+
+    assert result == expected
 
 
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
@@ -819,29 +838,44 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
     FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA
 )
 @mock.patch('app.services.FieldService._get_autocomplete_additional_options')
-def test_get_additional_options_autocomplete(mock_field_get_options, field_id, field_type, expected):
+def test_get_additional_options_autocomplete(
+        mock_field_get_options,
+        field_id,
+        field_type,
+        expected):
     """
+    Test FieldService get_additional_options()
+    Test case when field type is autocomplete
     """
     mock_field_get_options.return_value = expected
 
-    assert FieldService.get_additional_options(field_id, field_type) == expected
+    result = FieldService.get_additional_options(field_id, field_type)
+
+    assert result == expected
 
 
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_ERROR_DATA = [
-    (9, 4, None),
-    (10, 6, None),
+    (9, 4),
+    (10, 6),
 ]
 @pytest.mark.parametrize(
-    "field_id, field_type, expected",
+    "field_id, field_type",
     FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_ERROR_DATA
 )
 @mock.patch('app.services.FieldService._get_choice_additional_options')
-def test_get_additional_options_error(mock_field_get_options, field_id, field_type, expected):
+def test_get_additional_options_error(
+        mock_field_get_options,
+        field_id,
+        field_type):
     """
+    Test FieldService get_additional_options()
+    Test case when method raised FieldNotExist and returned None
     """
     mock_field_get_options.side_effect = FieldNotExist()
 
-    assert FieldService.get_additional_options(field_id, field_type) == expected
+    result = FieldService.get_additional_options(field_id, field_type)
+
+    assert result is None
 
 
 # check_for_range
@@ -853,7 +887,11 @@ FIELD_SERVICE_CHECK_FOR_RANGE_DATA = [
     "data, expected",
     FIELD_SERVICE_CHECK_FOR_RANGE_DATA
 )
-def test_check_for_range(data, expected):
+def check_for_range(data, expected):
     """
+    Test FieldService get_additional_options()
+    Test case when method executed successfully
     """
-    assert FieldService.check_for_range(data) == expected
+    result = FieldService.check_for_range(data)
+
+    assert result == expected
