@@ -207,8 +207,7 @@ def test_get_users_by_group(get_by_id_mock, to_json_mock, group_data, group_user
 
 @mock.patch('app.services.GroupService.get_by_id')
 def test_get_users_by_group_error(get_by_id_mock):
-    # idk how to write this with decorator
-    # pytest.mock.xfail dont pass
-    with pytest.raises(GroupNotExist):
-        get_by_id_mock.return_value = None
-        GroupService.get_users_by_group(1)
+    get_by_id_mock.return_value = None
+    test_instance = GroupService.get_users_by_group(1)
+
+    assert test_instance == None
