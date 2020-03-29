@@ -12,6 +12,7 @@ from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from flask_oauthlib.client import OAuth
 from flask_mail import Mail
+from flask_socketio import SocketIO
 
 from redis import Redis
 from .celery_config import make_celery
@@ -25,7 +26,12 @@ from .config import (
 )
 
 APP = Flask(__name__)
-NGFG_CORS = CORS(APP, supports_credentials=True)
+NGFG_CORS = CORS(
+    APP,
+    resources={r"/*": {"origins": "*"}},
+    supports_credentials=True,
+    expose_headers=['session', "Set-Cookie"]
+)
 APP.config.from_object(Config)
 REDIS = Redis(password=REDIS_PASSWORD)
 LOGIN_MANAGER = LoginManager()
@@ -36,6 +42,7 @@ MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 LOGGER = create_logger(APP.config['LOG_DIR'], filename='warning.log')
 SHEET_LOGGER = create_logger(APP.config['LOG_DIR'], filename='sheet.log')
+CONNECTIONS_LOGGER = create_logger(APP.config['LOG_DIR'], filename='connections.log')
 MA = Marshmallow(APP)
 BLUEPRINT = Blueprint('api', __name__, url_prefix='/api/v1')
 API = Api(
@@ -66,6 +73,8 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
 )
 
 MAIL = Mail(APP)
+
+SOCKETIO = SocketIO(APP, cors_allowed_origins='*')
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,
