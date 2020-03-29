@@ -15,7 +15,7 @@ def test_validate_url_true():
     assert validate_url(url) is True
 
 
-def test_validate_url_false():
+def test_validate_url_invalid_netloc():
     """
     Test for google doc validator validate_url()
     Test case for when a url is invalid because of a wrong netloc
