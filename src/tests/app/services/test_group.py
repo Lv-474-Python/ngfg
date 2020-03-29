@@ -2,7 +2,39 @@ import pytest
 import mock
 
 from app.services import GroupService
-from app.models import Group, GroupUser
+from app.models import Group, GroupUser, User
+
+
+@pytest.fixture
+def user():
+    data = {
+        'id': 1,
+        'email': 'test_email@gmail.com',
+        'username': 'test',
+        'google_token': 'test_google_token',
+        'is_active': True
+    }
+    return User(**data)
+
+
+@pytest.fixture
+def group_user():
+    data = {
+        'user_id': 1,
+        'group_id': 1
+    }
+
+    return GroupUser(**data)
+
+
+@pytest.fixture
+def group():
+    data = {
+        'id': 4,
+        'name': 'TestGroup',
+        'owner_id': 1
+    }
+    return Group(**data)
 
 
 @pytest.fixture()
@@ -198,42 +230,6 @@ def test_get_users_by_group_error(get_by_id_mock):
     test_instance = GroupService.get_users_by_group(1)
 
     assert test_instance == None
-
-
-from app.models import Group, User, GroupUser
-from app.services import GroupService
-
-
-@pytest.fixture
-def user():
-    data = {
-        'id': 1,
-        'email': 'test_email@gmail.com',
-        'username': 'test',
-        'google_token': 'test_google_token',
-        'is_active': True
-    }
-    return User(**data)
-
-
-@pytest.fixture
-def group_user():
-    data = {
-        'user_id': 1,
-        'group_id': 1
-    }
-
-    return GroupUser(**data)
-
-
-@pytest.fixture
-def group():
-    data = {
-        'id': 4,
-        'name': 'TestGroup',
-        'owner_id': 1
-    }
-    return Group(**data)
 
 
 @mock.patch('app.services.GroupUserService.delete_by_group_and_user_id')
