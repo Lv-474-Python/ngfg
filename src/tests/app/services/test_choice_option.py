@@ -122,7 +122,10 @@ def test_update_field_id(get_by_id_mock, db_mock, option_id, choice_options_data
     instance = ChoiceOption(id=option_id, **choice_options_data)
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
-    test_instance = ChoiceOptionService.update(option_id=option_id, field_id=choice_options_data.get('field_id'))
+    test_instance = ChoiceOptionService.update(
+        option_id=option_id,
+        field_id=choice_options_data.get('field_id')
+    )
 
     assert test_instance.field_id == instance.field_id
 
@@ -133,7 +136,10 @@ def test_update_option_text(get_by_id_mock, db_mock, option_id, choice_options_d
     instance = ChoiceOption(id=option_id, **choice_options_data)
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
-    test_instance = ChoiceOptionService.update(option_id=option_id, option_text=choice_options_data.get('option_text'))
+    test_instance = ChoiceOptionService.update(
+        option_id=option_id,
+        option_text=choice_options_data.get('option_text')
+    )
 
     assert test_instance.option_text == instance.option_text
 
