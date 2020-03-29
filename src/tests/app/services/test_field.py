@@ -211,77 +211,77 @@ def test_update_text_or_number_field_delete_range_not_exist(
 #     assert updated['name'] == field.name
 #     assert updated['range']['min'] == f_range.min
 #     assert updated['range']['max'] == f_range.max
-#
-#
-# @mock.patch('app.schemas.FieldSettingAutocompleteSchema')
-# @mock.patch('app.services.FieldService.update')
-# @mock.patch('app.services.SettingAutocompleteService')
-# def test_update_autocomplete_field_settings_not_found(
-#         autocomplete_service_mock,
-#         field_service_mock,
-#         schema_mock,
-#         autocomplete_field_data,
-#         field_data
-#
-# ):
-#     """
-#     Test autocomplete
-#     Raise SettingAutocompleteNotExist()
-#     """
-#     schema_mock.dump.return_value = None
-#     autocomplete_service_mock.get_by_field_id.return_value = None
-#     field_service_mock.return_value = Field(**field_data)
-#
-#     updated = FieldService.update_autocomplete_field(  # pylint: disable=too-many-arguments
-#         field_id=autocomplete_field_data.get('id'),
-#         name=autocomplete_field_data.get('name'),
-#         data_url=autocomplete_field_data.get('data_url'),
-#         sheet=autocomplete_field_data.get('sheet'),
-#         from_row=autocomplete_field_data.get('from_row'),
-#         to_row=autocomplete_field_data.get('to_row'),
-#     )
-#
-#     assert updated is None
-#
-#
-# @mock.patch('app.schemas.FieldSettingAutocompleteSchema')
-# @mock.patch('app.services.SettingAutocompleteService.update')
-# @mock.patch('app.services.SettingAutocompleteService.get_by_field_id')
-# @mock.patch('app.services.FieldService.get_additional_options')
-# @mock.patch('app.services.FieldService.update')
-# def test_update_autocomplete_field_success(
-#         field_service_mock_update,
-#         field_service_mock_get_additional_options,
-#         autocomplete_service_mock_get,
-#         autocomplete_service_mock_upd,
-#         schema_mock,
-#         autocomplete_field_data,
-#         field_data
-# ):
-#     """
-#     Test autocomplete successful update
-#     """
-#     field = Field(**field_data)
-#     settings = SettingAutocomplete(**autocomplete_field_data)
-#
-#     schema_mock.dump.return_value = autocomplete_field_data
-#     autocomplete_service_mock_get.return_value = settings
-#     autocomplete_service_mock_upd.return_value = None
-#     field_service_mock_update.return_value = field
-#     field_service_mock_get_additional_options.return_value = autocomplete_field_data
-#
-#     updated = FieldService.update_autocomplete_field(  # pylint: disable=too-many-arguments
-#         field_id=field.id,
-#         name=field.name,
-#         data_url=autocomplete_field_data.get('data_url'),
-#         sheet=autocomplete_field_data.get('sheet'),
-#         from_row=autocomplete_field_data.get('from_row'),
-#         to_row=autocomplete_field_data.get('to_row'),
-#     )
-#     assert updated['data_url'] == autocomplete_field_data['data_url']
-#     assert updated['from_row'] == autocomplete_field_data['from_row']
-#     assert updated['to_row'] == autocomplete_field_data['to_row']
-#     assert updated['sheet'] == autocomplete_field_data['sheet']
+
+
+@mock.patch('app.schemas.FieldSettingAutocompleteSchema.dump')
+@mock.patch('app.services.FieldService.update')
+@mock.patch('app.services.SettingAutocompleteService.get_by_field_id')
+def test_update_autocomplete_field_settings_not_found(
+        autocomplete_service_mock,
+        field_service_mock,
+        schema_mock,
+        autocomplete_field_data,
+        field_data
+
+):
+    """
+    Test autocomplete
+    Raise SettingAutocompleteNotExist()
+    """
+    schema_mock.return_value = None
+    autocomplete_service_mock.return_value = None
+    field_service_mock.return_value = Field(**field_data)
+
+    updated = FieldService.update_autocomplete_field(  # pylint: disable=too-many-arguments
+        field_id=autocomplete_field_data.get('id'),
+        name=autocomplete_field_data.get('name'),
+        data_url=autocomplete_field_data.get('data_url'),
+        sheet=autocomplete_field_data.get('sheet'),
+        from_row=autocomplete_field_data.get('from_row'),
+        to_row=autocomplete_field_data.get('to_row'),
+    )
+
+    assert updated is None
+
+
+@mock.patch('app.schemas.FieldSettingAutocompleteSchema.dump')
+@mock.patch('app.services.SettingAutocompleteService.update')
+@mock.patch('app.services.SettingAutocompleteService.get_by_field_id')
+@mock.patch('app.services.FieldService.get_additional_options')
+@mock.patch('app.services.FieldService.update')
+def test_update_autocomplete_field_success(
+        field_service_mock_update,
+        field_service_mock_get_additional_options,
+        autocomplete_service_mock_get,
+        autocomplete_service_mock_upd,
+        schema_mock,
+        autocomplete_field_data,
+        field_data
+):
+    """
+    Test autocomplete successful update
+    """
+    field = Field(**field_data)
+    settings = SettingAutocomplete(**autocomplete_field_data)
+
+    schema_mock.return_value = autocomplete_field_data
+    autocomplete_service_mock_get.return_value = settings
+    autocomplete_service_mock_upd.return_value = None
+    field_service_mock_update.return_value = field
+    field_service_mock_get_additional_options.return_value = autocomplete_field_data
+
+    updated = FieldService.update_autocomplete_field(  # pylint: disable=too-many-arguments
+        field_id=field.id,
+        name=field.name,
+        data_url=autocomplete_field_data.get('data_url'),
+        sheet=autocomplete_field_data.get('sheet'),
+        from_row=autocomplete_field_data.get('from_row'),
+        to_row=autocomplete_field_data.get('to_row'),
+    )
+    assert updated['data_url'] == autocomplete_field_data['data_url']
+    assert updated['from_row'] == autocomplete_field_data['from_row']
+    assert updated['to_row'] == autocomplete_field_data['to_row']
+    assert updated['sheet'] == autocomplete_field_data['sheet']
 
 
 @mock.patch('app.services.FieldRangeService.get_by_field_id')
