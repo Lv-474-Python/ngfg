@@ -3,6 +3,7 @@ Share field celery task
 """
 from app import CELERY, MAIL
 from app.helper.email_generator import generate_share_field_message
+from app.helper.socket import send_notification
 
 
 def call_share_field_task(recipients, field):
@@ -13,8 +14,9 @@ def call_share_field_task(recipients, field):
     :param field:
     :return:
     """
-    share_field.apply_async(args=[recipients, field], queue="share_field_queue")
-
+    task = share_field.apply_async(args=[recipients, field], queue="share_field_queue")
+    message = task.get()
+    send_notification(message)
     return 0
 
 
@@ -34,4 +36,5 @@ def share_field(self, recipients, field):
         for recipient in recipients:
             msg = generate_share_field_message(recipient, field)
             conn.send(msg)
-    return 0
+
+    return 'Field ' + field['name'] + ' have been sent!'
