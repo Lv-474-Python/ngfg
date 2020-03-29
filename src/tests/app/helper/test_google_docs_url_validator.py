@@ -5,7 +5,7 @@ Tests for a google doc url validator
 from app.helper.google_docs_url_validator import validate_url
 
 
-def test_validate_url_true():
+def test_validate_url_valid():
     """
     Test for google doc validator validate_url()
     Test case for when a valid url has been provided
