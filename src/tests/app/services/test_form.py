@@ -8,7 +8,7 @@ import pytest
 from app.models import Form
 from app.services import FormService
 
-from services_test_data import (
+from .services_test_data import (
     FORM_SERVICE_CREATE_DATA,
     FORM_SERVICE_GET_BY_ID_DATA,
     FORM_SERVICE_UPDATE_DATA,
