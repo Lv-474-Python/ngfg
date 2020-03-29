@@ -43,10 +43,10 @@ def test_create_existing(mock_query, range_data):
     Test RangeService create()
     Test case when Range.query returns existing value
     """
-    range_instance = Range(min=range_data.get('id'), max=range_data.get('id'))
+    range_instance = Range(min=range_data.get('min'), max=range_data.get('max'))
     mock_query.filter_by.return_value.first.return_value = range_instance
 
-    test_instance = RangeService.create(range_min=range_data.get('id'), range_max=range_data.get('id'))
+    test_instance = RangeService.create(range_min=range_data.get('min'), range_max=range_data.get('max'))
 
     assert test_instance.min == range_instance.min
     assert test_instance.max == range_instance.max
@@ -59,10 +59,10 @@ def test_create_not_existing(mock_query, mock_db_add, range_data):
     Test RangeService create()
     Test case when Range.query returns None
     """
-    range_instance = Range(min=range_data.get('id'), max=range_data.get('id'))
+    range_instance = Range(min=range_data.get('min'), max=range_data.get('max'))
     mock_query.filter_by.return_value.first.return_value = None
     mock_db_add.return_value = None
-    test_instance = RangeService.create(range_min=range_data.get('id'), range_max=range_data.get('id'))
+    test_instance = RangeService.create(range_min=range_data.get('min'), range_max=range_data.get('max'))
 
     assert test_instance.min == range_instance.min
     assert test_instance.max == range_instance.max
