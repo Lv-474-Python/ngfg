@@ -17,6 +17,7 @@ from .helper_test_data import (
     SHEET_MANAGER_TEST_APPEND_DATA_VALUES_NOT_LIST_DATA,
     SHEET_MANAGER_TEST_APPEND_DATA_ERROR_DATA,
     SHEET_MANAGER_TEST_GET_SHEET_ID_FROM_URL_DATA,
+    SHEET_MANAGER_TEST_GET_SHEET_ID_FROM_URL_ERROR_DATA,
     SHEET_MANAGER_TEST_LISTS_TO_LIST_DATA,
 )
 
@@ -157,6 +158,20 @@ def test_get_sheet_id_from_url(url, expected):
     result = SheetManager.get_sheet_id_from_url(url)
 
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "url",
+    SHEET_MANAGER_TEST_GET_SHEET_ID_FROM_URL_ERROR_DATA
+)
+def test_get_sheet_id_from_url_error(url):
+    """
+    Test SheetManager get_sheet_id_from_url()
+    Test case when method raised IndexError and returned None
+    """
+    result = SheetManager.get_sheet_id_from_url(url)
+
+    assert result is None
 
 
 # lists_to_list

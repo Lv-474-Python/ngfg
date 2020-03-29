@@ -46,6 +46,12 @@ SHEET_MANAGER_TEST_GET_SHEET_ID_FROM_URL_DATA = [
     ("https://docs.google.com/spreadsheets/d/u_RIF", "u_RIF")
 ]
 
+SHEET_MANAGER_TEST_GET_SHEET_ID_FROM_URL_ERROR_DATA = [
+    "https://docs.google.com/spreadsheets/d",
+    "https://docs.google.com",
+    "https://docs.google.com/spreadsheets/"
+]
+
 SHEET_MANAGER_TEST_LISTS_TO_LIST_DATA = [
     ([[1, 2], [3, 5]], [1, 2, 3, 5]),
     ([[[1, 2], [2]]], [1, 2, 2]),
