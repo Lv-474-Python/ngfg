@@ -1782,9 +1782,7 @@ def test_update_radio_delete_option_success(
 
 
 @mock.patch('app.services.FormFieldService.filter')
-def test_check_form_membership(
-        form_field_filter
-):
+def test_check_form_membership(form_field_filter):
     """
     Test membership check, not in form
     """
