@@ -235,3 +235,5 @@ USER_SERVICE_FILTER_BY_ALL_DATA = [
     ("aasdasda", "ada@gmail.com", "asdsada", True),
     ("gd2as", "adacv@gmail.com", "2asd2", False)
 ]
+
+USER_SERVICE_CREATE_USER_BY_EMAIL_DATA = ["ladi@gmail.com"]
