@@ -76,4 +76,4 @@ class GroupUserService:
         if group_user_list:
             return group_user_list[0]
 
-        raise GroupUserNotExist()
+        return None
