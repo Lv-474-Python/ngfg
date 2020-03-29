@@ -15,6 +15,7 @@ from app.helper.errors import (
     ChoiceOptionNotExist
 )
 from app.helper.sheet_manager import SheetManager
+from app.helper.range_validator import validate_range_text
 from app.models import Field
 from app.schemas import (
     BasicField,
@@ -30,6 +31,7 @@ from app.schemas import (
     FieldAutocompletePutSchema,
     FieldTextAreaPutSchema
 )
+from app.services.shared_field import SharedFieldService
 from app.services.choice_option import ChoiceOptionService
 from app.services.field_range import FieldRangeService
 from app.services.range import RangeService
@@ -242,45 +244,143 @@ class FieldService:
         :return: errors if validation failed
         """
         errors = FieldPutSchema().validate(data)
-
-        updated_name = data.get('updated_name')
+        updated_name = data.get('updatedName')
         if updated_name:
             is_changed = not bool(FieldService.filter(name=updated_name, field_id=field_id))
             if is_changed:
                 is_exist = FieldService.filter(owner_id=user, name=updated_name)
                 if is_exist:
-                    errors['is_exist'] = 'Field with such name already exist'
+                    errors['updatedName'] = {'_schema': 'Field with such name already exist'}
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_text_or_number_update(data):
+    def validate_text_or_number_update(data, field_type):
         """
         Validation for text or number field on update
         :param data: received request body
         :return: errors and whether they occured
         """
         errors = FieldNumberTextPutSchema().validate(data)
+        if field_type == FieldType.Text.value:
+            ranges = data.get('range')
+            if ranges:
+                range_min = ranges.get('min')
+                range_max = ranges.get('max')
+                validator = validate_range_text(range_min, range_max)
+                if validator:
+                    errors['range'] = {'_schema': validator}
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_radio_update(data):
+    def validate_radio_update(data, field_id):
         """
         Validation for radio field on update
         :param data: received request body
-        :return: errors and whether they occured
+        :return: errors and whether they occurred
         """
         errors = FieldRadioPutSchema().validate(data)
+
+        options_validator = FieldService.validate_options_update(
+            field_id=field_id,
+            added=data.get('addedChoiceOptions', []),
+            removed=data.get('removedChoiceOptions', [])
+        )
+        if options_validator:
+            # add custom results to marshmallow result
+            errors['choiceOptions'] = {'_schema': options_validator}
         return (not bool(errors), errors)
 
     @staticmethod
-    def validate_checkbox_update(data):
+    def validate_options_update(field_id, added, removed):
+        """
+        Validates choice options
+        :param field_id:
+        :param added:
+        :param removed:
+        :return: list with validation errors
+        """
+        additional_options = FieldService._get_choice_additional_options(field_id)
+        current_options = additional_options.get('choiceOptions')
+        added_current_matches = set(current_options) & set(added)
+        removed_current_matches = set(current_options) & set(removed)
+        errors = []
+        if added and len(added_current_matches) != 0:
+            errors.append('Added choices already exist')
+        if removed and len(removed_current_matches) != len(removed):
+            errors.append('Removed options don\'t exist')
+        if removed:
+            if len(set(current_options)) - len(removed_current_matches) + len(set(added)) < 1:
+                errors.append('Can\'t delete all options')
+        return errors
+
+    @staticmethod
+    def validate_checkbox_update(data, field_id):
         """
         Validation for checkbox field on update
         :param data: received request body
+        :param field_id: received field_id
         :return: errors and whether they occured
         """
         errors = FieldCheckboxPutSchema().validate(data)
+
+        options_validator = FieldService.validate_options_update(
+            field_id=field_id,
+            added=data.get('addedChoiceOptions', []),
+            removed=data.get('removedChoiceOptions', [])
+        )
+        if options_validator:
+            # add custom results to marshmallow result
+            errors['choiceOptions'] = {'_schema': options_validator}
+
+        options_and_range_validator = FieldService.validate_checkbox_options_and_range_update(
+            field_id=field_id,
+            added=data.get('addedChoiceOptions', []),
+            removed=data.get('removedChoiceOptions', []),
+            new_range=data.get('range'),
+            range_deleted=data.get('deleteRange')
+        )
+        if options_and_range_validator:
+            errors['options_and_range_error'] = options_and_range_validator
         return (not bool(errors), errors)
+
+    @staticmethod
+    def validate_checkbox_options_and_range_update(
+            field_id,
+            added,
+            removed,
+            new_range,
+            range_deleted):
+        """
+        Validates choice options depending on existing, new or deleted range
+        :param field_id:
+        :param added:
+        :param removed:
+        :param new_range:
+        :param range_deleted:
+        :return:
+        """
+        additional_options = FieldService._get_choice_additional_options(field_id=field_id)
+        current_options = additional_options.get('choiceOptions')
+        current_range = additional_options.get('range')
+        new_option_amount = len(current_options) + len(added) - len(removed)
+
+        if current_range is None and range_deleted:
+            return 'Can\'t delete range that doesn\'t exist'
+        if current_range and new_range is None and range_deleted is None:
+            range_min = current_range.get('min')
+            range_max = current_range.get('max')
+            if range_min and range_min > new_option_amount:
+                return 'Current min choice range is greater than updated choice amount'
+            if range_max and range_max > new_option_amount:
+                return 'Current max choice range is greater than updated choice amount'
+        if new_range:
+            new_range_min = new_range.get('min')
+            new_range_max = new_range.get('max')
+            if new_range_min and new_range_min > new_option_amount:
+                return 'New min choice range is greater than updated choice amount'
+            if new_range_max and new_range_max > new_option_amount:
+                return 'New max choice range is greater than updated choice amount'
+        return False
 
     @staticmethod
     def validate_autocomplete_update(data):
@@ -791,8 +891,8 @@ class FieldService:
     @staticmethod
     @transaction_decorator
     def update_checkbox_field(  # pylint: disable=too-many-arguments
-                                # pylint: disable=too-many-locals
-                                # pylint: disable=too-many-branches
+            # pylint: disable=too-many-locals
+            # pylint: disable=too-many-branches
             field_id,
             name,
             range_max,
@@ -822,7 +922,7 @@ class FieldService:
         if delete_range:
             if field_range is None:
                 raise FieldRangeNotDeleted()
-            deleted_field_range = FieldRangeService.delete(field_id=field.id) # pylint: disable=too-many-branches
+            deleted_field_range = FieldRangeService.delete(field_id=field.id)  # pylint: disable=too-many-branches
             if deleted_field_range is None:
                 raise FieldRangeNotDeleted()
         else:
@@ -879,3 +979,18 @@ class FieldService:
         """
         field_in_form = FormFieldService.filter(field_id=field_id)
         return bool(field_in_form)
+
+    @staticmethod
+    def get_shared_fields(user_id):
+        """
+        Get all fields, shared for this user
+
+        :param user_id:
+        :return:
+        """
+        result = []
+        shared_fields = SharedFieldService.filter(user_id=user_id)
+        for shared_field in shared_fields:
+            field = FieldService.get_by_id(shared_field.field_id)
+            result.append(field)
+        return result
