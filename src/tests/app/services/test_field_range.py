@@ -53,10 +53,9 @@ def test_get_by_field_id(query_mock, field_range_data):
     Get by field_id
     """
     instance = FieldRange(**field_range_data)
-    print(instance)
+
     query_mock.filter_by.return_value.first.return_value = instance
     test_instance = FieldRangeService.get_by_field_id(field_id=field_range_data.get('field_id'))
-    print(test_instance)
 
     assert instance.field_id == test_instance.field_id
     assert instance.range_id == test_instance.range_id
@@ -68,12 +67,11 @@ def test_get_by_range_id(query_mock, field_range_data):
     Get by range_id
     """
     instance = FieldRange(**field_range_data)
-    print(instance)
-    query_mock.filter_by.return_value.all.return_value = instance
-    test_instance = FieldRangeService.get_by_range_id(range_id=field_range_data.get('range_id'))
-    print(test_instance)
 
-    assert instance == test_instance
+    query_mock.filter_by.return_value.all.return_value = [instance]
+    test_instance = FieldRangeService.get_by_range_id(range_id=field_range_data.get('range_id'))
+
+    assert [instance] == test_instance
 
 
 @mock.patch('app.services.FieldRangeService.get_by_field_id')
