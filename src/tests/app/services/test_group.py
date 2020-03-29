@@ -460,3 +460,98 @@ def test_to_json_single(
     }
     result = GroupService.to_json_single(group)
     assert result == data
+
+
+@mock.patch('app.services.GroupService.assign_users_to_group')
+@mock.patch('app.services.UserService.create_users_by_emails')
+@mock.patch('app.services.GroupService.create')
+def test_create_group_with_users(
+        create_mock,
+        user_create_user_by_emails_mock,
+        group_assign_users_mock,
+        group, user,
+        group_user):
+    create_mock.return_value = group
+    user_create_user_by_emails_mock.return_value = [user]
+    group_assign_users_mock.return_value = [group_user]
+
+    test_instance = GroupService.create_group_with_users(
+        group_name=group.name,
+        group_owner_id=group.owner_id,
+        emails=[user.email]
+    )
+
+    assert test_instance == group
+
+
+@mock.patch('app.services.GroupService.create')
+def test_create_group_with_users_group_not_created(
+        create_mock,
+        group, user):
+    create_mock.return_value = None
+
+    test_instance = GroupService.create_group_with_users(
+        group_name=group.name,
+        group_owner_id=group.owner_id,
+        emails=[user.email]
+    )
+
+    assert test_instance is None
+
+
+@mock.patch('app.services.UserService.create_users_by_emails')
+@mock.patch('app.services.GroupService.create')
+def test_create_group_with_users_user_not_created(
+        create_mock,
+        user_create_user_by_emails_mock,
+        group,
+        user):
+    create_mock.return_value = group
+    user_create_user_by_emails_mock.return_value = None
+
+    test_instance = GroupService.create_group_with_users(
+        group_name=group.name,
+        group_owner_id=group.owner_id,
+        emails=[user.email]
+    )
+
+    assert test_instance is None
+
+
+@mock.patch('app.services.GroupService.assign_users_to_group')
+@mock.patch('app.services.UserService.create_users_by_emails')
+@mock.patch('app.services.GroupService.create')
+def test_create_group_with_users_group_user_not_created(
+        create_mock,
+        user_create_user_by_emails_mock,
+        group_assign_users_mock,
+        group, user):
+    create_mock.return_value = group
+    user_create_user_by_emails_mock.return_value = [user]
+    group_assign_users_mock.return_value = None
+
+    test_instance = GroupService.create_group_with_users(
+        group_name=group.name,
+        group_owner_id=group.owner_id,
+        emails=[user.email]
+    )
+
+    assert test_instance is None
+
+
+@mock.patch('app.services.GroupUserService.create')
+def test_assign_users_to_group(create_mock, group_user, user):
+    create_mock.return_value = group_user
+
+    test_instance = GroupService.assign_users_to_group(group_user.id, [user])
+
+    assert test_instance == [group_user]
+
+
+@mock.patch('app.services.GroupUserService.create')
+def test_assign_users_to_group_raised_group_user_not_created(create_mock, group_user, user):
+    create_mock.return_value = None
+
+    test_instance = GroupService.assign_users_to_group(group_user.id, [user])
+
+    assert test_instance is None
