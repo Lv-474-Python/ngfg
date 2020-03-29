@@ -8,7 +8,7 @@ import pytest
 from app.models import User
 from app.services.user import UserService
 
-from services_test_data import (
+from .services_test_data import (
     USER_SERVICE_CREATE_WITHOUT_FILTER_DATA,
     USER_SERVICE_CREATE_WITH_FILTER_DATA,
     USER_SERVICE_GET_BY_ID_DATA,

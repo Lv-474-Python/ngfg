@@ -186,3 +186,4 @@ USER_SERVICE_FILTER_BY_IS_ACTIVE_DATA = [True, False]
 USER_SERVICE_FILTER_BY_ALL_DATA = [
     ("aasdasda", "ada@gmail.com", "asdsada", True),
     ("gd2as", "adacv@gmail.com", "2asd2", False)
+]
