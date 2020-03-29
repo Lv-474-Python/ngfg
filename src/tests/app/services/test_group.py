@@ -199,6 +199,7 @@ def test_get_users_by_group_error(get_by_id_mock):
 
     assert test_instance == None
 
+
 from app.models import Group, User, GroupUser
 from app.services import GroupService
 
