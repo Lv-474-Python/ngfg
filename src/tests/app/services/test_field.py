@@ -9,7 +9,7 @@ from app.models import Field, Range, FieldRange, ChoiceOption, SettingAutocomple
 from app.services import FieldService
 from app.helper.errors import FieldNotExist, SettingAutocompleteNotExist
 
-from services_test_data import (
+from .services_test_data import (
     FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITHOUT_RANGE_DATA,
     FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_WITH_RANGE_DATA,
     FIELD_SERVICE_CREATE_TEXT_OR_NUMBER_FIELD_ERROR_DATA,
