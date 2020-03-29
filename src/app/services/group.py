@@ -2,7 +2,7 @@
 Group service
 """
 
-from app import DB
+from app import DB, LOGGER
 from app.models import Group
 from app.schemas import BaseGroupSchema, GroupPostSchema, GroupPutSchema
 from app.services.group_user import GroupUserService
@@ -122,7 +122,8 @@ class GroupService:
         """
         group = GroupService.get_by_id(group_id)
         if group is None:
-            raise GroupNotExist()
+            LOGGER.error('error occured %s', GroupNotExist())
+            return None
 
         users = []
 
