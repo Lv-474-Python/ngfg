@@ -38,13 +38,15 @@ def test_create(redis_manager_get_mock, db_mock, form_field_data):
     assert instance.position == test_instance.position
 
 
+@mock.patch('app.helper.redis_manager.RedisManager.set')
 @mock.patch('app.models.FormField.query')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
-def test_get_by_id(redis_manager_get_mock, query_mock, form_field_data):
+def test_get_by_id(redis_manager_get_mock, query_mock, redis_manager_set_mock, form_field_data):
     instance = FormField(**form_field_data)
 
     redis_manager_get_mock.return_value = None
     query_mock.get.return_value = instance
+    redis_manager_set_mock.return_value = None
 
     test_instance = FormFieldService.get_by_id(1)
 
@@ -161,12 +163,14 @@ def test_filter_by_position_no_redis_result(
     assert test_instance[0].position == [instance][0].position
 
 
+@mock.patch('app.helper.redis_manager.RedisManager.delete')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
 @mock.patch('app.DB.session.merge')
 @mock.patch('app.services.FormFieldService.get_by_id')
 def test_update_all(get_by_id_mock,
                     db_mock,
                     redis_manager_get_mock,
+                    redis_manager_delete_mock,
                     form_field_id,
                     form_field_data,
                     form_field_updated_data):
@@ -176,6 +180,7 @@ def test_update_all(get_by_id_mock,
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
     redis_manager_get_mock.return_value = True
+    redis_manager_delete_mock.return_value = None
 
     test_instance = FormFieldService.update(form_field_id, **form_field_updated_data)
 
@@ -185,12 +190,14 @@ def test_update_all(get_by_id_mock,
     assert updated_instance.position == test_instance.position
 
 
+@mock.patch('app.helper.redis_manager.RedisManager.delete')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
 @mock.patch('app.DB.session.merge')
 @mock.patch('app.services.FormFieldService.get_by_id')
 def test_update_form_id(get_by_id_mock,
                         db_mock,
                         redis_manager_get_mock,
+                        redis_manager_delete_mock,
                         form_field_id,
                         form_field_data,
                         form_field_updated_data):
@@ -199,6 +206,7 @@ def test_update_form_id(get_by_id_mock,
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
     redis_manager_get_mock.return_value = True
+    redis_manager_delete_mock.return_value = None
 
     test_instance = FormFieldService.update(form_field_id, form_id=form_field_updated_data.get('form_id'))
 
@@ -208,12 +216,14 @@ def test_update_form_id(get_by_id_mock,
     assert updated_instance.position != test_instance.position
 
 
+@mock.patch('app.helper.redis_manager.RedisManager.delete')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
 @mock.patch('app.DB.session.merge')
 @mock.patch('app.services.FormFieldService.get_by_id')
 def test_update_field_id(get_by_id_mock,
                          db_mock,
                          redis_manager_get_mock,
+                         redis_manager_delete_mock,
                          form_field_id,
                          form_field_data,
                          form_field_updated_data):
@@ -222,6 +232,7 @@ def test_update_field_id(get_by_id_mock,
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
     redis_manager_get_mock.return_value = True
+    redis_manager_delete_mock.return_value = None
 
     test_instance = FormFieldService.update(form_field_id, field_id=form_field_updated_data.get('field_id'))
 
@@ -231,12 +242,14 @@ def test_update_field_id(get_by_id_mock,
     assert updated_instance.position != test_instance.position
 
 
+@mock.patch('app.helper.redis_manager.RedisManager.delete')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
 @mock.patch('app.DB.session.merge')
 @mock.patch('app.services.FormFieldService.get_by_id')
 def test_update_question(get_by_id_mock,
                          db_mock,
                          redis_manager_get_mock,
+                         redis_manager_delete_mock,
                          form_field_id,
                          form_field_data,
                          form_field_updated_data):
@@ -245,6 +258,7 @@ def test_update_question(get_by_id_mock,
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
     redis_manager_get_mock.return_value = True
+    redis_manager_delete_mock.return_value = None
 
     test_instance = FormFieldService.update(form_field_id, question=form_field_updated_data.get('question'))
 
@@ -254,12 +268,14 @@ def test_update_question(get_by_id_mock,
     assert updated_instance.position != test_instance.position
 
 
+@mock.patch('app.helper.redis_manager.RedisManager.delete')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
 @mock.patch('app.DB.session.merge')
 @mock.patch('app.services.FormFieldService.get_by_id')
 def test_update_position(get_by_id_mock,
                          db_mock,
                          redis_manager_get_mock,
+                         redis_manager_delete_mock,
                          form_field_id,
                          form_field_data,
                          form_field_updated_data):
@@ -268,6 +284,7 @@ def test_update_position(get_by_id_mock,
     get_by_id_mock.return_value = instance
     db_mock.return_value = None
     redis_manager_get_mock.return_value = True
+    redis_manager_delete_mock.return_value = None
 
     test_instance = FormFieldService.update(form_field_id, position=form_field_updated_data.get('position'))
 
