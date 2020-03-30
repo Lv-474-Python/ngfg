@@ -1,7 +1,3 @@
-# - create, get_by_id, filter
-#  - UserService:
-#     - activate_user
-
 import pytest
 import mock
 
