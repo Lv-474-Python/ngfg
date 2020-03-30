@@ -33,3 +33,4 @@ class Form(AbstractModel):
 
     fields = DB.relationship('FormField', backref='form', cascade='all,delete')
     form_results = DB.relationship('FormResult', backref='form')
+    tokens = DB.relationship('Token', backref='form', cascade='all,delete')
