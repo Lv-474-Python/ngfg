@@ -23,8 +23,8 @@ def form_field_updated_data():
     return data
 
 
-@mock.patch('app.DB.session.add')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
+@mock.patch('app.DB.session.add')
 def test_create(redis_manager_get_mock, db_mock, form_field_data):
     db_mock.return_value = None
     redis_manager_get_mock.return_value = [FormField(**form_field_data), FormField(**form_field_data)]
