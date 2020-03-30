@@ -120,6 +120,17 @@ def user():
     return user
 
 
+@pytest.fixture()
+def user_data():
+    user = {
+        "username": "ladia",
+        "email": "ladi@gmail.com",
+        "google_token": "asd21"
+    }
+    return user
+
+
+
 @pytest.mark.parametrize(
     "user_id, username, email, google_token, is_active ",
     USER_SERVICE_UPDATE_DATA
@@ -319,6 +330,43 @@ def test_filter_by_all(
     )
 
     assert result == [user]
+
+
+@mock.patch("app.services.UserService.update")
+@mock.patch("app.services.UserService.get_by_id")
+def test_activate_user(get_by_id_mock, update_mock, user_data):
+    instance = User(**user_data)
+    update_user = instance
+    update_user.is_active = True
+
+    get_by_id_mock.return_value = instance
+    update_mock.return_value = update_user
+
+    test_update_user = UserService.activate_user(
+        user_id=1,
+        username=user_data.get('username'),
+        google_token=user_data.get('google_token')
+    )
+
+    assert instance.username == test_update_user.username
+    assert instance.email == test_update_user.email
+    assert instance.google_token == test_update_user.google_token
+    assert test_update_user.is_active == True
+
+
+@mock.patch("app.services.UserService.get_by_id")
+def test_activate_user_not_exist(get_by_id_mock, user_data):
+    instance = User(**user_data)
+
+    get_by_id_mock.return_value = None
+
+    test_update_user = UserService.activate_user(
+        user_id=1,
+        username=user_data.get('username'),
+        google_token=user_data.get('google_token')
+    )
+
+    assert test_update_user == None
 
 
 @pytest.mark.parametrize(
