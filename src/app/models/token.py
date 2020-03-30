@@ -7,7 +7,7 @@ from .abstract_model import AbstractModel
 
 class Token(AbstractModel):
     """
-    Group model class
+    Token model class
 
     :param form_id: to which form token generated
     :param token: generated token
@@ -17,4 +17,5 @@ class Token(AbstractModel):
 
     token = DB.Column(DB.String(255), unique=True, nullable=False)
     form_id = DB.Column(DB.Integer, DB.ForeignKey('forms.id'), nullable=False)
-    form_results = DB.relationship('FormResults', backref='token')
+
+    form_results = DB.relationship('FormResult', backref='token')
