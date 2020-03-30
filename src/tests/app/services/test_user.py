@@ -20,7 +20,8 @@ from .services_test_data import (
     USER_SERVICE_FILTER_BY_EMAIL_DATA,
     USER_SERVICE_FILTER_BY_GOOGLE_TOKEN_DATA,
     USER_SERVICE_FILTER_BY_IS_ACTIVE_DATA,
-    USER_SERVICE_FILTER_BY_ALL_DATA
+    USER_SERVICE_FILTER_BY_ALL_DATA,
+    USER_SERVICE_CREATE_USER_BY_EMAIL_DATA
 )
 
 
@@ -354,8 +355,6 @@ def test_activate_user(get_by_id_mock, update_mock, user_data):
 
 @mock.patch("app.services.UserService.get_by_id")
 def test_activate_user_not_exist(get_by_id_mock, user_data):
-    instance = User(**user_data)
-
     get_by_id_mock.return_value = None
 
     test_update_user = UserService.activate_user(
@@ -365,3 +364,79 @@ def test_activate_user_not_exist(get_by_id_mock, user_data):
     )
 
     assert test_update_user == None
+
+
+
+@pytest.mark.parametrize(
+    "email",
+    USER_SERVICE_CREATE_USER_BY_EMAIL_DATA
+)
+@mock.patch('app.DB.session.add')
+@mock.patch('app.services.UserService.filter')
+def test_create_user_by_email(filter_mock, add_mock, email):
+    """
+    Test UserService create_user_by_email()
+    Test case when method executed successfully
+    """
+    user = User(email=email)
+    filter_mock.return_value = None
+    add_mock.return_value = None
+
+    result = UserService.create_user_by_email(email)
+
+    assert result == user
+
+
+@pytest.mark.parametrize(
+    "email",
+    USER_SERVICE_CREATE_USER_BY_EMAIL_DATA
+)
+@mock.patch('app.DB.session.add')
+@mock.patch('app.services.UserService.filter')
+def test_create_user_by_email_user_exist(filter_mock, add_mock, email):
+    """
+        Test UserService create_user_by_email()
+        Test case when filter returned list of objects and method returns [0] of it
+    """
+    user = User(email=email)
+    filter_mock.return_value = [user]
+    add_mock.return_value = None
+
+    result = UserService.create_user_by_email(email)
+
+    assert result == user
+
+
+@pytest.mark.parametrize(
+    "email",
+    USER_SERVICE_CREATE_USER_BY_EMAIL_DATA
+)
+@mock.patch('app.services.UserService.create_user_by_email')
+def test_create_users_by_emails(create_user_by_email_mock, email):
+    """
+        Test UserService create_user_by_emails()
+        Test case when method executed successfully
+    """
+    user = User(email=email)
+    create_user_by_email_mock.return_value = user
+
+    result = UserService.create_users_by_emails([email])
+
+    assert result == [user]
+
+
+@pytest.mark.parametrize(
+    "email",
+    USER_SERVICE_CREATE_USER_BY_EMAIL_DATA
+)
+@mock.patch('app.services.UserService.create_user_by_email')
+def test_create_users_by_emails_user_not_created(create_user_by_email_mock, email):
+    """
+        Test UserService create_user_by_email()
+        Test case when method raised UserNotCreated and returned None
+    """
+    create_user_by_email_mock.return_value = None
+
+    result = UserService.create_users_by_emails([email])
+
+    assert result == None
