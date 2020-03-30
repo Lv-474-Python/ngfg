@@ -130,7 +130,7 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
             'toRow': 'C2'
         },
         'values': ['yes', 'no']
-    } ),
+    }),
 ]
 
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_ERROR_DATA = [
@@ -142,7 +142,6 @@ FIELD_SERVICE_CHECK_FOR_RANGE_DATA = [
     ({'range': {'min': 2, 'max': 4}}, (2, 4)),
     ({}, (None, None))
 ]
-
 
 # FormService
 FORM_SERVICE_CREATE_DATA = [
@@ -190,7 +189,6 @@ FORM_SERVICE_FILTER_BY_ALL_DATA = [
     (1, 1, "name 7", "title 7", "http://docs.google.com/spreadsheet/d/asd", True),
     (2, 2, "name 8", "title 8", "http://docs.google.com/spreadsheet/d/g2a", False)
 ]
-
 
 # UserService
 USER_SERVICE_CREATE_WITHOUT_FILTER_DATA = [
