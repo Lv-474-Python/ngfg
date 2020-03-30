@@ -144,15 +144,17 @@ class SheetManager():
         :param url: str | sheet url
         :return: None or str | sheet_id
         """
-        sheet_id_number = 3
+        try:
+            sheet_id_number = 3
 
-        link = urlparse(url)
-        # split path and get sheet_id from it
-        sheet_id = link.path.split('/')[sheet_id_number]
-        if sheet_id is None:
-            SHEET_LOGGER.warning('Could not found sheet id')
+            link = urlparse(url)
+            # split path and get sheet_id from it
+            sheet_id = link.path.split('/')[sheet_id_number]
+            return sheet_id
 
-        return sheet_id
+        except IndexError as error:
+            SHEET_LOGGER.warning('Could not found sheet id, %s', error)
+            return None
 
     @staticmethod
     def lists_to_list(data, values=None):

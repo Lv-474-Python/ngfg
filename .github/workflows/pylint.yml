@@ -40,7 +40,6 @@ jobs:
           HOST: ${{secrets.HOST}}
           PORT: ${{secrets.PORT}}
           DB_NAME: ${{secrets.DB_NAME}}
-          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
       - name: coverage
         run: cd src; coverage run -m pytest
         env:
@@ -53,7 +52,6 @@ jobs:
           HOST: ${{secrets.HOST}}
           PORT: ${{secrets.PORT}}
           DB_NAME: ${{secrets.DB_NAME}}
-          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
       - name: coveralls
         run: cd src; coveralls
         env:

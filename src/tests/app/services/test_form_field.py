@@ -3,7 +3,6 @@ import mock
 
 from app.services import FormFieldService
 from app.models import FormField
-from app.schemas import FormFieldSchema
 
 
 @pytest.fixture()
@@ -316,3 +315,17 @@ def test_delete_not_exist(get_by_id_mock, form_field_id):
     test_instance = FormFieldService.delete(form_field_id)
 
     assert test_instance == None
+
+
+@mock.patch('app.schemas.FormFieldSchema')
+def test_to_json(schema):
+    schema.return_value = None
+    result = FormFieldService.to_json(None, many=False)
+    assert result == {}
+
+
+@mock.patch('app.schemas.FormFieldResponseSchema')
+def test_response_to_json(schema):
+    schema.return_value = None
+    result = FormFieldService.response_to_json(None, many=False)
+    assert result == {}
