@@ -286,26 +286,26 @@ def test_update_form_field_not_exist(get_by_id_mock, form_field_id):
     assert test_instance == None
 
 
-# @mock.patch('app.helper.redis_manager.RedisManager.delete')
-# @mock.patch('app.helper.redis_manager.RedisManager.get')
-# @mock.patch('app.DB.session.delete')
-# @mock.patch('app.services.FormFieldService.get_by_id')
-# def test_delete(get_by_id_mock,
-#                 db_mock,
-#                 redis_manager_get_mock,
-#                 redis_manager_delete_mock,
-#                 form_field_data,
-#                 form_field_id):
-#     instance = FormField(**form_field_data)
-#
-#     get_by_id_mock.return_value = instance
-#     db_mock.return_value = None
-#     redis_manager_get_mock.return_value = True
-#     redis_manager_delete_mock.return_value = None
-#
-#     test_instance = FormFieldService.delete(form_field_id)
-#
-#     assert test_instance is True
+@mock.patch('app.helper.redis_manager.RedisManager.delete')
+@mock.patch('app.helper.redis_manager.RedisManager.get')
+@mock.patch('app.DB.session.delete')
+@mock.patch('app.services.FormFieldService.get_by_id')
+def test_delete(get_by_id_mock,
+                db_mock,
+                redis_manager_get_mock,
+                redis_manager_delete_mock,
+                form_field_data,
+                form_field_id):
+    instance = FormField(**form_field_data)
+
+    get_by_id_mock.return_value = instance
+    db_mock.return_value = None
+    redis_manager_get_mock.return_value = True
+    redis_manager_delete_mock.return_value = None
+
+    test_instance = FormFieldService.delete(form_field_id)
+
+    assert test_instance is True
 
 
 @mock.patch('app.services.FormFieldService.get_by_id')
