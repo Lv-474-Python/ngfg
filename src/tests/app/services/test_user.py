@@ -130,7 +130,6 @@ def user_data():
     return user
 
 
-
 @pytest.mark.parametrize(
     "user_id, username, email, google_token, is_active ",
     USER_SERVICE_UPDATE_DATA
@@ -356,8 +355,6 @@ def test_activate_user(get_by_id_mock, update_mock, user_data):
 
 @mock.patch("app.services.UserService.get_by_id")
 def test_activate_user_not_exist(get_by_id_mock, user_data):
-    instance = User(**user_data)
-
     get_by_id_mock.return_value = None
 
     test_update_user = UserService.activate_user(
@@ -367,6 +364,7 @@ def test_activate_user_not_exist(get_by_id_mock, user_data):
     )
 
     assert test_update_user == None
+
 
 
 @pytest.mark.parametrize(
