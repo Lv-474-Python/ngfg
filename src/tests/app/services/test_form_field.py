@@ -19,7 +19,12 @@ def form_field_id():
 
 @pytest.fixture()
 def form_field_updated_data():
-    data = {'form_id': 2, 'field_id': 2, 'question': 'new_string', 'position': 2}
+    data = {
+        'form_id': 2,
+        'field_id': 2,
+        'question': 'new_string',
+        'position': 2
+    }
     return data
 
 
@@ -27,7 +32,10 @@ def form_field_updated_data():
 @mock.patch('app.DB.session.add')
 def test_create(redis_manager_get_mock, db_mock, form_field_data):
     db_mock.return_value = None
-    redis_manager_get_mock.return_value = [FormField(**form_field_data), FormField(**form_field_data)]
+    redis_manager_get_mock.return_value = [
+        FormField(**form_field_data),
+        FormField(**form_field_data)
+    ]
 
     instance = FormField(**form_field_data)
     test_instance = FormFieldService.create(**form_field_data)
@@ -41,7 +49,10 @@ def test_create(redis_manager_get_mock, db_mock, form_field_data):
 @mock.patch('app.helper.redis_manager.RedisManager.set')
 @mock.patch('app.models.FormField.query')
 @mock.patch('app.helper.redis_manager.RedisManager.get')
-def test_get_by_id(redis_manager_get_mock, query_mock, redis_manager_set_mock, form_field_data):
+def test_get_by_id(redis_manager_get_mock,
+                   query_mock,
+                   redis_manager_set_mock,
+                   form_field_data):
     instance = FormField(**form_field_data)
 
     redis_manager_get_mock.return_value = None
@@ -208,7 +219,10 @@ def test_update_form_id(get_by_id_mock,
     redis_manager_get_mock.return_value = True
     redis_manager_delete_mock.return_value = None
 
-    test_instance = FormFieldService.update(form_field_id, form_id=form_field_updated_data.get('form_id'))
+    test_instance = FormFieldService.update(
+        form_field_id,
+        form_id=form_field_updated_data.get('form_id')
+    )
 
     assert updated_instance.form_id == test_instance.form_id
     assert updated_instance.field_id != test_instance.field_id
@@ -234,7 +248,10 @@ def test_update_field_id(get_by_id_mock,
     redis_manager_get_mock.return_value = True
     redis_manager_delete_mock.return_value = None
 
-    test_instance = FormFieldService.update(form_field_id, field_id=form_field_updated_data.get('field_id'))
+    test_instance = FormFieldService.update(
+        form_field_id,
+        field_id=form_field_updated_data.get('field_id')
+    )
 
     assert updated_instance.form_id != test_instance.form_id
     assert updated_instance.field_id == test_instance.field_id
@@ -260,7 +277,10 @@ def test_update_question(get_by_id_mock,
     redis_manager_get_mock.return_value = True
     redis_manager_delete_mock.return_value = None
 
-    test_instance = FormFieldService.update(form_field_id, question=form_field_updated_data.get('question'))
+    test_instance = FormFieldService.update(
+        form_field_id,
+        question=form_field_updated_data.get('question')
+    )
 
     assert updated_instance.form_id != test_instance.form_id
     assert updated_instance.field_id != test_instance.field_id
@@ -286,7 +306,10 @@ def test_update_position(get_by_id_mock,
     redis_manager_get_mock.return_value = True
     redis_manager_delete_mock.return_value = None
 
-    test_instance = FormFieldService.update(form_field_id, position=form_field_updated_data.get('position'))
+    test_instance = FormFieldService.update(
+        form_field_id,
+        position=form_field_updated_data.get('position')
+    )
 
     assert updated_instance.form_id != test_instance.form_id
     assert updated_instance.field_id != test_instance.field_id
