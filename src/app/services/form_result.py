@@ -218,7 +218,7 @@ class FormResultService:
             return False
         answers = list(set(answers))  # Remove all repeating answers
 
-        if options['range']['min'] is None and options['range']['max'] is None:
+        if options.get('range') is not None:
             field.range = Range(min=0, max=len(options['choiceOptions']))
         elif options['range']['min'] is None and options['range']['max'] is not None:
             field.range = Range(min=0, max=options['range']['max'])
@@ -265,7 +265,7 @@ class FormResultService:
                 errors[answer["position"]] = "Value is not strict number"
                 return False
 
-        if options['range']['min'] is None and options['range']['max'] is None:
+        if options.get('range') is None:
             field.range = Range(min=MIN_POSTGRES_INT, max=MAX_POSTGRES_INT)
         elif options['range']['min'] is None and options['range']['max'] is not None:
             field.range = Range(min=MIN_POSTGRES_INT, max=options['range']['max'])
@@ -294,7 +294,7 @@ class FormResultService:
                 errors[answer["position"]] = "Value is not strict text"
                 return False
 
-        if options['range']['min'] is None and options['range']['max'] is None:
+        if options.get('range') is None:
             field.range = Range(min=0, max=MAX_TEXT_LENGTH)
         elif options['range']['min'] is None and options['range']['max'] is not None:
             field.range = Range(min=0, max=options['range']['max'])

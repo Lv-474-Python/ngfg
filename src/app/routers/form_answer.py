@@ -106,7 +106,12 @@ class AnswersAPI(Resource):
         for answer in result['answers'].values():
             values.append(answer)
 
-        result = FormResultService.create(**result)
+        token = TokenService.filter(form_id=form_id)[0]
+        result = FormResultService.create(
+            user_id=result['user_id'],
+            token_id=token.id,
+            answers=result['answers']
+        )
         if result is None:
             raise BadRequest("Cannot create result instance")
 
@@ -163,7 +168,7 @@ class AnswerAPI(Resource):
         form = FormService.get_by_id(form_id)
         result = FormResultService.get_by_id(result_id)
         token = TokenService.get_by_id(result.token_id)
-        if not (form and result):
+        if not (form and result and token):
             raise BadRequest("Result with such parameters is not found.")
         if form.id != token.form_id:
             raise BadRequest("Wrong result to form relation!")
