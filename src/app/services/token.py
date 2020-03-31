@@ -1,3 +1,7 @@
+"""
+Token service
+"""
+
 from app import DB
 from app.models import Token
 from app.helper.decorators import transaction_decorator
