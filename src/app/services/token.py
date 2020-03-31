@@ -18,6 +18,10 @@ class TokenService:
         :param form_id:
         :return: Token model object or None
         """
+        tokens = TokenService.filter(token=token)
+        if tokens:
+            token = tokens[0]
+            return token
         token = Token(token=token, form_id=form_id)
         DB.session.add(token)
         return token
