@@ -43,7 +43,10 @@ from .services_test_data import (
     FIELD_SERVICE_VALIDATE_POST_RADIO,
     FIELD_SERVICE_VALIDATE_POST_CHECKBOX,
     FIELD_SERVICE_VALIDATE_TEXTAREA_POST,
-    FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE
+    FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE,
+    FIELD_SERVICE_VALIDATE_RADIO_UPDATE,
+    FIELD_SERVICE_VALIDATE_CHECKBOX_OPTIONS_AND_RANGE_UPDATE,
+    FIELD_SERVICE_VALIDATE_CHECKBOX_UPDATE
 )
 
 
@@ -1877,12 +1880,50 @@ def test_validate_textarea(test_input, expected):
 
 @pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE)
 @mock.patch('app.services.FieldService._get_choice_additional_options')
-def test_validate_options_update_added(mock_get_options, test_input, expected):
+def test_validate_options_update(mock_get_options, test_input, expected):
     field_id, added, removed, existing_options = test_input
     mock_get_options.return_value = existing_options
     errors = FieldService.validate_options_update(field_id=field_id, added=added, removed=removed)
     assert errors == expected
 
 
+@pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_RADIO_UPDATE)
+@mock.patch("app.services.FieldService.validate_options_update")
+def test_validate_radio_update(mock_validate_options, test_input, expected):
+    expected_result, expected_errors = expected
+    field_id, data, validate_result = test_input
+    mock_validate_options.return_value = validate_result
+    result, errors = FieldService.validate_radio_update(data=data, field_id=field_id)
+    assert result == expected_result
+    assert errors == expected_errors
 
 
+@pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_CHECKBOX_OPTIONS_AND_RANGE_UPDATE)
+@mock.patch("app.services.FieldService._get_choice_additional_options")
+def test_validate_checkbox_options_and_range_update(mock_get_options, test_input, expected):
+    field_id, added, removed, existing_options, new_range, range_deleted = test_input
+    mock_get_options.return_value = existing_options
+    result = FieldService.validate_checkbox_options_and_range_update(
+        field_id=field_id,
+        added=added,
+        removed=removed,
+        new_range=new_range,
+        range_deleted=range_deleted
+    )
+    assert result == expected
+
+
+@pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_CHECKBOX_UPDATE)
+@mock.patch("app.services.FieldService.validate_checkbox_options_and_range_update")
+@mock.patch("app.services.FieldService.validate_options_update")
+def test_validate_checkbox_update(mock_options, mock_options_and_range, test_input, expected):
+    field_id, data, options_result, options_and_range_result = test_input
+    expected_result, expected_errors = expected
+    mock_options.return_value = options_result
+    mock_options_and_range.return_value = options_and_range_result
+    result, errors = FieldService.validate_checkbox_update(
+        data=data,
+        field_id=field_id
+    )
+    assert result == expected_result
+    assert errors == expected_errors

@@ -274,6 +274,72 @@ FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE = [
     ((1, ["d","e"], ["b"], {"choiceOptions": ["a", "b", "c"]}), [])
 ]
 
+FIELD_SERVICE_VALIDATE_RADIO_UPDATE = [
+    ((1, {"addedChoiceOptions": ["a", "b", "c"]}, ["Added choices already exist"]),
+     (False, {"choiceOptions": {"_schema": ["Added choices already exist"]}})),
+    ((1, {"removedChoiceOptions": ["b"]}, ["Removed options don\'t exist"]),
+     (False, {"choiceOptions": {"_schema": ["Removed options don\'t exist"]}})),
+    ((1, {"removedChoiceOptions": ["a", "b", "c"]}, ["Can\'t delete all options"]),
+     (False, {"choiceOptions": {"_schema": ["Can\'t delete all options"]}})),
+    ((1, {"addedChoiceOptions": ["a"]}, []),
+     (True, {}))
+]
+
+FIELD_SERVICE_VALIDATE_CHECKBOX_OPTIONS_AND_RANGE_UPDATE = [
+    ((1, ["a", "b"], ["c"], {
+        "choiceOptions": ["d", "e"],
+        "range": {
+            "min": 1,
+            "max": 3
+        }
+    }, None, True), False),
+    ((1, [], [], {
+        "choiceOptions": ["a", "b", "c"]
+    }, None, True), "Can\'t delete range that doesn\'t exist"),
+    ((1, ["a"], [], {
+        "choiceOptions": ["b", "c", "d"],
+        "range": {
+            "min": 5,
+            "max": 4
+        }
+    }, None, None), "Current min choice range is greater than updated choice amount"),
+    ((1, ["a"], ["b", "c"], {
+        "choiceOptions": ["b", "c", "d", "e"],
+        "range": {
+            "min": 1,
+            "max": 4
+        }
+    }, None, None), "Current max choice range is greater than updated choice amount"),
+    ((1, [], [], {"choiceOptions": ["a", "b", "c"]}, {"min": 4, "max": 3}, None),
+     "New min choice range is greater than updated choice amount"),
+    ((1, [], [], {"choiceOptions": ["a", "b", "c"]}, {"min": 1, "max": 5}, None),
+     "New max choice range is greater than updated choice amount")
+]
+
+FIELD_SERVICE_VALIDATE_CHECKBOX_UPDATE = [
+    ((1, {
+        "addedChoiceOptions": ["a", "b", "c"],
+        "removedChoiceOptions": ["d"],
+    }, ["Added choices already exist"], []),
+     (False, {"choiceOptions": {"_schema": ["Added choices already exist"]}})),
+    ((1, {
+        "addedChoiceOptions": ["a", "b", "c"],
+        "range": {
+            "min": 1,
+            "max": 10
+        },
+    }, [], ["New max choice range is greater than updated choice amount"]),
+     (False, {"options_and_range_error": ["New max choice range is greater than updated choice amount"]})),
+    ((1, {
+        "addedChoiceOptions": ["a"],
+        "range": {
+            "min": 1,
+            "max": 3
+        }
+    }, [], []),
+    (True, {}))
+]
+
 # FormService
 FORM_SERVICE_CREATE_DATA = [
     (1, "login form", "login", "http://docs.google.com/spreadsheet/d/s1", True),
