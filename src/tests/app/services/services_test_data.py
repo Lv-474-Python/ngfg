@@ -143,6 +143,83 @@ FIELD_SERVICE_CHECK_FOR_RANGE_DATA = [
     ({}, (None, None))
 ]
 
+FIELD_SERVICE_VALIDATE_POST_FIELD_EXISTING = [
+    (({'name': 'first_name', 'owner_id': 1, 'field_type': 1, 'is_strict': True},
+     {'name': 'first_name', 'fieldType': 1}),
+     (False, {'is_exist': 'Field with such name already exist'})),
+    (({'name': 'cities', 'owner_id': 1, 'field_type': 4, 'is_strict': False},
+     {'name': 'cities', 'fieldType': 4, 'choiceOptions': ['Lviv', 'Kyiv']}),
+     (False, {'is_exist': 'Field with such name already exist'}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_FIELD = [
+    (({'name': 'city'}, 1), (False, {'fieldType': ['Missing data for required field.']})),
+    (({'fieldType': 1}, 1), (False, {'name': ['Missing data for required field.']})),
+    (({'name': 'city', 'fieldType': 4, 'choiceOptions': ['Lviv', 'Kyiv']}, 1), (True, {})),
+    (({'name': 'first_name', 'fieldType': 1, 'isStrict': True}, 1), (True, {}))
+]
+
+
+FIELD_SERVICE_VALIDATE_POST_SETTING_AUTOCOMPLETE = [
+    ({
+        'name': 'cities',
+        'fieldType': 5,
+        'settingAutocomplete': {
+            'dataUrl': "http://docs.google.com/spreadsheet/d/abcd",
+            'sheet': 'sheet',
+            'fromRow': 'A1',
+            'toRow': 'A2'
+        }
+    }, (True, {})),
+
+    ({'name': 'cities', 'fieldType': 5}, (False, {'settingAutocomplete': ['Missing data for required field.']})),
+
+    ({
+        'name': 'cities',
+        'fieldType': 5,
+        'unknownField': 'unknown value',
+        'settingAutocomplete': {
+            'dataUrl': "http://docs.google.com/spreadsheet/d/abcd",
+            'sheet': 'sheet',
+            'fromRow': 'A1',
+            'toRow': 'A2'
+        }
+    }, (False, {'unknownField': ['Unknown field.']}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_TEXT_OR_NUMBER = [
+    ({
+        'name': 'firstname',
+        'fieldType': 1,
+        'range': {
+            'min': 1,
+            'max': 15
+        }
+    }, (True, {})),
+    ({'name': 'age', 'fieldType': 2, 'isStrict': True}, (True, {})),
+    ({'name': 'age'}, (False, {'fieldType': ['Missing data for required field.']})),
+    ({
+        'name': 'age',
+        'fieldType': 2,
+        'unknownField': 'unknown value',
+        'range': {
+            'min': 13,
+            'max': 99
+        }
+    }, (False, {'unknownField': ['Unknown field.']}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_RADIO = [
+    ({'name': 'gender', 'fieldType': 4, 'choiceOptions': ['Male', 'Female']}, (True, {})),
+    ({'name': 'gender', 'fieldType': 4}, (False, {'choiceOptions': ['Missing data for required field.']})),
+    ({
+         'name': 'gender',
+         'fieldType': 4,
+         'choice_options': ['Male', 'Female'],
+         'choiceOptions':['Male', 'Female']
+     }, (False, {'choice_options': ['Unknown field.']}))
+]
+
 
 # FormService
 FORM_SERVICE_CREATE_DATA = [
@@ -235,3 +312,4 @@ USER_SERVICE_FILTER_BY_ALL_DATA = [
     ("aasdasda", "ada@gmail.com", "asdsada", True),
     ("gd2as", "adacv@gmail.com", "2asd2", False)
 ]
+
