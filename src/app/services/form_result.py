@@ -217,7 +217,7 @@ class FormResultService:
             return False
         answers = list(set(answers))  # Remove all repeating answers
 
-        if options.get('range') is not None:
+        if options.get('range') is None:
             field.range = Range(min=0, max=len(options['choiceOptions']))
         elif options['range']['min'] is None and options['range']['max'] is not None:
             field.range = Range(min=0, max=options['range']['max'])
