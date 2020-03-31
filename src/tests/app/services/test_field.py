@@ -74,16 +74,6 @@ def field_data_with_id():
 
 
 @pytest.fixture()
-def field_post_data():
-    data = {
-        'name': 'TestFieldPost',
-        'fieldType': 1
-    }
-    return data
-
-
-
-@pytest.fixture()
 def autocomplete_field_data():
     data = {
         'id': 1,
