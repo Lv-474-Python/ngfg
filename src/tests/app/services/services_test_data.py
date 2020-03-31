@@ -220,6 +220,59 @@ FIELD_SERVICE_VALIDATE_POST_RADIO = [
      }, (False, {'choice_options': ['Unknown field.']}))
 ]
 
+FIELD_SERVICE_VALIDATE_POST_CHECKBOX = [
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "range": {
+            "min": 1,
+            "max": 3
+        },
+        "choiceOptions": [
+            "Writing", "Painting", "Coding"
+        ]
+    }, (True, {})),
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "range": {
+            "min": 1,
+            "max": 3
+        }
+    }, (False, {"choiceOptions": ["Missing data for required field."]})),
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "isStrict": True,
+        "choiceOptions": [
+            "Writing", "Painting"
+        ]
+    }, (False, {"isStrict": ["Unknown field."]})),
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "range": {
+            "min": 1,
+            "max": 3
+        },
+        "choiceOptions": [
+            "Writing", "Painting"
+        ]
+    }, (False, {"range": {"_schema": ["Max selective options must be less than list of options"]}}))
+]
+
+FIELD_SERVICE_VALIDATE_TEXTAREA_POST = [
+    ({"name": "about", "fieldType": 3}, (True, {})),
+    ({"name": "about", "fieldType": 3, "isStrict": True}, (False, {"isStrict": ["Unknown field."]})),
+    ({"fieldType": 3}, (False, {"name": ["Missing data for required field."]}))
+]
+
+FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE = [
+    ((1, ["a", "b", "c"], [], {"choiceOptions": ["a", "d", "e"]}), ['Added choices already exist']),
+    ((1, ["e", "f"], ["d"], {"choiceOptions": ["a", "b", "c"]}), ['Removed options don\'t exist']),
+    ((1, [], ["a", "b", "c"], {"choiceOptions": ["a", "b", "c"]}), ["Can\'t delete all options"]),
+    ((1, ["d","e"], ["b"], {"choiceOptions": ["a", "b", "c"]}), [])
+]
 
 # FormService
 FORM_SERVICE_CREATE_DATA = [

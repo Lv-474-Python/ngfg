@@ -40,7 +40,10 @@ from .services_test_data import (
     FIELD_SERVICE_VALIDATE_POST_FIELD,
     FIELD_SERVICE_VALIDATE_POST_SETTING_AUTOCOMPLETE,
     FIELD_SERVICE_VALIDATE_POST_TEXT_OR_NUMBER,
-    FIELD_SERVICE_VALIDATE_POST_RADIO
+    FIELD_SERVICE_VALIDATE_POST_RADIO,
+    FIELD_SERVICE_VALIDATE_POST_CHECKBOX,
+    FIELD_SERVICE_VALIDATE_TEXTAREA_POST,
+    FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE
 )
 
 
@@ -1854,4 +1857,32 @@ def test_validate_radio(test_input, expected):
     result, errors = FieldService.validate_radio(data=test_input)
     assert result == expected_result
     assert errors == expected_errors
+
+
+@pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_POST_CHECKBOX)
+def test_validate_checkbox(test_input, expected):
+    expected_result, expected_errors = expected
+    result, errors = FieldService.validate_checkbox(data=test_input)
+    assert result == expected_result
+    assert errors == expected_errors
+
+
+@pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_TEXTAREA_POST)
+def test_validate_textarea(test_input, expected):
+    expected_result, expected_errors = expected
+    result, errors = FieldService.validate_textarea(data=test_input)
+    assert result == expected_result
+    assert errors == expected_errors
+
+
+@pytest.mark.parametrize("test_input, expected", FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE)
+@mock.patch('app.services.FieldService._get_choice_additional_options')
+def test_validate_options_update_added(mock_get_options, test_input, expected):
+    field_id, added, removed, existing_options = test_input
+    mock_get_options.return_value = existing_options
+    errors = FieldService.validate_options_update(field_id=field_id, added=added, removed=removed)
+    assert errors == expected
+
+
+
 
