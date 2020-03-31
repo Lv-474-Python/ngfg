@@ -130,7 +130,7 @@ FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_AUTOCOMPLETE_DATA = [
             'toRow': 'C2'
         },
         'values': ['yes', 'no']
-    } ),
+    }),
 ]
 
 FIELD_SERVICE_GET_ADDITIONAL_OPTIONS_ERROR_DATA = [
@@ -321,7 +321,6 @@ FORM_SERVICE_FILTER_BY_ALL_DATA = [
     (2, 2, "name 8", "title 8", "http://docs.google.com/spreadsheet/d/g2a", False)
 ]
 
-
 # UserService
 USER_SERVICE_CREATE_WITHOUT_FILTER_DATA = [
     ("kaic", "kaic@gmail.com", "asdsadaa"),
@@ -366,3 +365,4 @@ USER_SERVICE_FILTER_BY_ALL_DATA = [
     ("gd2as", "adacv@gmail.com", "2asd2", False)
 ]
 
+USER_SERVICE_CREATE_USER_BY_EMAIL_DATA = ["ladi@gmail.com"]
