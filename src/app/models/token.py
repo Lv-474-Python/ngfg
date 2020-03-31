@@ -15,7 +15,7 @@ class Token(AbstractModel):
 
     __tablename__ = "tokens"
 
-    token = DB.Column(DB.String(255), unique=True, nullable=False)
+    token = DB.Column(DB.String, unique=True, nullable=False)
     form_id = DB.Column(DB.Integer, DB.ForeignKey('forms.id'), nullable=False)
 
     form_results = DB.relationship('FormResult', backref='token')
