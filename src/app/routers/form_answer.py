@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
 
 from app import API
-from app.services import FormService, FormResultService
+from app.services import FormService, FormResultService, TokenService
 from app.helper.sheet_manager import SheetManager
 
 
@@ -62,10 +62,12 @@ class AnswersAPI(Resource):
         if form is None:
             raise BadRequest("No such form")
         if form.owner_id == current_user.id:
-            result = FormResultService.filter(form_id=form.id)
+            token = TokenService.filter(form_id=form.id)[0]
+            result = FormResultService.filter(token_id=token.id)
             answers = FormResultService.to_json(result, many=True)
         else:
-            result = FormResultService.filter(user_id=current_user.id, form_id=form.id)
+            token = TokenService.filter(form_id=form.id)[0]
+            result = FormResultService.filter(user_id=current_user.id, token_id=token.id)
             if result:
                 answers = FormResultService.to_json(result[0], many=False)
 
@@ -123,7 +125,6 @@ class AnswersAPI(Resource):
         if is_added is None:
             raise BadRequest("Cannot create result instance")
 
-
         result_json = FormResultService.to_json(result, many=False)
 
         response = jsonify(result_json)
@@ -161,8 +162,9 @@ class AnswerAPI(Resource):
         """
         form = FormService.get_by_id(form_id)
         result = FormResultService.get_by_id(result_id)
+        token = TokenService.get_by_id(result.token_id)
         if not (form and result):
             raise BadRequest("Result with such parameters is not found.")
-        if form.id != result.form_id:
+        if form.id != token.form_id:
             raise BadRequest("Wrong result to form relation!")
         return FormResultService.to_json(result, many=False)
