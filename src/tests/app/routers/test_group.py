@@ -4,6 +4,7 @@ from flask import jsonify
 import mock
 from app import APP
 import json
+import tempfile
 
 
 @pytest.fixture
@@ -92,6 +93,7 @@ def group_put_data():
 def client(user):
     APP.config['TESTING'] = True
     APP.config['WTF_CSRF_ENABLED'] = False
+    db_fd, APP.config['DATABASE'] = tempfile.mkstemp()
 
     testing_client = APP.test_client()
 
