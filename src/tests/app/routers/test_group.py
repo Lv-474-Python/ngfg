@@ -4,7 +4,6 @@ from flask import jsonify
 import mock
 from app import APP, DB
 import json
-import tempfile
 
 
 @pytest.fixture
@@ -93,9 +92,9 @@ def group_put_data():
 def client(user):
     APP.config['TESTING'] = True
     APP.config['WTF_CSRF_ENABLED'] = False
+    APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
     testing_client = APP.test_client()
-    DB.create_all()
 
     ctx = APP.app_context()
     ctx.push()
@@ -186,9 +185,9 @@ def test_groups_post_group_not_created(
 
 
 @mock.patch('app.services.GroupService.to_json_single')
-@mock.patch('app.services.GroupService.filter')
-def test_groups_get_one(group_filter_mock, group_to_json_single_mock, client, group, group_json):
-    group_filter_mock.return_value = [group]
+@mock.patch('app.services.GroupService.get_by_id')
+def test_groups_get_one(group_get_by_id_mock, group_to_json_single_mock, client, group, group_json):
+    group_get_by_id_mock.return_value = group
     group_to_json_single_mock.return_value = group_json
 
     response = client.get(f'api/v1/groups/{group.id}', follow_redirects=True)
