@@ -93,7 +93,7 @@ def group_put_data():
 def client(user):
     APP.config['TESTING'] = True
     APP.config['WTF_CSRF_ENABLED'] = False
-    db_fd, APP.config['DATABASE'] = tempfile.mkstemp()
+    db_fd, APP.config['SQLALCHEMY_DATABASE_URI'] = tempfile.mkstemp()
 
     testing_client = APP.test_client()
 
