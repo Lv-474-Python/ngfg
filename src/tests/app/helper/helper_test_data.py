@@ -58,3 +58,40 @@ SHEET_MANAGER_TEST_LISTS_TO_LIST_DATA = [
     ([1, 2, 3, 4], [1, 2, 3, 4]),
     (None, None)
 ]
+
+RANGE_VALIDATOR_VALIDATE_CHECKBOX = [
+    ((-1, 1), ['Min range must\'t be less than 0']),
+    ((10, -1), ['Max range must\'t be less than 0']),
+    ((-2, -1), ['Min range must\'t be less than 0', 'Max range must\'t be less than 0']),
+    ((1, 2), [])
+]
+
+RANGE_VALIDATOR_VALIDATE_TEXT = [
+    ((-1, 256), ['Min range must\'t be less than 0', 'Max range must\'t be greater than 255']),
+    ((256, -2), ['Max range must\'t be less than 0', 'Min range must\'t be greater than 255']),
+    ((1, 254), []),
+    ((1, 256), ['Max range must\'t be greater than 255']),
+    ((256, 1), ['Min range must\'t be greater than 255'])
+]
+
+CHOICE_OPTIONS_VALIDATOR_CHECK_REPEATED_OPTIONS = [
+    (None, False),
+    (["a", "a", "b"], True),
+    (["a", "b", "c"], False)
+]
+
+CHOICE_OPTIONS_VALIDATOR_CHECK_SAME_OPTIONS = [
+    ((['a', 'b', 'c'], ['d', 'e', 'f']), False),
+    ((['a', 'b', 'c'], ['c', 'd', 'e']), True),
+    (([], ['a', 'b', 'c']), False),
+    ((['a', 'b', 'c'], []), False)
+]
+
+CHOICE_OPTIONS_VALIDATOR_VALIDATE_REPEATS = [
+    ((['a', 'b', 'b'], ['c', 'd', 'e']), ['Repeated added values']),
+    ((['a', 'b', 'c'], ['d', 'd', 'e']), ['Repeated removed values']),
+    ((['a', 'a', 'b'], ['c', 'c', 'd']), ['Repeated added values', 'Repeated removed values']),
+    ((['a', 'b', 'c'], ['c', 'd', 'e']), ['Identical values in added and removed options']),
+    ((['a', 'b', 'b'], ['b', 'b', 'c']), ['Repeated added values', 'Repeated removed values', 'Identical values in added and removed options']),
+    ((['a', 'b', 'c'], ['d', 'e', 'f']), [])
+]
