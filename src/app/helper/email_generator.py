@@ -63,7 +63,6 @@ def generate_share_form_to_user_message(
     :param form_title: title of form that will be shared
     :param token: form token
     """
-    #TODO - change url domain (from localhost)
     link = 'http://' + URL_DOMAIN + token
     msg = Message(f"Shared form '{form_title}'", recipients=[recipient])
     msg.html = f"""
