@@ -47,8 +47,8 @@ class FormResultGetSchema(MA.Schema):
         """
         Schema meta
         """
-        fields = ("id", "user_id", "form_id", "created", "answers")
+        fields = ("id", "user_id", "token_id", "created", "answers")
 
     answers = fields.Dict(required=True, keys=fields.String(), values=fields.Raw())
     user_id = fields.Integer(data_key="userId")
-    form_id = fields.Integer(data_key="formId")
+    token_id = fields.Integer(data_key="tokenId")
