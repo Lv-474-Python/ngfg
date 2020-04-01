@@ -3,6 +3,7 @@ from app.models import User, Group
 from flask import jsonify
 import mock
 from app import APP, DB
+from app.services import GroupService
 import json
 
 
@@ -110,7 +111,7 @@ def client(user):
 
 
 @mock.patch('app.services.GroupService.to_json_all')
-@mock.patch('app.services.GroupService.filter')
+@mock.patch.object(GroupService, 'filter')
 def test_groups_get_all(group_filter_mock, group_to_json_all_mock, client, group, group_json):
     group_filter_mock.return_value = [group]
     group_to_json_all_mock.return_value = [group_json]
