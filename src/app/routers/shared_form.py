@@ -69,7 +69,6 @@ class SharedFormAPI(Resource):
         if errors:
             raise BadRequest(errors)
 
-        # handling users_emails
         payload = SharedFormService.get_token_initial_payload(
             form_id=form_id,
             exp=data.get('exp'),
@@ -81,6 +80,7 @@ class SharedFormAPI(Resource):
             'usersToken': None
         }
 
+        # handling users_emails
         users_emails = data.get('users_emails')
         if users_emails:
             token = generate_token(payload)
@@ -89,17 +89,14 @@ class SharedFormAPI(Resource):
                 form_id=form_id
             )
 
-            if token_instance is None:
-                response['usersToken'] = None
-            else:
-                response['usersToken'] = token_instance.token
+            response['usersToken'] = token_instance.token if token_instance else None
 
-                # send emails with token to users_emails
-                call_share_form_to_users_task(
-                    users_emails,
-                    form.title,
-                    token
-                )
+            # send emails with token to users_emails
+            call_share_form_to_users_task(
+                users_emails,
+                form.title,
+                token
+            )
 
         # handling groups_ids
         for group_id in groups_ids:
