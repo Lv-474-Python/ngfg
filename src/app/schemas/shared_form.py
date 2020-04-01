@@ -2,12 +2,38 @@
 SharedForm schemas
 """
 
-from marshmallow import fields
+from marshmallow import fields, validates_schema, ValidationError
 
 from app import MA
 
 
-class SharedFormPostSchema(MA.Schema):
+class SharedFormFlagsSchema(MA.Schema):
+    """
+    SharedFormFlags schema to use on POST, GET requests
+    """
+    class Meta:
+        """
+        Fields of SharedFormFlags schema
+        """
+        fields = ("nbf", "exp")
+
+    nbf = fields.DateTime(required=False)
+    exp = fields.DateTime(required=False)
+
+    @validates_schema
+    # pylint:disable=no-self-use
+    def validate_flags(self, data, **kwargs):
+        """
+        Validates flags
+
+        :param data: data to validate
+        """
+        nbf, exp = data.get('nbf'), data.get('exp')
+        if nbf is not None and exp is not None and nbf >= exp:
+            raise ValidationError({'_schema': "nbf has to be before exp"})
+
+
+class SharedFormPostSchema(SharedFormFlagsSchema):
     """
     SharedForm schema to use on POST request
     """
@@ -19,35 +45,3 @@ class SharedFormPostSchema(MA.Schema):
 
     groups_ids = fields.List(fields.Integer(), required=True)
     users_emails = fields.List(fields.Email(), required=True)
-    # nbf = fields.DateTime(format="%Y-%m-%dT%H:%M:%S.f", required=False)
-    nbf = fields.DateTime(required=False)
-    exp = fields.DateTime(required=False)
-
-
-class SharedFormGetSchema(MA.Schema):
-    """
-    SharedForm schema to use on GET request
-    """
-    class Meta:
-        """
-        Fields of SharedForm schema to use on GET request
-        """
-        fields = ("nbf", "exp")
-
-    nbf = fields.DateTime(required=False)
-    exp = fields.DateTime(required=False)
-
-
-
-
-
-# {
-#   "groups_ids": [
-#     1, 2
-#   ],
-#   "users_emails": [
-#     "yurdosii.ksv@gmail.com"
-#   ],
-#   "nbf": "2020-03-31T09:38:47.246Z",
-#   "exp": "2020-03-31T09:39:47.246Z"
-# }
