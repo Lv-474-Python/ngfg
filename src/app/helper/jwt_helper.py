@@ -5,7 +5,7 @@ PyJWT library helper
 import jwt
 
 from app.config import SECRET_KEY
-from app.helper.constants import JWT_ALGORITHM
+from app.helper.constants import JWT_ALGORITHM, LEEWAY_TIME
 
 
 def generate_token(payload):
@@ -31,7 +31,7 @@ def decode_token(token, verify=True):
     data = jwt.decode(
         token,
         SECRET_KEY,
-        leeway=30,
+        leeway=LEEWAY_TIME,
         algorithms=[JWT_ALGORITHM],
         verify=verify
     )
