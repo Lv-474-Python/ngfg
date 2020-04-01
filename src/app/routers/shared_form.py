@@ -4,19 +4,17 @@ Share form resource API
 
 from flask_login import login_required, current_user
 from werkzeug.exceptions import BadRequest
-from flask import request, jsonify, Response
+from flask import request, jsonify
 from flask_restx import Resource, fields
 
 from app import API
-from app.services import SharedFormService, GroupService, FormService
-from app.helper.jwt_helper import generate_token, decode_token
-from app.schemas import SharedFormPostSchema, SharedFormGetSchema
+from app.services import SharedFormService, GroupService, FormService, TokenService
+from app.helper.jwt_helper import generate_token
+from app.schemas import SharedFormFlagsSchema, SharedFormPostSchema
 from app.celery_tasks.share_form import (
     call_share_form_to_group_task,
     call_share_form_to_users_task
 )
-
-# from app.helper.errors import SharedFieldNotCreated
 
 SHARED_FORM_NS = API.namespace('shared_forms')
 SHARE_FIELD_POST_MODEL = API.model('ShareForm', {
@@ -52,6 +50,8 @@ class SharedFormAPI(Resource):
     def post(self, form_id):
         """
         Share form to group or list of emails
+
+        :param form_id: id of form that will be shared
         """
         data = request.json
         is_correct, errors = SharedFormService.validate_data(SharedFormPostSchema, data)
@@ -62,152 +62,92 @@ class SharedFormAPI(Resource):
         if form is None:
             raise BadRequest("Form doesn't exist")
         if form.owner_id != current_user.id:
-            raise BadRequest("Can't share form that doesn't belong to you")
+            raise BadRequest("You can't share form that doesn't belong to you")
 
-        # import pdb; pdb.set_trace()
+        # handling users_emails
+        payload = SharedFormService.get_token_initial_payload(
+            form_id=form_id,
+            exp=data.get('exp'),
+            nbf=data.get('nbf')
+        )
 
-        #TODO - валідація що exp не може бути меншою за nbf
-
-        groups_ids = data.get('groups_ids')
-        users_emails = data.get('users_emails')
-
-        # check whether groups exist
-        groups = []
-        groups_errors = []
-        for group_id in groups_ids:
-            group = GroupService.get_by_id(group_id)
-            if group is None:
-                groups_errors.append(f"Group {group_id} doesn't exist")
-            groups.append(group)
-            # groups.append({'group_id': group_id, 'users': users})
-
-        if groups_errors:
-            raise BadRequest(groups_errors)
-
-        # set token payload
-        payload = {
-            'form_id': form_id,
-            'group_id': None,
-        }
-
-        exp = data.get('exp')
-        if exp is not None:
-            exp = SharedFormService.convertStringToDateTime(exp)
-            payload['exp'] = exp
-
-        nbf = data.get('nbf')
-        if nbf is not None:
-            nbf = SharedFormService.convertStringToDateTime(nbf)
-            payload['nbf'] = nbf
-
-        #TODO - якщо не створиться то скіпати
-
-        # send emails and set response json
-        response_json = {
+        response = {
             'groupsTokens': {},
             'usersToken': None
         }
 
-        for group in groups:
-            group_users = GroupService.get_users_by_group(group.id)
-            #TODO - подумай тут добре
-            if not group_users:
-                continue
-
-            group_users_emails = list(map(lambda user: user['email'], group_users))
-
-            group_payload = dict(payload)
-            group_payload['group_id'] = group.id
-            group_token = generate_token(group_payload)
-
-            # if token is not None: response['groups_tokens'][str(group['group_id'])] = group_token.value
-            # group_token = token.value if token is not None else None
-            response_json['groupsTokens'][str(group.id)] = group_token # group_token.value
-
-            # send emails by group_token to group_users_emails
-            # якщо є токен то шар
-            call_share_form_to_group_task(
-                group_users_emails,
-                group.name,
-                form.title,
-                group_token
-            )
-
+        users_emails = data.get('users_emails')
         if users_emails:
             token = generate_token(payload)
-            # create token instance
+            token_instance = TokenService.create(
+                token=token,
+                form_id=form_id
+            )
 
-            response_json['usersToken'] = token # token.value
+            if token_instance is None:
+                response['usersToken'] = None
+            else:
+                response['usersToken'] = token_instance.token
 
-            # send emails by token to users_emails 
-            call_share_form_to_users_task(
+                # send emails with token to users_emails
+                call_share_form_to_users_task(
+                    users_emails,
+                    form.title,
+                    token
+                )
+
+        # handling groups_ids
+        groups_ids = data.get('groups_ids')
+        errors = GroupService.check_whether_groups_exist(groups_ids)
+        if errors:
+            raise BadRequest(errors)
+
+        for group_id in groups_ids:
+            group = GroupService.get_by_id(group_id)
+            if group is None:
+                response['groupsTokens'][str(group_id)] = None
+                continue
+
+            users = GroupService.get_users_by_group(group_id)
+            if users is None:
+                response['groupsTokens'][str(group_id)] = None
+                continue
+            users_emails = list(map(lambda user: user['email'], users))
+
+            group_payload = dict(payload)
+            group_payload['group_id'] = group_id
+            token = generate_token(group_payload)
+
+            token_instance = TokenService.create(
+                token=token,
+                form_id=form_id
+            )
+            if token_instance is None:
+                response['groupsTokens'][str(group_id)] = None
+                continue
+
+            response['groupsTokens'][str(group_id)] = token_instance.token
+
+            # send emails with token to group_users_emails
+            call_share_form_to_group_task(
                 users_emails,
+                group.name,
                 form.title,
                 token
             )
 
+        # Чи в нас буде різні таски на відправки групам і відправку
+        # Чи в нас буде типу що дістаєш всіх всіх юзерів і відправляєш
+        # Поки різні бо хз що там з тим перехваткою тасок і типу моніторингу
 
-        #TODO - чи в нас буде різні таски на відправки групам і відправку. Чи в нас буде типу що дістаєш всіх всіх юзерів і відправляєш
-
-
-
-
-
-
-
-
-
-
-
-        # for email in emails:
-        #     user = UserService.get_by_email(email=email)
-        #     if user is None or not user.is_active:
-        #         raise BadRequest("Can't share field to nonexistent or inactive users")
-        #     if user.id == current_user.id:
-        #         raise BadRequest("Can't share field with yourself")
-        #     users.append(user)
-
-
-        # shared_fields = []
-
-        # for user in users:
-        #     shared_field_instance = SharedFieldService.get_by_user_and_field(
-        #         user_id=user.id,
-        #         field_id=field.id
-        #     )
-        #     if shared_field_instance is not None:
-        #         raise BadRequest("Can't share field twice")
-        #     shared_field = SharedFieldService.create(
-        #         user_id=user.id,
-        #         field_id=field.id,
-        #         owner_id=current_user.id
-        #     )
-        #     if shared_field is None:
-        #         raise SharedFieldNotCreated()
-        #     shared_fields.append(shared_field)
-
-        # field_json = FieldService.field_to_json(
-        #     data=field,
-        #     many=False
-        # )
-        # shared_fields_json = SharedFieldService.response_to_json(
-        #     data=shared_fields,
-        #     many=True
-        # )
-
-        # call_share_field_task(
-        #     recipients=emails,
-        #     field=field_json
-        # )
-
-        response = jsonify(response_json)
+        response = jsonify(response)
         response.status_code = 201
         return response
 
 
     @API.doc(
         responses={
-            201: 'OK',
+            201: 'Created',
             401: 'Unauthorized',
         },
         params={
@@ -220,10 +160,11 @@ class SharedFormAPI(Resource):
     def get(self, form_id):
         """
         Get token to pass form
+
+        :param form_id: id of form that will be shared
         """
-        # validate data
         args = request.args
-        is_correct, errors = SharedFormService.validate_data(SharedFormGetSchema, args)
+        is_correct, errors = SharedFormService.validate_data(SharedFormFlagsSchema, args)
         if not is_correct:
             raise BadRequest(errors)
 
@@ -233,39 +174,22 @@ class SharedFormAPI(Resource):
         if form.owner_id != current_user.id:
             raise BadRequest("Can't share form that doesn't belong to you")
 
-        # generate token
-        payload = {
-            'form_id': form_id,
-            'group_id': None,
-        }
-
-        exp = args.get('exp')
-        if exp is not None:
-            exp = SharedFormService.convertStringToDateTime(exp)
-            payload['exp'] = exp
-
-        nbf = args.get('nbf')
-        if nbf is not None:
-            nbf = SharedFormService.convertStringToDateTime(nbf)
-            payload['nbf'] = nbf
-
+        payload = SharedFormService.get_token_initial_payload(
+            form_id=form_id,
+            exp=args.get('exp'),
+            nbf=args.get('nbf')
+        )
         token = generate_token(payload)
+        token_instance = TokenService.create(
+            token=token,
+            form_id=form_id
+        )
 
-        import pdb; pdb.set_trace()
+        if token_instance is None:
+            raise BadRequest("Cannot create token instance")
 
-        # створи токен 
-
-        response = jsonify({'token': token})
+        response = jsonify({'token': token_instance.token})
         response.status_code = 201
         return response
-
-
-# EXP i NBF - різниця в 3 години якщо що (-3 години)
-# я передаю 11 годину, генерую токен, декодую, беру timestamp, переводжу, пише 14 година)
-
-# 'nbf': datetime.utcnow() + timedelta(seconds=60), # 1min
-# 'exp': datetime.utcnow() + timedelta(seconds=300) # 5min
-
-
 
 # celery -A app worker --loglevel=info -Q share_form_to_group_queue,share_form_to_users_queue
