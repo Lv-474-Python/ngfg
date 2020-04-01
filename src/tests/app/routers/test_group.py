@@ -91,16 +91,16 @@ def group_put_data():
 
 @pytest.fixture
 def client(user):
-    APP.config['TESTING'] = True
-    APP.config['WTF_CSRF_ENABLED'] = False
+    # APP.config['TESTING'] = True
+    # APP.config['WTF_CSRF_ENABLED'] = False
 
     testing_client = APP.test_client()
 
     ctx = APP.app_context()
     ctx.push()
 
-    with ctx:
-        DB.create_all()
+    # with ctx:
+    #     DB.create_all()
 
     with testing_client.session_transaction() as session:
         session['_user_id'] = user.id
