@@ -92,7 +92,7 @@ def group_put_data():
 def client(user):
     APP.config['TESTING'] = True
     APP.config['WTF_CSRF_ENABLED'] = False
-    APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+    # APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
     testing_client = APP.test_client()
 
