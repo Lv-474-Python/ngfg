@@ -64,6 +64,11 @@ class SharedFormAPI(Resource):
         if form.owner_id != current_user.id:
             raise BadRequest("You can't share form that doesn't belong to you")
 
+        groups_ids = data.get('groups_ids')
+        errors = GroupService.check_whether_groups_exist(groups_ids)
+        if errors:
+            raise BadRequest(errors)
+
         # handling users_emails
         payload = SharedFormService.get_token_initial_payload(
             form_id=form_id,
@@ -97,11 +102,6 @@ class SharedFormAPI(Resource):
                 )
 
         # handling groups_ids
-        groups_ids = data.get('groups_ids')
-        errors = GroupService.check_whether_groups_exist(groups_ids)
-        if errors:
-            raise BadRequest(errors)
-
         for group_id in groups_ids:
             group = GroupService.get_by_id(group_id)
             if group is None:
