@@ -2,8 +2,7 @@ import pytest
 from app.models import User, Group
 from flask import jsonify
 import mock
-from app import APP, DB
-from app.services import GroupService
+from app import APP
 import json
 
 
@@ -91,16 +90,13 @@ def group_put_data():
 
 @pytest.fixture
 def client(user):
-    # APP.config['TESTING'] = True
-    # APP.config['WTF_CSRF_ENABLED'] = False
+    APP.config['TESTING'] = True
+    APP.config['WTF_CSRF_ENABLED'] = False
 
     testing_client = APP.test_client()
 
     ctx = APP.app_context()
     ctx.push()
-
-    with ctx:
-        DB.create_all()
 
     with testing_client.session_transaction() as session:
         session['_user_id'] = user.id
@@ -113,7 +109,7 @@ def client(user):
 @mock.patch('app.services.GroupService.to_json_all')
 @mock.patch('app.services.GroupService.filter')
 def test_groups_get_all(group_filter_mock, group_to_json_all_mock, client, group, group_json):
-    group_filter_mock.return_value = [group]
+    # group_filter_mock.return_value = [group]
     group_to_json_all_mock.return_value = [group_json]
 
     response = client.get('api/v1/groups', follow_redirects=True)
