@@ -99,8 +99,8 @@ def client(user):
     ctx = APP.app_context()
     ctx.push()
 
-    # with ctx:
-    #     DB.create_all()
+    with ctx:
+        DB.create_all()
 
     with testing_client.session_transaction() as session:
         session['_user_id'] = user.id
@@ -111,7 +111,7 @@ def client(user):
 
 
 @mock.patch('app.services.GroupService.to_json_all')
-@mock.patch.object(GroupService, 'filter')
+@mock.patch('app.services.GroupService.filter')
 def test_groups_get_all(group_filter_mock, group_to_json_all_mock, client, group, group_json):
     group_filter_mock.return_value = [group]
     group_to_json_all_mock.return_value = [group_json]
