@@ -35,7 +35,14 @@ def generate_share_form_to_group_user_message(
         group_name,
         form_title,
         token):
-    #TODO - docstring
+    """
+    Generate message that will be sent to group user
+
+    :param recipient: group user's email
+    :param group_name: name of group to which form will be shared
+    :param form_title: title of form that will be shared
+    :param token: form token
+    """
     #TODO - change url domain
     link = 'http://' + URL_DOMAIN + token
     msg = Message(f"Shared form '{form_title}'", recipients=[recipient])
@@ -50,7 +57,13 @@ def generate_share_form_to_user_message(
         recipient,
         form_title,
         token):
-    #TODO - docstring
+    """
+    Generate message that will be sent to user
+
+    :param recipient: group user's email
+    :param form_title: title of form that will be shared
+    :param token: form token
+    """
     #TODO - change url domain (from localhost)
     link = 'http://' + URL_DOMAIN + token
     msg = Message(f"Shared form '{form_title}'", recipients=[recipient])

@@ -1,11 +1,12 @@
 """
-
+PyJWT library helper
 """
 
 import jwt
 
 from app.config import SECRET_KEY
 from app.helper.constants import JWT_ALGORITHM
+
 
 def generate_token(payload):
     """
@@ -19,18 +20,6 @@ def generate_token(payload):
         algorithm=JWT_ALGORITHM
     ).decode('utf-8')
     return token
-
-    # token = jwt.encode(
-    #     {
-    #         'recipient': recipient,
-    #         'field': field['name'],
-    #     },
-    #     SECRET_KEY,
-    #     algorithm=JWT_ALGORITHM)
-
-    # token = jwt.encode(payload, key, algorithm=algorithm).decode('utf-8')
-    # return token
-
 
 def decode_token(token, verify=True):
     """

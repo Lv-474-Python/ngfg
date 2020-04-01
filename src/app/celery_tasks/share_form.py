@@ -17,7 +17,6 @@ def call_share_form_to_group_task(recipients, group_name, form_title, token):
     :param group_name: name of group to which form will be shared
     :param form_title: title of form that will be shared
     :param token: form token
-    :return:
     """
     task = share_form_to_group.apply_async(
         args=[recipients, group_name, form_title, token],
@@ -34,6 +33,10 @@ def share_form_to_group(self, recipients, group_name, form_title, token):
     """
     Send emails to group users
 
+    :param recipients: group users emails
+    :param group_name: name of group to which form will be shared
+    :param form_title: title of form that will be shared
+    :param token: form token
     """
     with MAIL.connect() as conn:
         for recipient in recipients:
