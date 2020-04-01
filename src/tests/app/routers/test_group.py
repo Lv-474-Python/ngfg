@@ -2,7 +2,7 @@ import pytest
 from app.models import User, Group
 from flask import jsonify
 import mock
-from app import APP
+from app import APP, DB
 import json
 import tempfile
 
@@ -93,9 +93,9 @@ def group_put_data():
 def client(user):
     APP.config['TESTING'] = True
     APP.config['WTF_CSRF_ENABLED'] = False
-    db_fd, APP.config['SQLALCHEMY_DATABASE_URI'] = tempfile.mkstemp()
 
     testing_client = APP.test_client()
+    DB.create_all()
 
     ctx = APP.app_context()
     ctx.push()
