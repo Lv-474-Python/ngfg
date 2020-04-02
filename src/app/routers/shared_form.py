@@ -53,8 +53,10 @@ class SharedFormAPI(Resource):
 
         :param form_id: id of form that will be shared
         """
-        data = request.json
-        is_correct, errors = SharedFormService.validate_data(SharedFormPostSchema, data)
+        is_correct, errors = SharedFormService.validate_data(
+            SharedFormPostSchema,
+            request.json
+        )
         if not is_correct:
             raise BadRequest(errors)
 
@@ -64,15 +66,15 @@ class SharedFormAPI(Resource):
         if form.owner_id != current_user.id:
             raise BadRequest("You can't share form that doesn't belong to you")
 
-        groups_ids = data.get('groups_ids')
+        groups_ids = request.json.get('groups_ids')
         errors = GroupService.check_whether_groups_exist(groups_ids)
         if errors:
             raise BadRequest(errors)
 
         payload = SharedFormService.get_token_initial_payload(
             form_id=form_id,
-            exp=data.get('exp'),
-            nbf=data.get('nbf')
+            exp=request.json.get('exp'),
+            nbf=request.json.get('nbf')
         )
 
         response = {
@@ -81,7 +83,7 @@ class SharedFormAPI(Resource):
         }
 
         # handling users_emails
-        users_emails = data.get('users_emails')
+        users_emails = request.json.get('users_emails')
         if users_emails:
             token = generate_token(payload)
             token_instance = TokenService.create(
