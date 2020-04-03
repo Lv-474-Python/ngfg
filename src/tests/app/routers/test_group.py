@@ -2,20 +2,7 @@ import pytest
 from app.models import User, Group
 from flask import jsonify
 import mock
-from app import APP
 import json
-
-
-@pytest.fixture
-def user():
-    data = {
-        'id': 1,
-        'username': 'test',
-        'email': "test@gmail.com",
-        'google_token': 'test_google_token',
-        'is_active': True
-    }
-    return User(**data)
 
 
 @pytest.fixture
@@ -38,17 +25,17 @@ def headers():
 
 
 @pytest.fixture
-def group_json(group, user):
+def group_json(group, login_user):
     data = {
         'name': group.name,
         'id': group.id,
         'ownerId': group.owner_id,
         'created': None,
         'users': [{
-            'username': user.username,
-            'isActive': user.is_active,
-            'id': user.id,
-            'email': user.email
+            'username': login_user.username,
+            'isActive': login_user.is_active,
+            'id': login_user.id,
+            'email': login_user.email
         }]
     }
 
@@ -67,11 +54,11 @@ def basic_group_json(group):
 
 
 @pytest.fixture
-def group_create_json(group, user):
+def group_create_json(group, login_user):
     data = {
         'name': group.name,
         'usersEmails': [
-            user.email
+            login_user.email
         ]
     }
 
@@ -88,27 +75,10 @@ def group_put_data():
     return data
 
 
-@pytest.fixture
-def client(user):
-    APP.config['TESTING'] = True
-    APP.config['WTF_CSRF_ENABLED'] = False
-
-    testing_client = APP.test_client()
-
-    ctx = APP.app_context()
-    ctx.push()
-
-    with testing_client.session_transaction() as session:
-        session['_user_id'] = user.id
-
-    yield testing_client
-
-    ctx.pop()
-
-
 @mock.patch('app.services.GroupService.to_json_all')
 @mock.patch('app.services.GroupService.filter')
-def test_groups_get_all(group_filter_mock, group_to_json_all_mock, client, group, group_json):
+@mock.patch('app.models.User.query')
+def test_groups_get_all(query, group_filter_mock, group_to_json_all_mock, client, group, group_json, login_user):
     group_filter_mock.return_value = [group]
     group_to_json_all_mock.return_value = [group_json]
 
@@ -150,7 +120,6 @@ def test_groups_post_validate_not_passed(
         client,
         group_create_json,
         headers):
-
     validate_post_mock.return_value = (False, ["error"])
     response = client.post(
         '/api/v1/groups',
@@ -204,10 +173,10 @@ def test_groups_get_one_not_found(group_get_by_id_mock, client, group):
 
 @mock.patch('app.services.GroupService.delete')
 @mock.patch('app.services.GroupService.get_by_id')
-def test_groups_delete(group_get_by_id_mock, group_delete_mock, client, user, group):
+def test_groups_delete(group_get_by_id_mock, group_delete_mock, client, login_user, group):
     group_get_by_id_mock.return_value = group
     group_delete_mock.return_value = True
-    group.user = user
+    group.user = login_user
 
     response = client.delete(f'api/v1/groups/{group.id}', follow_redirects=True)
     assert response.status_code == 204
@@ -223,10 +192,10 @@ def test_groups_delete_group_not_found(group_get_by_id_mock, client, group):
 
 @mock.patch('app.services.GroupService.delete')
 @mock.patch('app.services.GroupService.get_by_id')
-def test_groups_delete_group_not_deleted(group_get_by_id_mock, group_delete_mock, client, user, group):
+def test_groups_delete_group_not_deleted(group_get_by_id_mock, group_delete_mock, client, login_user, group):
     group_get_by_id_mock.return_value = group
     group_delete_mock.return_value = False
-    group.user = user
+    group.user = login_user
 
     response = client.delete(f'api/v1/groups/{group.id}', follow_redirects=True)
     assert response.status_code == 400
@@ -235,7 +204,7 @@ def test_groups_delete_group_not_deleted(group_get_by_id_mock, group_delete_mock
 @mock.patch('app.services.GroupService.get_by_id')
 def test_groups_delete_not_owner(group_get_by_id_mock, client, group):
     group_get_by_id_mock.return_value = group
-    group.user = None
+    group.login_user = None
 
     response = client.delete(f'api/v1/groups/{group.id}', follow_redirects=True)
     assert response.status_code == 403
@@ -358,7 +327,6 @@ def test_groups_put_not_update_group(
         basic_group_json,
         group_put_data,
         headers):
-
     get_by_id_mock.return_value = group
     to_json_mock.return_value = basic_group_json
     validate_put_mock.return_value = (True, [])
