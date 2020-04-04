@@ -27,11 +27,3 @@ def disconnect():
     """
     leave_room(current_user.email)
     CONNECTIONS_LOGGER.info('Disconnected: %s', current_user.email)
-
-
-def send_notification(message):
-    """
-    Send message via socket
-
-    """
-    SOCKETIO.send(message, broadcast=False, room=current_user.email)
