@@ -26,7 +26,7 @@ def example_reverse(string):
     """
     Example task - reverse string
     """
-    print(f'Task reverse started, {self=}')
+    print(f'Task reverse started')
     time.sleep(5)
     print('Task slept')
 
@@ -38,5 +38,5 @@ def example_add(val1, val2):
     """
     Example task - add 2 values
     """
-    print(f'Task add started, {self=}')
+    print(f'Task add started')
     return val1 + val2
