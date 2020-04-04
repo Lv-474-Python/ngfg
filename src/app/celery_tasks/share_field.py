@@ -1,9 +1,12 @@
 """
 Share field celery task
 """
+
+from flask_login import current_user
+
 from app import CELERY, MAIL
 from app.helper.email_generator import generate_share_field_message
-from app.helper.socket import send_notification
+from .send_notification import send_notification
 
 
 def call_share_field_task(recipients, field):
@@ -14,9 +17,10 @@ def call_share_field_task(recipients, field):
     :param field:
     :return:
     """
-    task = share_field.apply_async(args=[recipients, field], queue="share_field_queue")
-    message = task.get()
-    send_notification(message)
+    share_field.apply_async(
+        args=[recipients, field],
+        link=[send_notification.s(current_user.email)]
+    )
     return 0
 
 

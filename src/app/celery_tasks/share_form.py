@@ -1,15 +1,22 @@
 """
 Share form celery task
 """
-from app import CELERY, MAIL
+
+from flask_login import current_user
+
+from app import CELERY, MAIL, APP
 from app.helper.email_generator import (
     generate_share_form_to_group_user_message,
     generate_share_form_to_user_message
 )
-from app.helper.socket import send_notification
+from app.celery_tasks.send_notification import send_notification
 
 
-def call_share_form_to_group_task(recipients, group_name, form_title, token):
+def call_share_form_to_group_task(
+        recipients,
+        group_name,
+        form_title,
+        token):
     """
     Call task to share form to group users
 
@@ -18,18 +25,16 @@ def call_share_form_to_group_task(recipients, group_name, form_title, token):
     :param form_title: title of form that will be shared
     :param token: form token
     """
-    task = share_form_to_group.apply_async(
+    share_form_to_group.apply_async(
         args=[recipients, group_name, form_title, token],
-        queue="share_form_to_group_queue"
+        link=[send_notification.s(current_user.email)]
     )
-    message = task.get()
-    send_notification(message)
     return 0
 
 
-@CELERY.task(bind=True, name='ngfg.app.celery_tasks.share_form.share_form_to_group')
+@CELERY.task(name='ngfg.app.celery_tasks.share_form.share_form_to_group')
 # pylint: disable=unused-argument
-def share_form_to_group(self, recipients, group_name, form_title, token):
+def share_form_to_group(recipients, group_name, form_title, token):
     """
     Send emails to group users
 
@@ -38,6 +43,7 @@ def share_form_to_group(self, recipients, group_name, form_title, token):
     :param form_title: title of form that will be shared
     :param token: form token
     """
+    print('\nSHARE FORM TO GROUP')
     with MAIL.connect() as conn:
         for recipient in recipients:
             msg = generate_share_form_to_group_user_message(
@@ -51,26 +57,32 @@ def share_form_to_group(self, recipients, group_name, form_title, token):
     return f"Form '{form_title}' has been sent to '{group_name}' group!"
 
 
-def call_share_form_to_users_task(recipients, form_title, token):
+def call_share_form_to_users_task(
+        recipients,
+        form_title,
+        token):
     """
     Call task to share form to users
 
     :param recipients: users emails
     :param form_title: title of form that will be shared
     :param token: form token
+    :param email: email
     """
-    task = share_form_to_users.apply_async(
+    share_form_to_users.apply_async(
         args=[recipients, form_title, token],
-        queue="share_form_to_users_queue"
+        # serializer='pickle',
+        link=[send_notification.s(current_user.email)]
     )
-    message = task.get()
-    send_notification(message)
+
     return 0
 
 
-@CELERY.task(bind=True, name='ngfg.app.celery_tasks.share_field.share_form_to_users')
-# pylint: disable=unused-argument
-def share_form_to_users(self, recipients, form_title, token):
+@CELERY.task(name='ngfg.app.celery_tasks.share_form.share_form_to_users')
+def share_form_to_users(
+        recipients,
+        form_title,
+        token):
     """
     Send emails to recipients
 
@@ -78,7 +90,7 @@ def share_form_to_users(self, recipients, form_title, token):
     :param form_title: title of form that will be shared
     :param token: form token
     """
-
+    print('\nSHARE FORM TO USERS')
     with MAIL.connect() as conn:
         for recipient in recipients:
             msg = generate_share_form_to_user_message(recipient, form_title, token)
