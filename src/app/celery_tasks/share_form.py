@@ -4,7 +4,7 @@ Share form celery task
 
 from flask_login import current_user
 
-from app import CELERY, MAIL, APP
+from app import CELERY, MAIL
 from app.helper.email_generator import (
     generate_share_form_to_group_user_message,
     generate_share_form_to_user_message

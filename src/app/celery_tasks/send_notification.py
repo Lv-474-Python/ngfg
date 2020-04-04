@@ -2,7 +2,7 @@
 Celery task to send notification
 """
 
-from app import LOGGER, SOCKETIO, CELERY
+from app import SOCKETIO, CELERY
 
 
 @CELERY.task(name='ngfg.app.celery_tasks.send_notification.send_notification')
