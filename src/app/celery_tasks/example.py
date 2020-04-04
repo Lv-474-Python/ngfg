@@ -13,8 +13,8 @@ def call_task():
     Example.
     Publish 2 messages. (Tasks info are inside messages)
     """
-    reverse_result = example_reverse.apply_async(args=["TASK REVERSE"], queue="reverse_queue")
-    add_result = example_add.apply_async(args=[1, 2], queue="add_queue")
+    reverse_result = example_reverse.apply_async(args=["TASK REVERSE"])
+    add_result = example_add.apply_async(args=[1, 2])
     print(f'{reverse_result=}')
     print(f'{add_result=}')
 
