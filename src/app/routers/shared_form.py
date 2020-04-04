@@ -135,10 +135,6 @@ class SharedFormAPI(Resource):
                 token
             )
 
-        # Чи в нас буде різні таски на відправки групам і відправку
-        # Чи в нас буде типу що дістаєш всіх всіх юзерів і відправляєш
-        # Поки різні бо хз що там з тим перехваткою тасок і типу моніторингу
-
         response = jsonify(response)
         response.status_code = 201
         return response
@@ -190,5 +186,3 @@ class SharedFormAPI(Resource):
         response = jsonify({'token': token_instance.token})
         response.status_code = 201
         return response
-
-# celery -A app worker --loglevel=info -Q share_form_to_group_queue,share_form_to_users_queue

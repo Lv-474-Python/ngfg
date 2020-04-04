@@ -10,8 +10,7 @@ def send_notification(message, current_user_email):
     """
     Send message via socket
 
+    :param message: message to send via socket
+    :param current_user_email: socket room
     """
-    print('SEND NOTIFICATION')
-    print(f'{message=}')
-    print(f'{current_user_email=}')
     SOCKETIO.send(message, broadcast=False, room=current_user_email)
