@@ -24,9 +24,8 @@ def call_share_field_task(recipients, field):
     return 0
 
 
-@CELERY.task(bind=True, name='ngfg.app.celery_tasks.share_field.share_field')
-# pylint: disable=unused-argument
-def share_field(self, recipients, field):
+@CELERY.task(name='ngfg.app.celery_tasks.share_field.share_field')
+def share_field(recipients, field):
     """
     Send emails to recipients
 

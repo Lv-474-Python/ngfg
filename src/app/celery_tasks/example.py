@@ -21,9 +21,8 @@ def call_task():
     return 'Hello, World!'
 
 
-#@CELERY.task(bind=True) # bind - to access self (Task object)
-@CELERY.task(bind=True, name='ngfg.app.celery_tasks.example.example_reverse')
-def example_reverse(self, string):
+@CELERY.task(name='ngfg.app.celery_tasks.example.example_reverse')
+def example_reverse(string):
     """
     Example task - reverse string
     """
@@ -34,8 +33,8 @@ def example_reverse(self, string):
     return string[::-1]
 
 #@CELERY.task(bind=True, name='імя', auto_retry=[HTTPException], max_retries=3)
-@CELERY.task(bind=True, name='ngfg.app.celery_tasks.example.example_add')
-def example_add(self, val1, val2):
+@CELERY.task(name='ngfg.app.celery_tasks.example.example_add')
+def example_add(val1, val2):
     """
     Example task - add 2 values
     """

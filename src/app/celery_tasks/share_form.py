@@ -29,7 +29,6 @@ def call_share_form_to_group_task(recipients, group_name, form_title, token):
 
 
 @CELERY.task(name='ngfg.app.celery_tasks.share_form.share_form_to_group')
-# pylint: disable=unused-argument
 def share_form_to_group(recipients, group_name, form_title, token):
     """
     Send emails to group users
