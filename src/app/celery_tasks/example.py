@@ -30,6 +30,7 @@ def example_reverse(self, string):
     print(f'Task reverse started, {self=}')
     time.sleep(5)
     print('Task slept')
+
     return string[::-1]
 
 #@CELERY.task(bind=True, name='імя', auto_retry=[HTTPException], max_retries=3)
