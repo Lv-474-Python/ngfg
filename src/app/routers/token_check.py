@@ -11,10 +11,10 @@ from app import API
 from app.services import TokenService, FormResultService
 
 
-FORM_TOKEN_NS = API.namespace('tokens/<string:token>')
+TOKEN_CHECK_NS = API.namespace('tokens/<string:token>')
 
 
-@FORM_TOKEN_NS.route("/check_user")
+@TOKEN_CHECK_NS.route("/check_user")
 class TokenUserCheckAPI(Resource):
     """
     TokenUserCheckAPI API
