@@ -3,9 +3,8 @@ Token resource API
 """
 
 from werkzeug.exceptions import BadRequest
-from flask import request, jsonify, Response
-from flask_restx import Resource, fields
-from flask_login import current_user
+from flask import Response
+from flask_restx import Resource
 
 from app import API
 from app.services import FormService, TokenService, GroupService
