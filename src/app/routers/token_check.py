@@ -1,5 +1,5 @@
 """
-Token resource API
+Token check API
 """
 
 from werkzeug.exceptions import BadRequest
@@ -10,15 +10,15 @@ from app import API
 from app.services import FormService, TokenService, GroupService
 
 
-TOKEN_NS = API.namespace('tokens', description='Token APIs')
+TOKEN_CHECK_NS = API.namespace('tokens/<string:token>')
 
 
-@TOKEN_NS.route("/<string:token>/check")
+@TOKEN_CHECK_NS.route("/check_token")
 class TokenCheckAPI(Resource):
     """
-    Tokens API
+    TokenCheckAPI API
 
-    url: '/tokens/{token}/check'
+    url: '/tokens/{token}/check_token'
     methods: get
     """
 
