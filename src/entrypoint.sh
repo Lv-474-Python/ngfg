@@ -2,7 +2,7 @@
 
 set -e
 
-#flask db upgrade
+flask db upgrade
 
 python run.py
 #gunicorn -w 1 run:APP
