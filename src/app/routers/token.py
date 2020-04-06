@@ -26,6 +26,7 @@ class TokenCheckAPI(Resource):
     @API.doc(
         responses={
             204: 'No Content',
+            400: 'Invalid data'
         },
         params={
             'token': 'token to check'

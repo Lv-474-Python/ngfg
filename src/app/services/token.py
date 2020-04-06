@@ -86,8 +86,6 @@ class TokenService:
 
         :param token: token to decode
         """
-        #TODO - docstring
-
         try:
             data = decode_token(token, verify=False)
             return data
