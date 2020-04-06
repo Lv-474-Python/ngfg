@@ -310,3 +310,19 @@ class GroupService:
                 group_id=group_id,
                 user_id=user.id)
         return True
+
+    @staticmethod
+    def check_whether_groups_exist(groups_ids):
+        """
+        Check whether groups by given ids exist
+
+        :param groups_ids: ids of groups that will be checked
+        """
+        errors = []
+
+        for group_id in groups_ids:
+            group = GroupService.get_by_id(group_id)
+            if group is None:
+                errors.append(f"Group {group_id} doesn't exist")
+
+        return errors
