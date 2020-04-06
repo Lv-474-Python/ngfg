@@ -38,9 +38,9 @@ class TokenCheckAPI(Resource):
 
         :param token: token to check
         """
-
-        # чи треба перевіряти чи токен створений нами
-
+        token_instance = TokenService.get_by_token(token)
+        if token_instance is None:
+            raise BadRequest({'errors': 'Wrong token'})
 
         token_data = TokenService.decode_token_for_check(token)
         if token_data is None:
