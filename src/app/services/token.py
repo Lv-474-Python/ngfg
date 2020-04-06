@@ -2,9 +2,12 @@
 Token service
 """
 
-from app import DB
+from jwt import DecodeError
+
+from app import DB, LOGGER
 from app.models import Token
 from app.helper.decorators import transaction_decorator
+from app.schemas import TokenSchema
 
 
 class TokenService:
@@ -74,3 +77,26 @@ class TokenService:
 
         result = Token.query.filter_by(**filter_data).all()
         return result
+    
+    @staticmethod
+    def decode_token_for_check(token):
+        """
+        """
+        #TODO - docstring
+
+        try:
+            data = decode_token(token, verify=False)
+            return data
+        except DecodeError as ex:
+            LOGGER.error('DecodeError, message: %s', ex.args)
+            return None
+    
+    @staticmethod
+    def validate_data(data):
+        """
+        Validate token data
+
+        :param data: data to validate
+        """
+        errors = TokenSchema().validate(data)
+        return (not bool(errors), errors)
