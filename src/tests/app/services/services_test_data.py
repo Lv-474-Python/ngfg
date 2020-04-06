@@ -143,6 +143,203 @@ FIELD_SERVICE_CHECK_FOR_RANGE_DATA = [
     ({}, (None, None))
 ]
 
+FIELD_SERVICE_VALIDATE_POST_FIELD_EXISTING = [
+    (({'name': 'first_name', 'owner_id': 1, 'field_type': 1, 'is_strict': True},
+     {'name': 'first_name', 'fieldType': 1}),
+     (False, {'is_exist': 'Field with such name already exist'})),
+    (({'name': 'cities', 'owner_id': 1, 'field_type': 4, 'is_strict': False},
+     {'name': 'cities', 'fieldType': 4, 'choiceOptions': ['Lviv', 'Kyiv']}),
+     (False, {'is_exist': 'Field with such name already exist'}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_FIELD = [
+    (({'name': 'city'}, 1), (False, {'fieldType': ['Missing data for required field.']})),
+    (({'fieldType': 1}, 1), (False, {'name': ['Missing data for required field.']})),
+    (({'name': 'city', 'fieldType': 4, 'choiceOptions': ['Lviv', 'Kyiv']}, 1), (True, {})),
+    (({'name': 'first_name', 'fieldType': 1, 'isStrict': True}, 1), (True, {}))
+]
+
+
+FIELD_SERVICE_VALIDATE_POST_SETTING_AUTOCOMPLETE = [
+    ({
+        'name': 'cities',
+        'fieldType': 5,
+        'settingAutocomplete': {
+            'dataUrl': "http://docs.google.com/spreadsheet/d/abcd",
+            'sheet': 'sheet',
+            'fromRow': 'A1',
+            'toRow': 'A2'
+        }
+    }, (True, {})),
+
+    ({'name': 'cities', 'fieldType': 5}, (False, {'settingAutocomplete': ['Missing data for required field.']})),
+
+    ({
+        'name': 'cities',
+        'fieldType': 5,
+        'unknownField': 'unknown value',
+        'settingAutocomplete': {
+            'dataUrl': "http://docs.google.com/spreadsheet/d/abcd",
+            'sheet': 'sheet',
+            'fromRow': 'A1',
+            'toRow': 'A2'
+        }
+    }, (False, {'unknownField': ['Unknown field.']}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_TEXT_OR_NUMBER = [
+    ({
+        'name': 'firstname',
+        'fieldType': 1,
+        'range': {
+            'min': 1,
+            'max': 15
+        }
+    }, (True, {})),
+    ({'name': 'age', 'fieldType': 2, 'isStrict': True}, (True, {})),
+    ({'name': 'age'}, (False, {'fieldType': ['Missing data for required field.']})),
+    ({
+        'name': 'age',
+        'fieldType': 2,
+        'unknownField': 'unknown value',
+        'range': {
+            'min': 13,
+            'max': 99
+        }
+    }, (False, {'unknownField': ['Unknown field.']}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_RADIO = [
+    ({'name': 'gender', 'fieldType': 4, 'choiceOptions': ['Male', 'Female']}, (True, {})),
+    ({'name': 'gender', 'fieldType': 4}, (False, {'choiceOptions': ['Missing data for required field.']})),
+    ({
+         'name': 'gender',
+         'fieldType': 4,
+         'choice_options': ['Male', 'Female'],
+         'choiceOptions':['Male', 'Female']
+     }, (False, {'choice_options': ['Unknown field.']}))
+]
+
+FIELD_SERVICE_VALIDATE_POST_CHECKBOX = [
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "range": {
+            "min": 1,
+            "max": 3
+        },
+        "choiceOptions": [
+            "Writing", "Painting", "Coding"
+        ]
+    }, (True, {})),
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "range": {
+            "min": 1,
+            "max": 3
+        }
+    }, (False, {"choiceOptions": ["Missing data for required field."]})),
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "isStrict": True,
+        "choiceOptions": [
+            "Writing", "Painting"
+        ]
+    }, (False, {"isStrict": ["Unknown field."]})),
+    ({
+        "name": "hobbies",
+        "fieldType": 6,
+        "range": {
+            "min": 1,
+            "max": 3
+        },
+        "choiceOptions": [
+            "Writing", "Painting"
+        ]
+    }, (False, {"range": {"_schema": ["Max selective options must be less than list of options"]}}))
+]
+
+FIELD_SERVICE_VALIDATE_TEXTAREA_POST = [
+    ({"name": "about", "fieldType": 3}, (True, {})),
+    ({"name": "about", "fieldType": 3, "isStrict": True}, (False, {"isStrict": ["Unknown field."]})),
+    ({"fieldType": 3}, (False, {"name": ["Missing data for required field."]}))
+]
+
+FIELD_SERVICE_VALIDATE_OPTIONS_UPDATE = [
+    ((1, ["a", "b", "c"], [], {"choiceOptions": ["a", "d", "e"]}), ['Added choices already exist']),
+    ((1, ["e", "f"], ["d"], {"choiceOptions": ["a", "b", "c"]}), ['Removed options don\'t exist']),
+    ((1, [], ["a", "b", "c"], {"choiceOptions": ["a", "b", "c"]}), ["Can\'t delete all options"]),
+    ((1, ["d","e"], ["b"], {"choiceOptions": ["a", "b", "c"]}), [])
+]
+
+FIELD_SERVICE_VALIDATE_RADIO_UPDATE = [
+    ((1, {"addedChoiceOptions": ["a", "b", "c"]}, ["Added choices already exist"]),
+     (False, {"choiceOptions": {"_schema": ["Added choices already exist"]}})),
+    ((1, {"removedChoiceOptions": ["b"]}, ["Removed options don\'t exist"]),
+     (False, {"choiceOptions": {"_schema": ["Removed options don\'t exist"]}})),
+    ((1, {"removedChoiceOptions": ["a", "b", "c"]}, ["Can\'t delete all options"]),
+     (False, {"choiceOptions": {"_schema": ["Can\'t delete all options"]}})),
+    ((1, {"addedChoiceOptions": ["a"]}, []),
+     (True, {}))
+]
+
+FIELD_SERVICE_VALIDATE_CHECKBOX_OPTIONS_AND_RANGE_UPDATE = [
+    ((1, ["a", "b"], ["c"], {
+        "choiceOptions": ["d", "e"],
+        "range": {
+            "min": 1,
+            "max": 3
+        }
+    }, None, True), False),
+    ((1, [], [], {
+        "choiceOptions": ["a", "b", "c"]
+    }, None, True), "Can\'t delete range that doesn\'t exist"),
+    ((1, ["a"], [], {
+        "choiceOptions": ["b", "c", "d"],
+        "range": {
+            "min": 5,
+            "max": 4
+        }
+    }, None, None), "Current min choice range is greater than updated choice amount"),
+    ((1, ["a"], ["b", "c"], {
+        "choiceOptions": ["b", "c", "d", "e"],
+        "range": {
+            "min": 1,
+            "max": 4
+        }
+    }, None, None), "Current max choice range is greater than updated choice amount"),
+    ((1, [], [], {"choiceOptions": ["a", "b", "c"]}, {"min": 4, "max": 3}, None),
+     "New min choice range is greater than updated choice amount"),
+    ((1, [], [], {"choiceOptions": ["a", "b", "c"]}, {"min": 1, "max": 5}, None),
+     "New max choice range is greater than updated choice amount")
+]
+
+FIELD_SERVICE_VALIDATE_CHECKBOX_UPDATE = [
+    ((1, {
+        "addedChoiceOptions": ["a", "b", "c"],
+        "removedChoiceOptions": ["d"],
+    }, ["Added choices already exist"], []),
+     (False, {"choiceOptions": {"_schema": ["Added choices already exist"]}})),
+    ((1, {
+        "addedChoiceOptions": ["a", "b", "c"],
+        "range": {
+            "min": 1,
+            "max": 10
+        },
+    }, [], ["New max choice range is greater than updated choice amount"]),
+     (False, {"options_and_range_error": ["New max choice range is greater than updated choice amount"]})),
+    ((1, {
+        "addedChoiceOptions": ["a"],
+        "range": {
+            "min": 1,
+            "max": 3
+        }
+    }, [], []),
+    (True, {}))
+]
+
 # FormService
 FORM_SERVICE_CREATE_DATA = [
     (1, "login form", "login", "http://docs.google.com/spreadsheet/d/s1", True),
