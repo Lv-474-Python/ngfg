@@ -34,7 +34,8 @@ ENV REDIS_PASSWORD $REDIS_PASSWORD
 ARG SECRET_KEY
 ENV SECRET_KEY $SECRET_KEY
 #end of declaring
-RUN pip install gunicorn
+#RUN pip uninstall -y eventlet
+#RUN pip install gevent gevent-websocket
 RUN apk add postgresql-client
 COPY ./src/ /ngfg/
 WORKDIR /ngfg
