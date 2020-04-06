@@ -74,7 +74,7 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
 
 MAIL = Mail(APP)
 
-SOCKETIO = SocketIO(APP, cors_allowed_origins='*')
+SOCKETIO = SocketIO(APP, cors_allowed_origins='*', manage_session=False, async_mode='eventlet')
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,

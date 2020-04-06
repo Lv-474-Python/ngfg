@@ -18,6 +18,7 @@ DATABASE = {
 # Google auth configuration
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
@@ -61,7 +62,7 @@ class Config:
     MAIL_SERVER = 'smtp.gmail.com'
     SERVER_NAME = 'ngfg.com:8000'
     MAIL_PORT = 465
-    MAIL_USE_TLS = False
+    MAIL_USE_TLS = True
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
