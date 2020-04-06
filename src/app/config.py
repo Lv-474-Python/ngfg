@@ -56,7 +56,23 @@ class Config:
     # celery
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
-    CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE')
+    CELERY_ROUTES = {
+        'ngfg.app.celery_tasks.example.*': {
+            'queue': 'example_queue'
+        },
+        'ngfg.app.celery_tasks.send_notification.*': {
+            'queue': 'notification_queue'
+        },
+        'ngfg.app.celery_tasks.share_field.*': {
+            'queue': 'share_field_queue'
+        },
+        'ngfg.app.celery_tasks.share_form.share_form_to_group': {
+            'queue': 'share_form_to_group_queue'
+        },
+        'ngfg.app.celery_tasks.share_form.share_form_to_users': {
+            'queue': 'share_form_to_users_queue'
+        }
+    }
 
     # flask-mail
     MAIL_SERVER = 'smtp.gmail.com'

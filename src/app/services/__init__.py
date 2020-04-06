@@ -15,3 +15,4 @@ from .choice_option import ChoiceOptionService
 from .group import GroupService
 from .group_user import GroupUserService
 from .token import TokenService
+from .shared_form import SharedFormService
