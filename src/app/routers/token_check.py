@@ -10,7 +10,7 @@ from app import API
 from app.services import FormService, TokenService, GroupService
 
 
-TOKEN_CHECK_NS = API.namespace('tokens/<string:token>')
+TOKEN_CHECK_NS = API.namespace('tokens/<string:token>', description='TokenCheck APIs')
 
 
 @TOKEN_CHECK_NS.route("/check_token")
