@@ -32,4 +32,4 @@ class Form(AbstractModel):
     created = DB.Column(DB.TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
 
     fields = DB.relationship('FormField', backref='form', cascade='all,delete')
-    form_results = DB.relationship('FormResult', backref='form')
+    tokens = DB.relationship('Token', backref='form', cascade='all,delete')

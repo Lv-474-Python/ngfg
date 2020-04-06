@@ -2,7 +2,7 @@
 Group service
 """
 
-from app import DB
+from app import DB, LOGGER
 from app.models import Group
 from app.schemas import BaseGroupSchema, GroupPostSchema, GroupPutSchema
 from app.services.group_user import GroupUserService
@@ -122,7 +122,8 @@ class GroupService:
         """
         group = GroupService.get_by_id(group_id)
         if group is None:
-            raise GroupNotExist()
+            LOGGER.error('error occured %s', GroupNotExist())
+            return None
 
         users = []
 
@@ -309,3 +310,19 @@ class GroupService:
                 group_id=group_id,
                 user_id=user.id)
         return True
+
+    @staticmethod
+    def check_whether_groups_exist(groups_ids):
+        """
+        Check whether groups by given ids exist
+
+        :param groups_ids: ids of groups that will be checked
+        """
+        errors = []
+
+        for group_id in groups_ids:
+            group = GroupService.get_by_id(group_id)
+            if group is None:
+                errors.append(f"Group {group_id} doesn't exist")
+
+        return errors

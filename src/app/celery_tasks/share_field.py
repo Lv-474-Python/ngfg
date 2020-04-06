@@ -1,8 +1,12 @@
 """
 Share field celery task
 """
+
+from flask_login import current_user
+
 from app import CELERY, MAIL
 from app.helper.email_generator import generate_share_field_message
+from .send_notification import send_notification
 
 
 def call_share_field_task(recipients, field):
@@ -13,14 +17,15 @@ def call_share_field_task(recipients, field):
     :param field:
     :return:
     """
-    share_field.apply_async(args=[recipients, field], queue="share_field_queue")
-
+    share_field.apply_async(
+        args=[recipients, field],
+        link=[send_notification.s(current_user.email)]
+    )
     return 0
 
 
-@CELERY.task(bind=True, name='ngfg.app.celery_tasks.share_field.share_field')
-# pylint: disable=unused-argument
-def share_field(self, recipients, field):
+@CELERY.task(name='ngfg.app.celery_tasks.share_field.share_field')
+def share_field(recipients, field):
     """
     Send emails to recipients
 
@@ -34,4 +39,5 @@ def share_field(self, recipients, field):
         for recipient in recipients:
             msg = generate_share_field_message(recipient, field)
             conn.send(msg)
-    return 0
+
+    return 'Field ' + field['name'] + ' have been sent!'
