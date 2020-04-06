@@ -48,7 +48,10 @@ class LoginAPI(Resource):
             return GOOGLE_CLIENT.authorize(
                 callback=f'{request.args.get("redirect_url")}'
             )
-        return Response(status=302)
+        response = Response()
+        response.status_code = 302
+        response.location = request.args.get("main_page_url")
+        return response
 
 
 @AUTH_NS.route('/logout/')
@@ -125,7 +128,7 @@ def callback(response):
     if not user.is_active:
         UserService.activate_user(user.id, username=username, google_token=google_token)
 
-    login_user(user)
+    login_user(user, remember=True)
     return Response(status=200)
 
 
