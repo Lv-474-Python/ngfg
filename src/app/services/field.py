@@ -369,16 +369,16 @@ class FieldService:
         if current_range and new_range is None and range_deleted is None:
             range_min = current_range.get('min')
             range_max = current_range.get('max')
-            if range_min and range_min > new_option_amount:
+            if range_min and int(range_min) > new_option_amount:
                 return 'Current min choice range is greater than updated choice amount'
-            if range_max and range_max > new_option_amount:
+            if range_max and int(range_max) > new_option_amount:
                 return 'Current max choice range is greater than updated choice amount'
         if new_range:
             new_range_min = new_range.get('min')
             new_range_max = new_range.get('max')
-            if new_range_min and new_range_min > new_option_amount:
+            if new_range_min and int(new_range_min) > new_option_amount:
                 return 'New min choice range is greater than updated choice amount'
-            if new_range_max and new_range_max > new_option_amount:
+            if new_range_max and int(new_range_max) > new_option_amount:
                 return 'New max choice range is greater than updated choice amount'
         return False
 
