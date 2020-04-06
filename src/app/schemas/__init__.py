@@ -23,3 +23,4 @@ from .range import RangeSchema
 from .form_result import FormResultGetSchema, FormResultPostSchema
 from .group import BaseGroupSchema, GroupPutSchema, GroupPostSchema
 from .shared_field import SharedFieldPostSchema, SharedFieldResponseSchema
+from .shared_form import SharedFormFlagsSchema, SharedFormPostSchema
