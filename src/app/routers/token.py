@@ -10,7 +10,7 @@ from app import API
 from app.services import FormService, TokenService, GroupService
 
 
-TOKEN_NS = API.namespace('tokens')
+TOKEN_NS = API.namespace('tokens', description='Token APIs')
 
 
 @TOKEN_NS.route("/<string:token>/check")
@@ -40,25 +40,25 @@ class TokenCheckAPI(Resource):
         """
         token_instance = TokenService.get_by_token(token)
         if token_instance is None:
-            raise BadRequest({'errors': 'Wrong token'})
+            raise BadRequest('Wrong token')
 
         token_data = TokenService.decode_token_for_check(token)
         if token_data is None:
-            raise BadRequest({'errors': 'Wrong token'}) # Not enough token segments
+            raise BadRequest('Wrong token') # Not enough token segments
 
         is_correct, _ = TokenService.validate_data(token_data)
         if not is_correct:
-            raise BadRequest({'errors': 'Wrong token'}) # Token isn't valid
+            raise BadRequest('Wrong token') # Token isn't valid
 
         form_id = token_data.get('form_id')
         form = FormService.get_by_id(form_id)
         if form is None:
-            raise BadRequest({'errors': 'Wrong token'}) # Form doesn't exist
+            raise BadRequest('Wrong token') # Form doesn't exist
 
         group_id = token_data.get('group_id')
         if group_id is not None:
             group = GroupService.get_by_id(group_id)
             if group is None:
-                raise BadRequest({'errors': 'Wrong token'}) # Group doesn't exist
+                raise BadRequest('Wrong token') # Group doesn't exist
 
         return Response(status=204)
