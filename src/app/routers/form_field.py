@@ -109,7 +109,7 @@ class FormFieldsAPI(Resource):
             raise BadRequest("Can't add nonexistent field to form")
         if field.owner_id != current_user.id and field.id not in shared_fields:
             raise Forbidden("You don't have permission to add this field to your form")
-        is_correct, errors = FormFieldService.validate_data(data)
+        is_correct, errors = FormFieldService.validate_post_data(data, form_id)
         if not is_correct:
             raise BadRequest(errors)
 
@@ -217,18 +217,24 @@ class FormFieldAPI(Resource):
 
         form_field_json = FormFieldService.to_json(form_field)
         data = request.get_json()
-        field = FieldService.get_by_id(int(data["fieldId"]))
-        form_field_json.update(**data)
-        is_correct, errors = FormFieldService.validate_data(form_field_json)
+        if data.get("fieldId"):
+            field = FieldService.get_by_id(int(data["fieldId"]))
+        else:
+            field = FieldService.get_by_id(int(form_field_json["fieldId"]))
+        form_field_json.update(data)
+        is_correct, errors = FormFieldService.validate_put_data(
+            data=form_field_json,
+            form_id=form_id,
+            form_field_id=form_field_id)
         if not is_correct:
             raise BadRequest(errors)
 
         updated_form_field = FormFieldService.update(
             form_field_id=form_field.id,
             form_id=form.id,
-            position=data["position"],
-            field_id=data["fieldId"],
-            question=data["question"]
+            position=data.get("position"),
+            field_id=data.get("fieldId"),
+            question=data.get("question")
         )
         if updated_form_field is None:
             raise BadRequest("Couldn't update field")
@@ -237,7 +243,7 @@ class FormFieldAPI(Resource):
             field_id=field.id,
             field_type=field.field_type
         ))
-        form_field_json = FormFieldService.response_to_json(form_field, many=False)
+        form_field_json = FormFieldService.response_to_json(updated_form_field, many=False)
         form_field_json["field"] = field_json
         response = jsonify(form_field_json)
         response.status_code = 200

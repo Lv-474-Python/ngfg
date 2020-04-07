@@ -2,7 +2,7 @@
 Form schemas
 """
 
-from marshmallow import fields, validates_schema, ValidationError
+from marshmallow import fields, validates, ValidationError
 
 from app import MA
 from app.helper.google_docs_url_validator import validate_url
@@ -30,15 +30,37 @@ class FormSchema(MA.Schema):
     result_url = fields.Url(required=True, data_key='resultUrl')
     is_published = fields.Bool(required=True, data_key='isPublished')
 
-    @validates_schema
+    @validates("result_url")
     # pylint:disable=no-self-use
-    def validate_data_url(self, data, **kwargs):
+    def validate_url_data(self, value):
         """
         Validates url, which must be docs.google.com
-        :param data:
-        :param kwargs:
+        :param value:
         :return:
         """
-        result_url = data.get('result_url')
-        if not validate_url(url=result_url):
-            raise ValidationError('Wrong URL entered')
+        if value == "":
+            raise ValidationError("Missing data for required field.")
+        if not validate_url(url=value):
+            raise ValidationError('Wrong URL entered.')
+
+    @validates("name")
+    #pylint:disable=no-self-use
+    def validate_name_data(self, value):
+        """
+        Validates name, which can't be an empty string
+        :param value: entered name
+        :return: raise error if value is not valid
+        """
+        if value == "":
+            raise ValidationError("Missing data for required field.")
+
+    @validates("title")
+    #pylint:disable=no-self-use
+    def validate_title_data(self, value):
+        """
+        Validates title, which can't be an empty string
+        :param value: entered title
+        :return: raise error if value is not valid
+        """
+        if value == "":
+            raise ValidationError("Missing data for required field.")

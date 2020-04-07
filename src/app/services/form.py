@@ -155,9 +155,11 @@ class FormService:
         """
         schema = FormSchema()
         errors = schema.validate(data)
-        do_exist = FormService.filter(owner_id=user, name=data.get('name'))
-        if do_exist:
-            errors['is_exist'] = 'Form with such name already exist'
+        name = data.get("name")
+        if name:
+            do_exist = FormService.filter(owner_id=user, name=data.get('name'))
+            if do_exist:
+                errors['name'] = ['Form with such name already exists.']
         return (not bool(errors), errors)
 
     @staticmethod
@@ -173,7 +175,7 @@ class FormService:
             if is_changed:
                 is_exist = FormService.filter(owner_id=user, name=updated_name)
                 if is_exist:
-                    errors['is_exist'] = 'Form with such name already exist'
+                    errors['name'] = 'Form with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod
