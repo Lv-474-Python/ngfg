@@ -43,7 +43,7 @@ def generate_share_form_to_group_user_message(
     :param form_title: title of form that will be shared
     :param token: form token
     """
-    link = 'http://' + URL_DOMAIN + token
+    link = 'http://' + URL_DOMAIN + '/pass-form/' + token
     msg = Message(f"Shared form '{form_title}'", recipients=[recipient])
     msg.html = f"""
         <h3>Hello, {recipient}!<h3>
@@ -63,7 +63,7 @@ def generate_share_form_to_user_message(
     :param form_title: title of form that will be shared
     :param token: form token
     """
-    link = 'http://' + URL_DOMAIN + token
+    link = 'http://' + URL_DOMAIN + '/pass-form/' + token
     msg = Message(f"Shared form '{form_title}'", recipients=[recipient])
     msg.html = f"""
         <h3>Hello, {recipient}!<h3>

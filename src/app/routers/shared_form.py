@@ -143,6 +143,7 @@ class SharedFormAPI(Resource):
     @API.doc(
         responses={
             201: 'Created',
+            400: 'Invalid data',
             401: 'Unauthorized',
         },
         params={
