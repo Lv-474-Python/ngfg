@@ -1,5 +1,5 @@
 """
-Token check API
+TokenCheck API
 """
 
 from werkzeug.exceptions import BadRequest
@@ -104,6 +104,6 @@ class TokenUserCheckAPI(Resource):
                 token_id=token_instance.id,
             )
             if not user_can_answer:
-                raise BadRequest("You have already passed this form")
+                raise BadRequest("You have already passed this form using this token")
 
         return Response(status=204)
