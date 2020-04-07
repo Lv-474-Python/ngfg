@@ -201,7 +201,7 @@ class FormFieldService:
         """
         Check if questions repeat within the scope of one form
         :param question: new or updated value of question
-        :form_id: form that serves as a scope for validation
+        :param form_id: form that serves as a scope for validation
         :return: list of errors if questions repeat, empty list if not
         """
         error = []
