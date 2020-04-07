@@ -1,13 +1,19 @@
 """
-Token check API
+TokenCheck API
 """
 
 from werkzeug.exceptions import BadRequest
 from flask import Response
 from flask_restx import Resource
+from flask_login import current_user
 
 from app import API
-from app.services import FormService, TokenService, GroupService
+from app.services import (
+    FormService,
+    TokenService,
+    GroupService,
+    FormResultService
+)
 
 
 TOKEN_CHECK_NS = API.namespace('tokens/<string:token>', description='TokenCheck APIs')
@@ -16,7 +22,7 @@ TOKEN_CHECK_NS = API.namespace('tokens/<string:token>', description='TokenCheck 
 @TOKEN_CHECK_NS.route("/check_token")
 class TokenCheckAPI(Resource):
     """
-    TokenCheckAPI API
+    TokenCheck API
 
     url: '/tokens/{token}/check_token'
     methods: get
@@ -60,5 +66,44 @@ class TokenCheckAPI(Resource):
             group = GroupService.get_by_id(group_id)
             if group is None:
                 raise BadRequest('Wrong token') # Group doesn't exist
+
+        return Response(status=204)
+
+
+@TOKEN_CHECK_NS.route("/check_user")
+class TokenUserCheckAPI(Resource):
+    """
+    TokenUserCheck API
+
+    url: '/tokens/{token}/check_user'
+    methods: get
+    """
+
+    @API.doc(
+        responses={
+            204: 'No Content',
+            400: 'Invalid data'
+        },
+        params={
+            'token': 'token to form'
+        }
+    )
+    #pylint: disable=no-self-use
+    def get(self, token):
+        """
+        Check whether user can answer to form by using this token
+        :param token: token to check
+        """
+        token_instance = TokenService.get_by_token(token)
+        if token_instance is None:
+            raise BadRequest("Token doesn't exist")
+
+        if current_user.is_authenticated:
+            user_can_answer = FormResultService.check_whether_user_passed_form(
+                user_id=current_user.id,
+                token_id=token_instance.id,
+            )
+            if not user_can_answer:
+                raise BadRequest("You have already passed this form using this token")
 
         return Response(status=204)

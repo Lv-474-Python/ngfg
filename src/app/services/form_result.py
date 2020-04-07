@@ -347,3 +347,19 @@ class FormResultService:
         schema = FormResultPostSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    def check_whether_user_passed_form(user_id, token_id):
+        """
+        Check whether user already passed form by token
+
+        :param user_id: id of user
+        :param token_id: if of token
+        :return: boolean variable whether user can answer
+        """
+        form_results = FormResultService.filter(
+            user_id=user_id,
+            token_id=token_id
+        )
+        user_can_answer = not bool(form_results)
+        return user_can_answer

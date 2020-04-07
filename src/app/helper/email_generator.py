@@ -1,12 +1,10 @@
 """
 Email generator module
 """
-import jwt
-from flask import url_for
+
 from flask_mail import Message
 
-from app.config import SECRET_KEY
-from app.helper.constants import JWT_ALGORITHM, URL_DOMAIN
+from app.helper.constants import URL_DOMAIN
 
 
 def generate_share_field_message(recipient, field):
@@ -17,17 +15,13 @@ def generate_share_field_message(recipient, field):
     :param field:
     :return: Message instance
     """
-    token = jwt.encode(
-        {
-            'recipient': recipient,
-            'field': field['name'],
-        },
-        SECRET_KEY,
-        algorithm=JWT_ALGORITHM)
-    link = url_for('receive_field', token=token, _external=True)
+    link = 'http://' + URL_DOMAIN + '/fields'
     msg = Message('Shared Field', recipients=[recipient])
-    msg.html = f'<h3>Hello, {recipient}!\n' +  \
-               f'To add field: {field["name"]} to your collection, click this link: {link}</h3>'
+    msg.html = f"""
+        <h3>Hello, {recipient}!<h3>
+        <p> Field '{field["name"]}' was added to your collection</p>
+        <p>To go to your collection click on <a href="{link}">this link</a></p>
+    """
     return msg
 
 def generate_share_form_to_group_user_message(
