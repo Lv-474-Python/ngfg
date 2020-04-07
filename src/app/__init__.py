@@ -85,7 +85,9 @@ from .routers import (  # pylint: disable=wrong-import-position
     group,
     form_field,
     form_answer,
-    shared_field
+    shared_field,
+    shared_form,
+    token_check
 )
 from .models import *  # pylint: disable=wrong-import-position
 from .celery_tasks import *  # pylint: disable=wrong-import-position
