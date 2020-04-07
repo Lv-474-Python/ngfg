@@ -175,7 +175,7 @@ class FormService:
             if is_changed:
                 is_exist = FormService.filter(owner_id=user, name=updated_name)
                 if is_exist:
-                    errors['is_exist'] = 'Form with such name already exist'
+                    errors['name'] = 'Form with such name already exist'
         return (not bool(errors), errors)
 
     @staticmethod

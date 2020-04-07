@@ -243,7 +243,7 @@ class FormFieldAPI(Resource):
             field_id=field.id,
             field_type=field.field_type
         ))
-        form_field_json = FormFieldService.response_to_json(form_field, many=False)
+        form_field_json = FormFieldService.response_to_json(updated_form_field, many=False)
         form_field_json["field"] = field_json
         response = jsonify(form_field_json)
         response.status_code = 200

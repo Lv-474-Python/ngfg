@@ -168,9 +168,10 @@ class FormFieldService:
         schema = FormFieldSchema()
         errors = schema.validate(data)
         question = data.get("question")
-        validator = FormFieldService.validate_repeated_questions(question, form_id)
-        if validator:
-            errors["question"] = validator
+        if question:
+            validator = FormFieldService.validate_repeated_questions(question, form_id)
+            if validator:
+                errors["question"] = validator
         return not bool(errors), errors
 
     @staticmethod
