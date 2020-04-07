@@ -23,7 +23,13 @@ class FormFieldSchema(MA.Schema):
     position = fields.Integer(required=True, validate=Range(min=0))
 
     @validates("question")
+    #pylint:disable=no-self-use
     def validate_question(self, value):
+        """
+        Validates question, which cannot be an empty string or consist only of word "token"
+        :param value: entered question
+        :return: raise error if value is not valid
+        """
         if value == "":
             raise ValidationError("Missing data for required field.")
         if value.lower() == "token":

@@ -40,10 +40,11 @@ class FormSchema(MA.Schema):
         """
         if value == "":
             raise ValidationError("Missing data for required field.")
-        elif not validate_url(url=value):
+        if not validate_url(url=value):
             raise ValidationError('Wrong URL entered.')
 
     @validates("name")
+    #pylint:disable=no-self-use
     def validate_name_data(self, value):
         """
         Validates name, which can't be an empty string
@@ -54,6 +55,7 @@ class FormSchema(MA.Schema):
             raise ValidationError("Missing data for required field.")
 
     @validates("title")
+    #pylint:disable=no-self-use
     def validate_title_data(self, value):
         """
         Validates title, which can't be an empty string

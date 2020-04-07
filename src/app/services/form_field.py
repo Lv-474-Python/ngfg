@@ -176,6 +176,9 @@ class FormFieldService:
 
     @staticmethod
     def validate_put_data(data, form_id, form_field_id):
+        """
+        Validate FormField data sent on PUT method
+        """
         schema = FormFieldSchema()
         errors = schema.validate(data)
         updated_question = data.get("question")
@@ -195,6 +198,12 @@ class FormFieldService:
 
     @staticmethod
     def validate_repeated_questions(question, form_id):
+        """
+        Check if questions repeat within the scope of one form
+        :param question: new or updated value of question
+        :form_id: form that serves as a scope for validation
+        :return: list of errors if questions repeat, empty list if not
+        """
         error = []
         if question is not None:
             form_fields = FormFieldService.filter(form_id=form_id)
