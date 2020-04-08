@@ -1,12 +1,12 @@
 """
 Form answers API
 """
+from itertools import chain
 
 from flask import request, jsonify
 from flask_restx import Resource, fields
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
-from itertools import chain
 
 from app import API
 from app.services import FormService, FormResultService, TokenService
