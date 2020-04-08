@@ -1,7 +1,10 @@
 """
     Initialise of app.
 """
+from gevent import monkey
+monkey.patch_all()
 
+# pylint: disable=wrong-import-position
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
@@ -24,6 +27,7 @@ from .config import (
     GOOGLE_PROVIDER_CONFIG,
     REDIS_PASSWORD
 )
+
 
 APP = Flask(__name__)
 NGFG_CORS = CORS(
@@ -74,7 +78,12 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
 
 MAIL = Mail(APP)
 
-SOCKETIO = SocketIO(APP, cors_allowed_origins='*', manage_session=False, async_mode='eventlet')
+SOCKETIO = SocketIO(
+    APP,
+    async_mode='gevent',
+    message_queue=APP.config['CELERY_BROKER_URL'],
+    cors_allowed_origins='*'
+)
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,
@@ -86,7 +95,8 @@ from .routers import (  # pylint: disable=wrong-import-position
     form_field,
     form_answer,
     shared_field,
-    shared_form
+    shared_form,
+    token_check
 )
 from .models import *  # pylint: disable=wrong-import-position
 from .celery_tasks import *  # pylint: disable=wrong-import-position

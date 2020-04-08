@@ -26,7 +26,7 @@ class FormResultService:
         Create FormResult model
 
         :param user_id:
-        :param form_id:
+        :param token_id:
         :param answers:
         :return: FormResult object or None
         """
@@ -38,6 +38,11 @@ class FormResultService:
         )
 
         DB.session.add(form_result)
+
+        key = f'form_results:user_id:{user_id}token_id:{token_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
 
         key = f'form_results:token_id:{token_id}'
         result = RedisManager.get(key, 'data')
@@ -289,7 +294,7 @@ class FormResultService:
         :return:
         """
         if field.is_strict:
-            if not str(answer["answer"]).isalpha():
+            if not all([item.isalpha() for item in str(answer["answer"]).split()]):
                 errors[answer["position"]] = "Value is not strict text"
                 return False
 
@@ -297,7 +302,7 @@ class FormResultService:
             field.range = Range(min=0, max=MAX_TEXT_LENGTH)
         elif options['range']['min'] is None and options['range']['max'] is not None:
             field.range = Range(min=0, max=options['range']['max'])
-        elif options['range']['max'] is None and options['range']['max'] is not None:
+        elif options['range']['min'] is not None and options['range']['max'] is None:
             field.range = Range(min=options['range']['min'], max=MAX_TEXT_LENGTH)
         else:
             field.range = Range(min=options['range']['min'], max=options['range']['max'])
@@ -347,3 +352,19 @@ class FormResultService:
         schema = FormResultPostSchema()
         errors = schema.validate(data)
         return (not bool(errors), errors)
+
+    @staticmethod
+    def check_whether_user_passed_form(user_id, token_id):
+        """
+        Check whether user already passed form by token
+
+        :param user_id: id of user
+        :param token_id: if of token
+        :return: boolean variable whether user can answer
+        """
+        form_results = FormResultService.filter(
+            user_id=user_id,
+            token_id=token_id
+        )
+        user_can_answer = not bool(form_results)
+        return user_can_answer

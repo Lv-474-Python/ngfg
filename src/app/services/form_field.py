@@ -60,7 +60,7 @@ class FormFieldService:
         return result
 
     @staticmethod
-    def filter(form_id=None, field_id=None, question=None, position=None):
+    def filter(form_field_id=None, form_id=None, field_id=None, question=None, position=None):
         """
         Filter FormField method
 
@@ -71,6 +71,8 @@ class FormFieldService:
         :return: FormField list
         """
         filter_data = {}
+        if form_field_id is not None:
+            filter_data['id'] = form_field_id
         if form_id is not None:
             filter_data['form_id'] = form_id
         if field_id is not None:
@@ -159,13 +161,56 @@ class FormFieldService:
         return form_field_schema.dump(data)
 
     @staticmethod
-    def validate_data(data):
+    def validate_post_data(data, form_id):
         """
         Validate data with FormFieldSchema
         """
         schema = FormFieldSchema()
         errors = schema.validate(data)
+        question = data.get("question")
+        if question:
+            validator = FormFieldService.validate_repeated_questions(question, form_id)
+            if validator:
+                errors["question"] = validator
         return not bool(errors), errors
+
+    @staticmethod
+    def validate_put_data(data, form_id, form_field_id):
+        """
+        Validate FormField data sent on PUT method
+        """
+        schema = FormFieldSchema()
+        errors = schema.validate(data)
+        updated_question = data.get("question")
+        if updated_question:
+            is_changed = not bool(FormField.query.filter_by(
+                id=form_field_id,
+                question=updated_question
+            ))
+            if is_changed:
+                validator = FormFieldService.validate_repeated_questions(
+                    question=updated_question,
+                    form_id=form_id
+                )
+                if validator:
+                    errors["question"] = validator
+        return not bool(errors), errors
+
+    @staticmethod
+    def validate_repeated_questions(question, form_id):
+        """
+        Check if questions repeat within the scope of one form
+        :param question: new or updated value of question
+        :param form_id: form that serves as a scope for validation
+        :return: list of errors if questions repeat, empty list if not
+        """
+        error = []
+        if question is not None:
+            form_fields = FormFieldService.filter(form_id=form_id)
+            questions = [form_field.question for form_field in form_fields]
+            if question in questions:
+                error.append("Repeated questions are not allowed.")
+        return error
 
     @staticmethod
     def response_to_json(data, many=False):
