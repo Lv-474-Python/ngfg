@@ -1,7 +1,7 @@
 """
     Initialise of app.
 """
-
+from gevent import monkey
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
@@ -24,6 +24,8 @@ from .config import (
     GOOGLE_PROVIDER_CONFIG,
     REDIS_PASSWORD
 )
+monkey.patch_all()
+
 
 APP = Flask(__name__)
 NGFG_CORS = CORS(
@@ -76,7 +78,7 @@ MAIL = Mail(APP)
 
 SOCKETIO = SocketIO(
     APP,
-    async_mode='eventlet',
+    async_mode='gevent',
     message_queue=APP.config['CELERY_BROKER_URL'],
     cors_allowed_origins='*'
 )
