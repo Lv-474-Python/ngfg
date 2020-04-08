@@ -74,7 +74,14 @@ GOOGLE_CLIENT = OAuth(APP).remote_app(
 
 MAIL = Mail(APP)
 
-SOCKETIO = SocketIO(APP, cors_allowed_origins='*')
+SOCKETIO = SocketIO(
+    APP,
+    async_mode='eventlet',
+    message_queue=APP.config['CELERY_BROKER_URL'],
+    cors_allowed_origins='*'
+)
+
+
 
 from .routers import (  # pylint: disable=wrong-import-position
     main,
