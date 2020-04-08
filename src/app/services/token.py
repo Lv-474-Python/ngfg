@@ -8,6 +8,7 @@ from app import DB, LOGGER
 from app.models import Token
 from app.helper.decorators import transaction_decorator
 from app.helper.jwt_helper import decode_token
+from app.helper.redis_manager import RedisManager
 from app.schemas import TokenSchema
 
 
@@ -54,8 +55,14 @@ class TokenService:
         :return: Token object or None
         """
 
-        token = Token.query.filter_by(token=token).first()
-        return token
+        token_instance = RedisManager.get(f'{token}', 'data')
+
+        if token_instance is None:
+            token_instance = Token.query.filter_by(token=token).first()
+            if token_instance is not None:
+                RedisManager.set(f'{token}', token_instance)
+
+        return token_instance
 
     @staticmethod
     def filter(token_id=None, token=None, form_id=None):
