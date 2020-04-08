@@ -174,6 +174,7 @@ class FieldsAPI(Resource):
 
         # add options to field json
         for field in field_list:
+            # if field.field_type == 5: continue
             extra_options = FieldService.get_additional_options(
                 field.id,
                 field.field_type
