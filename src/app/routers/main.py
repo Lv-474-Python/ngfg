@@ -18,6 +18,7 @@ def hello_world():
 
     :return: str
     """
+
     return 'Hello, World!'
 
 
