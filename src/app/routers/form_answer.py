@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 from app import API
 from app.services import FormService, FormResultService, TokenService
 from app.helper.sheet_manager import SheetManager
+from itertools import chain
 
 
 FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='FormAnswer APIs')
@@ -62,14 +63,18 @@ class AnswersAPI(Resource):
         if form is None:
             raise BadRequest("No such form")
         if form.owner_id == current_user.id:
-            token = TokenService.filter(form_id=form.id)[0]
-            result = FormResultService.filter(token_id=token.id)
-            answers = FormResultService.to_json(result, many=True)
+            tokens = TokenService.filter(form_id=form.id)
+            for token in tokens:
+                result = FormResultService.filter(token_id=token.id)
+                answers.append(FormResultService.to_json(result, many=True))
+
+            answers = list(chain(*answers))
         else:
-            token = TokenService.filter(form_id=form.id)[0]
-            result = FormResultService.filter(user_id=current_user.id, token_id=token.id)
-            if result:
-                answers = FormResultService.to_json(result[0], many=False)
+            tokens = TokenService.filter(form_id=form.id)
+            for token in tokens:
+                result = FormResultService.filter(user_id=current_user.id, token_id=token.id)
+                if result:
+                    answers.append(FormResultService.to_json(result[0], many=False))
 
         return jsonify({"formAnswers": answers})
 
@@ -167,7 +172,9 @@ class AnswerAPI(Resource):
         """
         form = FormService.get_by_id(form_id)
         result = FormResultService.get_by_id(result_id)
-        token = TokenService.get_by_id(result.token_id)
+        token = None
+        if result is not None:
+            token = TokenService.get_by_id(result.token_id)
         if not (form and result and token):
             raise BadRequest("Result with such parameters is not found.")
         if form.id != token.form_id:
