@@ -6,11 +6,11 @@ from flask import request, jsonify
 from flask_restx import Resource, fields
 from flask_login import current_user, login_required
 from werkzeug.exceptions import BadRequest
+from itertools import chain
 
 from app import API
 from app.services import FormService, FormResultService, TokenService
 from app.helper.sheet_manager import SheetManager
-from itertools import chain
 
 
 FORM_ANSWER_NS = API.namespace('forms/<int:form_id>/answers', description='FormAnswer APIs')
