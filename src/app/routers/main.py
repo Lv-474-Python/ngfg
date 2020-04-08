@@ -3,12 +3,11 @@ Base router view.
 """
 import jwt
 
-from app import APP, SOCKETIO
+from app import APP
 from app.celery_tasks.share_field import call_share_field_task
 from app.config import SECRET_KEY
 from app.helper.constants import JWT_ALGORITHM
 from app.services import FieldService
-from app.celery_tasks.send_notification import send_notification
 
 
 @APP.route('/')

@@ -2,7 +2,12 @@
 Sockets module
 """
 from flask_login import current_user
-from flask_socketio import join_room, leave_room, close_room,  ConnectionRefusedError  # pylint: disable=redefined-builtin
+from flask_socketio import (  # pylint: disable=redefined-builtin
+    join_room,
+    leave_room,
+    ConnectionRefusedError
+)
+
 
 from app import CONNECTIONS_LOGGER, SOCKETIO
 
@@ -26,5 +31,4 @@ def disconnect():
 
     """
     leave_room(current_user.email)
-    # close_room(current_user.email)
     CONNECTIONS_LOGGER.info('Disconnected: %s', current_user.email)

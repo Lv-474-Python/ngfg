@@ -2,4 +2,4 @@
 Init module
 """
 
-from .socket import *
+from .socket import *  # pylint: disable=redefined-builtin
