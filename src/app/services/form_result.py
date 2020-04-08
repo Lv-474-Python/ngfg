@@ -39,7 +39,7 @@ class FormResultService:
 
         DB.session.add(form_result)
 
-        key = f'form_results:token_id:{token_id}'
+        key = f'form_results:user_id:{user_id}token_id:{token_id}'
         result = RedisManager.get(key, 'data')
         if result is not None:
             RedisManager.delete(key)
@@ -289,7 +289,7 @@ class FormResultService:
         :return:
         """
         if field.is_strict:
-            if not str(answer["answer"]).isalpha():
+            if not all([item.isalpha() for item in str(answer["answer"]).split()]):
                 errors[answer["position"]] = "Value is not strict text"
                 return False
 
@@ -297,7 +297,7 @@ class FormResultService:
             field.range = Range(min=0, max=MAX_TEXT_LENGTH)
         elif options['range']['min'] is None and options['range']['max'] is not None:
             field.range = Range(min=0, max=options['range']['max'])
-        elif options['range']['max'] is None and options['range']['max'] is not None:
+        elif options['range']['min'] is not None and options['range']['max'] is None:
             field.range = Range(min=options['range']['min'], max=MAX_TEXT_LENGTH)
         else:
             field.range = Range(min=options['range']['min'], max=options['range']['max'])
