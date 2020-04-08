@@ -2,6 +2,9 @@
     Initialise of app.
 """
 from gevent import monkey
+monkey.patch_all()
+
+# pylint: disable=wrong-import-position
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
@@ -24,7 +27,6 @@ from .config import (
     GOOGLE_PROVIDER_CONFIG,
     REDIS_PASSWORD
 )
-monkey.patch_all()
 
 
 APP = Flask(__name__)
