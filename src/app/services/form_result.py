@@ -26,7 +26,7 @@ class FormResultService:
         Create FormResult model
 
         :param user_id:
-        :param form_id:
+        :param token_id:
         :param answers:
         :return: FormResult object or None
         """
@@ -40,6 +40,11 @@ class FormResultService:
         DB.session.add(form_result)
 
         key = f'form_results:user_id:{user_id}token_id:{token_id}'
+        result = RedisManager.get(key, 'data')
+        if result is not None:
+            RedisManager.delete(key)
+
+        key = f'form_results:token_id:{token_id}'
         result = RedisManager.get(key, 'data')
         if result is not None:
             RedisManager.delete(key)

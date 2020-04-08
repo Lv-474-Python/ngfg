@@ -1,6 +1,7 @@
 """
 Form answers API
 """
+from itertools import chain
 
 from flask import request, jsonify
 from flask_restx import Resource, fields
@@ -63,79 +64,20 @@ class AnswersAPI(Resource):
         if form is None:
             raise BadRequest("No such form")
         if form.owner_id == current_user.id:
-            token = TokenService.filter(form_id=form.id)[0]
-            result = FormResultService.filter(token_id=token.id)
-            answers = FormResultService.to_json(result, many=True)
+            tokens = TokenService.filter(form_id=form.id)
+            for token in tokens:
+                result = FormResultService.filter(token_id=token.id)
+                answers.append(FormResultService.to_json(result, many=True))
+
+            answers = list(chain(*answers))
         else:
-            token = TokenService.filter(form_id=form.id)[0]
-            result = FormResultService.filter(user_id=current_user.id, token_id=token.id)
-            if result:
-                answers = FormResultService.to_json(result[0], many=False)
+            tokens = TokenService.filter(form_id=form.id)
+            for token in tokens:
+                result = FormResultService.filter(user_id=current_user.id, token_id=token.id)
+                if result:
+                    answers.append(FormResultService.to_json(result[0], many=False))
 
         return jsonify({"formAnswers": answers})
-
-    @API.doc(
-        responses={
-            201: 'Created',
-            400: 'Invalid data',
-            403: 'Forbidden to create'}
-    )
-    @API.expect(MODEL)
-    # pylint: disable=no-self-use
-    def post(self, form_id):
-        """
-        Creates FormResult
-
-        :param form_id:
-        :return: created FormResult with answer id's instead of text answers of user
-        """
-        result = request.get_json()
-        result['form_id'] = form_id
-        passed, errors = FormResultService.validate_schema(result)
-        if not passed:
-            raise BadRequest(errors)
-        passed, errors = FormResultService.validate_data(form_result=result)
-        if not passed:
-            raise BadRequest(errors)
-        if not current_user.is_anonymous:
-            result['user_id'] = current_user.id
-        else:
-            result['user_id'] = None
-        result['answers'] = FormResultService.create_answers_dict(form_id, result['answers'])
-
-        values = []
-        for answer in result['answers'].values():
-            values.append(answer)
-
-        token = TokenService.filter(form_id=form_id)[0]
-        result = FormResultService.create(
-            user_id=result['user_id'],
-            token_id=token.id,
-            answers=result['answers']
-        )
-        if result is None:
-            raise BadRequest("Cannot create result instance")
-
-        form_url = FormService.get_form_result_url(form_id)
-
-        if form_url is None:
-            raise BadRequest("Cannot create result instance")
-
-        sheet_id = SheetManager.get_sheet_id_from_url(form_url)
-
-        if sheet_id is None:
-            raise BadRequest("Cannot create result instance")
-
-        is_added = SheetManager.append_data(sheet_id, values)
-
-        if is_added is None:
-            raise BadRequest("Cannot create result instance")
-
-        result_json = FormResultService.to_json(result, many=False)
-
-        response = jsonify(result_json)
-        response.status_code = 201
-        return response
 
 
 @FORM_ANSWER_NS.route("/<int:result_id>")
@@ -168,7 +110,9 @@ class AnswerAPI(Resource):
         """
         form = FormService.get_by_id(form_id)
         result = FormResultService.get_by_id(result_id)
-        token = TokenService.get_by_id(result.token_id)
+        token = None
+        if result is not None:
+            token = TokenService.get_by_id(result.token_id)
         if not (form and result and token):
             raise BadRequest("Result with such parameters is not found.")
         if form.id != token.form_id:
