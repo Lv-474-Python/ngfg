@@ -18,16 +18,6 @@ def hello_world():
 
     :return: str
     """
-    SOCKETIO.send('yura1', broadcast=False)
-    SOCKETIO.send('yura2', broadcast=True)
-    SOCKETIO.emit('message', {'notification': 'DAROVA1'}, broadcast=False)
-    SOCKETIO.emit('message', {'notification': 'DAROVA2'}, broadcast=True)
-    SOCKETIO.emit('message2312', broadcast=True, room='2')
-    # SOCKETIO.emit('message', {'notification': 'DAROVA'}, broadcast=False)
-
-    send_notification.apply_async(args=['DAAAA', 'yurdosii.ksv@gmail.com'])
-
-
     return 'Hello, World!'
 
 
