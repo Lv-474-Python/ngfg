@@ -183,9 +183,9 @@ class FormFieldService:
         errors = schema.validate(data)
         updated_question = data.get("question")
         if updated_question:
-            is_changed = not bool(FormFieldService.filter(
-                question=updated_question,
-                form_field_id=form_field_id
+            is_changed = not bool(FormField.query.filter_by(
+                id=form_field_id,
+                question=updated_question
             ))
             if is_changed:
                 validator = FormFieldService.validate_repeated_questions(

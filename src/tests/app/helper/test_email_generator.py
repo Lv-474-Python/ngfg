@@ -1,5 +1,6 @@
 import pytest
 from app.helper.email_generator import generate_share_field_message
+from app.helper.constants import URL_DOMAIN
 from flask_mail import Message
 
 import mock
@@ -18,17 +19,16 @@ def field():
     return data
 
 
-@mock.patch('app.helper.email_generator.url_for')
-def test_generate_share_field_message(url_mock, field, app):
+def test_generate_share_field_message( field, app):
     email = 'test@gmail.com'
-    link = 'link'
-
-    url_mock.return_value = link
+    link = 'http://' + URL_DOMAIN + '/fields'
 
     message = Message('Shared Field', recipients=[email])
-    message.html = (
-            f'<h3>Hello, {email}!\n' +
-            f'To add field: {field["name"]} to your collection, click this link: {link}</h3>'
+    message.html = (f"""
+        <h3>Hello, {email}!<h3>
+        <p> Field '{field["name"]}' was added to your collection</p>
+        <p>To go to your collection click on <a href="{link}">this link</a></p>
+    """
     )
 
     result = generate_share_field_message(email, field)
