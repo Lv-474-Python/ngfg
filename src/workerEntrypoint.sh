@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-
+sleep 1m
 #while ! nc -w 1 $host $port 2>/dev/null
 #do
 #  echo -n .
