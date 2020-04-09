@@ -85,6 +85,7 @@ SOCKETIO = SocketIO(
     cors_allowed_origins='*'
 )
 
+
 from .routers import (  # pylint: disable=wrong-import-position
     main,
     auth,
