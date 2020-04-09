@@ -23,6 +23,6 @@ run:
 	cd ../;
 	if [! -f src/app/ngfg-сredentials.json ]; then echo run is not executed, pls get your Google API credentials and put them into ngfg/src/app/ngfg-сredentials.json; fi
 	if [ -f src/app/ngfg-сredentials.json ]; then cd src/app; sed -i 's/localhost/$(myIp)/g' helper/constants.py ; sed -i "s/'ngfg.com:8000'/None/g" config.py; cd ../../; fi
-	if [ -f src/app/ngfg-сredentials.json ]; then sed -i "s/Redis(password=REDIS_PASSWORD)/Redis(host='redis', password=REDIS_PASSWORD)/g" src/app/__init__.py; fi
+	if [ -f src/app/ngfg-сredentials.json ]; then sed -i "s/Redis(password=REDIS_PASSWORD)/Redis(host='redis', password=REDIS_PASSWORD)/g" src/app/__init__.py; sed -i 's/gevent==1.4.0/gevent==1.5a2/g' requirements.txt; fi
 	if [ -f src/app/ngfg-сredentials.json ]; then cd ../ngfg.client/ngfg.client/src/constants/; sed -i 's/ngfg.com/$(myIp)/g' index.js; sed -i 's/localhost/$(myIp).xip.io/g' index.js; fi
 
