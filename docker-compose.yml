@@ -1,0 +1,115 @@
+version: '3.7'
+services:
+  redis:
+    image: "redis:alpine"
+    networks:
+      - public 
+  postgresql:
+    image: postgres:12.2-alpine
+    container_name: postgresql-docker
+    hostname: localhost
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - public 
+
+  rabbitmq:
+    image: rabbitmq:3.8.3-alpine
+    container_name: rabbitmq-docker
+    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_PASS=ngfg_pass_474
+      - RABBITMQ_DEFAULT_USER=ngfg
+      - RABBITMQ_DEFAULT_VHOST=ngfg_vhost
+
+    ports:  
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+    networks:
+      - public 
+  server:
+    build: 
+      context: ./
+      dockerfile: ./Dockerfile
+      args: 
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - HOST=postgresql
+        - PORT=5432
+        - DB_NAME=${DB_NAME}
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+        - APP_SECRET_KEY=${APP_SECRET_KEY}
+        - OAUTHLIB_INSECURE_TRANSPORT=${OAUTHLIB_INSECURE_TRANSPORT}
+        - MAIL_USERNAME=${MAIL_USERNAME}
+        - MAIL_PASSWORD=${MAIL_PASSWORD}
+        - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+        - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+        - CELERY_DEFAULT_QUEUE=${CELERY_DEFAULT_QUEUE}
+        - REDIS_PASSWORD=${REDIS_PASSWORD}
+        - SECRET_KEY=${SECRET_KEY}
+
+    container_name: server-docker
+    depends_on:
+      - postgresql
+      - rabbitmq
+      - redis
+    restart: on-failure
+    ports:
+      - 8000:8000
+    networks:
+      - public
+    extra_hosts:
+      - "ngfg.com:0.0.0.0"
+  worker:
+    container_name: worker-docker
+    restart: on-failure
+    build:
+      context: ./
+      dockerfile: ./WorkerDockerfile
+      args:
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - HOST=postgresql
+        - PORT=5432
+        - DB_NAME=${DB_NAME}
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+        - APP_SECRET_KEY=${APP_SECRET_KEY}
+        - OAUTHLIB_INSECURE_TRANSPORT=${OAUTHLIB_INSECURE_TRANSPORT}
+        - MAIL_USERNAME=${MAIL_USERNAME}
+        - MAIL_PASSWORD=${MAIL_PASSWORD}
+        - CELERY_BROKER_URL=amqp://ngfg:ngfg_pass_474@rabbitmq/ngfg_vhost
+        - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+        - CELERY_DEFAULT_QUEUE=${CELERY_DEFAULT_QUEUE}
+        - REDIS_PASSWORD=${REDIS_PASSWORD}
+        - SECRET_KEY=${SECRET_KEY}
+    links:
+      - rabbitmq
+    depends_on:
+      - redis
+      - postgresql
+      - rabbitmq
+    networks:
+      - public
+  client:
+    container_name: client-docker
+    build: ../ngfg.client/
+    ports:
+      - 3000:3000
+    networks:
+      - public
+networks:
+  public:
+    driver: bridge
